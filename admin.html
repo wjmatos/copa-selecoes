@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin · Painel do campeonato</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--n:#01123a;--y:#ffd800;--bg:#f1f3f7;--l:#e1e5ec;--m:#66758c}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font:15px/1.5 Inter,system-ui,sans-serif;color:#0b1630}
+header{background:var(--n);color:#fff;border-bottom:4px solid var(--y);padding:12px 16px}
+header h1{margin:0;font:700 25px 'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.5px}
+header small{opacity:.8}
+nav{display:flex;gap:4px;padding:12px 12px 0;max-width:980px;margin:0 auto;overflow-x:auto}
+nav button{border:0;background:#dfe4ee;padding:8px 16px;border-radius:8px 8px 0 0;font:700 16px 'Barlow Condensed',sans-serif;text-transform:uppercase;cursor:pointer}
+nav button.on{background:#fff}
+main{max-width:980px;margin:0 auto 24px;background:#fff;padding:16px;border-radius:0 0 12px 12px}
+.b{border:0;background:var(--y);color:var(--n);font:700 15px Inter,sans-serif;padding:9px 16px;border-radius:8px;cursor:pointer}
+.s{border:1px solid var(--l);background:#fff;padding:4px 9px;border-radius:6px;cursor:pointer;font:inherit}
+input,textarea{font:inherit;border:1px solid #cfd6e2;border-radius:6px;padding:6px 8px;max-width:100%}
+textarea{width:100%}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.pill{font-size:13px;color:var(--m)}
+.tag{font-size:11px;font-weight:700;background:#e6ecfa;color:#0b3cae;border-radius:4px;padding:1px 6px}
+.jg{border-top:1px solid var(--l);padding:4px 0}
+hr{border:0;border-top:1px solid var(--l);margin:14px 0}
+</style></head>
+<body>
+<header><h1>Admin do painel</h1><small>Edite aqui, baixe o dados.js na aba Salvar e substitua o arquivo no site.</small></header>
+<nav id="nav"></nav>
+<main id="m"></main>
+<script src="dados.js"></script>
+<script>
+const D=JSON.parse(JSON.stringify(DATA));let tab='jogos',ed=-1;
+const $=s=>document.querySelector(s);
+const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+const tc=s=>s.toLowerCase().replace(/(^|\s)(\S)/g,(m,a,b)=>a+b.toUpperCase()).replace(/ (De|Da|Do|Dos|Das|E) /g,x=>x.toLowerCase());
+const TB=[['jogos','Jogos'],['noticias','Notícias'],['elencos','Elencos'],['salvar','Salvar']];
+
+function vJogos(){
+ const L=D.jogos.map((j,i)=>({j,i})).sort((a,b)=>(a.j.data+a.j.hora).localeCompare(b.j.data+b.j.hora));
+ return '<p class="pill">Digite os dois placares. Deixe em branco se o jogo ainda não aconteceu.</p>'+L.map(({j,i})=>
+ `<div class="row jg"><b>#${j.n}</b><span style="min-width:90px">${j.casa}</span>
+ <input type="number" min="0" style="width:62px" value="${j.placar?j.placar[0]:''}" data-p="${i}" data-s="0"> × 
+ <input type="number" min="0" style="width:62px" value="${j.placar?j.placar[1]:''}" data-p="${i}" data-s="1">
+ <span style="min-width:90px">${j.fora}</span>
+ <input type="date" value="${j.data}" data-d="${i}"><input type="time" value="${j.hora}" data-h="${i}"></div>`).join('');
+}
+function vNot(){
+ const n=ed>=0?D.noticias[ed]:{tag:'',t:'',x:'',times:[]};
+ return `<div class="row"><b>${ed>=0?'Editando notícia':'Nova notícia'}</b></div>
+ <div class="row"><input id="nt" placeholder="Etiqueta (ex.: Domingo, 18/10)" value="${esc(n.tag)}"><input id="nti" placeholder="Título" style="flex:1;min-width:220px" value="${esc(n.t)}"></div>
+ <textarea id="nx" rows="3" placeholder="Texto">${esc(n.x)}</textarea>
+ <div class="row pill">Times da notícia: ${D.times.map(t=>`<label><input type="checkbox" class="tk" value="${t}" ${(n.times||[]).includes(t)?'checked':''}> ${t}</label>`).join(' ')}</div>
+ <div class="row"><input type="file" id="nf" accept="image/*"><span class="pill">${n.img?'A foto atual fica se você não escolher outra. ':''}A foto é reduzida automaticamente.</span></div>
+ <div class="row"><input id="nv" placeholder="Link do vídeo (YouTube etc.), opcional" style="flex:1" value="${esc(n.video||'')}"></div>
+ <div class="row"><button class="b" id="ns">${ed>=0?'Salvar alterações':'Adicionar notícia'}</button>${ed>=0?'<button class="s" id="nc">Cancelar</button>':''}</div><hr>`
+ +D.noticias.map((m,i)=>`<div class="row jg"><span class="tag">${esc(m.tag)}</span><b style="flex:1;min-width:180px">${esc(m.t)}</b>${m.img?'📷':''}${m.video?'▶':''}
+ <button class="s" data-up="${i}">↑</button><button class="s" data-dn="${i}">↓</button><button class="s" data-ed="${i}">Editar</button><button class="s" data-rm="${i}">Excluir</button></div>`).join('');
+}
+function vEl(){
+ return '<p class="pill">Um nome por linha. Para goleiro, escreva (G) no fim do nome.</p>'+D.times.map(t=>{
+  const E=D.elencos[t]||{r:'',j:[]};
+  return `<div class="row"><b style="min-width:100px">${t}</b><input data-el="${t}" data-k="r" placeholder="Responsável" value="${esc(tc(E.r))}" style="flex:1"></div>
+  <textarea data-el="${t}" data-k="j" rows="7">${esc(E.j.map(n=>n.endsWith('|G')?tc(n.slice(0,-2))+' (G)':tc(n)).join('\n'))}</textarea><hr>`}).join('');
+}
+function gerar(){
+ D.atualizado=new Date().toLocaleDateString('pt-BR');
+ return '/* Dados do painel. Gerado pelo admin.html em '+D.atualizado+' */\nconst DATA='+JSON.stringify(D,null,1)+';\n';
+}
+function vSal(){
+ const t=gerar();
+ return `<p>Baixe o arquivo e substitua o <b>dados.js</b> no site (GitHub ou servidor). Tamanho atual: <b>${Math.round(t.length/1024)} KB</b>.</p>
+ <button class="b" id="dl">Baixar dados.js</button>
+ <p class="pill">Guarde uma cópia de cada versão: é o seu backup. As fotos ficam dentro do próprio arquivo, então use poucas.</p>`;
+}
+function draw(){
+ $('#nav').innerHTML=TB.map(t=>`<button class="${t[0]===tab?'on':''}" data-t="${t[0]}">${t[1]}</button>`).join('');
+ $('#m').innerHTML={jogos:vJogos,noticias:vNot,elencos:vEl,salvar:vSal}[tab]();
+}
+function foto(f){return new Promise(r=>{const im=new Image();im.onload=()=>{const k=Math.min(1,900/im.width),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);r(c.toDataURL('image/jpeg',.72))};im.src=URL.createObjectURL(f)})}
+async function nsalvar(){
+ const f=$('#nf').files[0],o={tag:$('#nt').value,t:$('#nti').value,x:$('#nx').value,times:[...document.querySelectorAll('.tk:checked')].map(c=>c.value)};
+ const v=$('#nv').value.trim();if(v)o.video=v;
+ const old=ed>=0?D.noticias[ed]:null;
+ if(f)o.img=await foto(f);else if(old&&old.img)o.img=old.img;
+ if(!o.t){alert('Coloque um título.');return}
+ if(ed>=0)D.noticias[ed]=o;else D.noticias.unshift(o);
+ ed=-1;draw();
+}
+function mover(i,d){const j=i+d;if(j<0||j>=D.noticias.length)return;[D.noticias[i],D.noticias[j]]=[D.noticias[j],D.noticias[i]];draw()}
+document.addEventListener('click',e=>{
+ const t=e.target,g=a=>t.dataset[a];
+ if(g('t')){tab=g('t');ed=-1;draw();return}
+ if(g('up')!==undefined)return mover(+g('up'),-1);
+ if(g('dn')!==undefined)return mover(+g('dn'),1);
+ if(g('ed')!==undefined){ed=+g('ed');draw();window.scrollTo(0,0);return}
+ if(g('rm')!==undefined){if(confirm('Excluir esta notícia?')){D.noticias.splice(+g('rm'),1);draw()}return}
+ if(t.id==='ns')nsalvar();
+ if(t.id==='nc'){ed=-1;draw()}
+ if(t.id==='dl'){const b=new Blob([gerar()],{type:'text/javascript'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='dados.js';document.body.appendChild(a);a.click();a.remove()}
+});
+document.addEventListener('input',e=>{
+ const t=e.target,s=t.dataset;
+ if(s.p!==undefined){const i=+s.p,a=document.querySelector(`[data-p="${i}"][data-s="0"]`).value,b=document.querySelector(`[data-p="${i}"][data-s="1"]`).value;D.jogos[i].placar=(a!==''&&b!=='')?[+a,+b]:null}
+ else if(s.d!==undefined)D.jogos[+s.d].data=t.value;
+ else if(s.h!==undefined)D.jogos[+s.h].hora=t.value;
+ else if(s.el!==undefined){const k=s.el;D.elencos[k]=D.elencos[k]||{r:'',j:[]};
+  if(s.k==='r')D.elencos[k].r=t.value.toUpperCase();
+  else D.elencos[k].j=t.value.split('\n').map(x=>x.trim()).filter(Boolean).map(x=>/\(G\)$/i.test(x)?x.replace(/\s*\(G\)$/i,'').toUpperCase()+'|G':x.toUpperCase())}
+});
+draw();
+</script></body></html>
