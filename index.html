@@ -134,6 +134,18 @@ nav button{font-family:var(--fh);font-size:16px;letter-spacing:.6px;text-transfo
 .si{width:52px;padding:5px;text-align:center;font:inherit;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink)}
 .sim .p{display:flex;align-items:center;justify-content:center;gap:6px}
 .cz td,.cz th{font-size:13px;padding:6px 4px}
+.bk{display:grid;grid-template-columns:repeat(3,minmax(200px,1fr));gap:14px;min-width:640px;align-items:center}
+.ch{font-family:var(--fh);font-size:17px;letter-spacing:.8px;text-transform:uppercase;color:var(--g);margin:0 0 8px}
+.mt{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px;margin-bottom:12px}
+.mh{font-size:11px;color:var(--mut)}
+.ft{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:8px;border:1px solid var(--line);background:var(--card);margin-top:6px;cursor:pointer;font-size:14px}
+.ft b{font-family:var(--fh);font-size:18px;text-transform:uppercase;flex:1}
+.ft small,.ft .fs{color:var(--mut);font-size:11px}
+.ft.win{background:var(--y);border-color:var(--y);color:#01123a}
+.ft.win small,.ft.win .fs{color:#01123a}
+.ft.mine{box-shadow:inset 4px 0 0 var(--g)}
+.ft.tbd{color:var(--mut);cursor:default;justify-content:center}
+.champ{text-align:center;font-size:15px;padding:8px}
 </style>
 </head>
 <body>
@@ -153,7 +165,7 @@ nav button{font-family:var(--fh);font-size:16px;letter-spacing:.6px;text-transfo
 
 <script src="dados.js"></script>
 <script>
-const TABS=[["inicio","Início"],["tabela","Tabela"],["jogos","Jogos"],["cartoes","Cartões"],["calc","Calculadora"],["notas","Notas"]];
+const TABS=[["inicio","Início"],["tabela","Tabela"],["jogos","Jogos"],["cartoes","Cartões"],["calc","Calculadora"],["fase","Fase final"],["notas","Notas"]];
 const $=s=>document.querySelector(s);
 let aba="inicio",meu="";
 const st={get(k){try{return localStorage.getItem(k)||""}catch(e){return ""}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
@@ -362,6 +374,39 @@ document.addEventListener('input',e=>{const s=e.target.dataset;if(s&&s.sim!==und
  if(a!==''&&b!=='')SIM[n]=[+a,+b];else delete SIM[n];$('#calcOut').innerHTML=calcOut()}});
 document.addEventListener('change',e=>{if(e.target.id==='csel'){CALC.team=e.target.value;$('#calcOut').innerHTML=calcOut()}});
 document.addEventListener('click',e=>{if(e.target.id==='climp'){for(const k in SIM)delete SIM[k];render()}});
+const WIN={},FF={sim:true};let FFN=[];
+function ffTeam(t,id){
+ if(!t)return `<div class='ft tbd'>A definir</div>`;
+ const sd=FFN.indexOf(t.n)+1,w=WIN[id]===t.n?' win':'',me=t.n===(CALC.team||meu)?' mine':'';
+ return `<div class='ft${w}${me}' ${id?`data-w='${id}|${t.n}'`:''}>${bdg(t.n,'sm')}<span class='fs'>${sd}º</span><b>${t.n}</b><small>${t.p} pts</small></div>`}
+function bracket(r){
+ const N=r.length,pairs=[];for(let i=1;i<N-1-i;i++)pairs.push([i,N-1-i]);
+ const by=n=>r.find(x=>x.n===n),B={};
+ const ok=(id,a,b)=>{if(WIN[id]&&!((a&&a.n===WIN[id])||(b&&b.n===WIN[id])))delete WIN[id]};
+ const w=id=>WIN[id]?by(WIN[id]):null;
+ pairs.forEach((p,k)=>{const id='Q'+(k+1);B[id]=[r[p[0]],r[p[1]]];ok(id,B[id][0],B[id][1])});
+ B.S1=[r[0],w('Q'+pairs.length)];ok('S1',B.S1[0],B.S1[1]);
+ B.S2=[w('Q1'),w('Q2')];ok('S2',B.S2[0],B.S2[1]);
+ B.F=[w('S1'),w('S2')];ok('F',B.F[0],B.F[1]);
+ return{B,pairs,N,by}}
+function faseHTML(){
+ const r=FF.sim?simTabela():tabela();FFN=r.map(x=>x.n);const o=bracket(r),B=o.B,N=o.N;
+ if(o.pairs.length!==3)return `<div class='card'><p>Fase final não configurada para ${N} times.</p></div>`;
+ const sp=o.pairs.map(p=>(p[0]+1)+'º × '+(p[1]+1)+'º');
+ const mt=(id,t)=>{const ok=B[id][0]&&B[id][1]?id:'';return `<div class='mt'><div class='mh'>${t}</div>${ffTeam(B[id][0],ok)}${ffTeam(B[id][1],ok)}</div>`};
+ const champ=WIN.F?o.by(WIN.F):null,last=r[N-1];
+ return `<div class='card'><h2>Fase final · projeção</h2><p class='mut'>O 1º colocado vai direto à semifinal, o último é eliminado e do 2º ao 7º disputam o playoff. Toque em um time para marcá-lo como vencedor e ver o caminho até a final.</p>
+ <div class='row'><label><input type='checkbox' id='ffsim' ${FF.sim?'checked':''}> Usar os palpites da calculadora (${Object.keys(SIM).length} jogo(s))</label> <button class='btn' id='ffclr'>Limpar escolhas</button></div></div>
+ <div class='card'><div class='wrap'><div class='bk'>
+ <div><h3 class='ch'>Playoff (quartas)</h3>${mt('Q1','Playoff 1 · '+sp[0])}${mt('Q2','Playoff 2 · '+sp[1])}${mt('Q3','Playoff 3 · '+sp[2])}</div>
+ <div><h3 class='ch'>Semifinal</h3>${mt('S1','Semifinal 1 · 1º × vencedor do Playoff 3')}${mt('S2','Semifinal 2 · vencedor do Playoff 1 × vencedor do Playoff 2')}</div>
+ <div><h3 class='ch'>Final</h3>${mt('F','Final')}<div class='champ'>${champ?`🏆 Campeão projetado: <b>${champ.n}</b>`:''}</div></div>
+ </div></div></div>
+ <p class='mut'>Eliminado na fase de grupos: <b>${last.n}</b> (${N}º, ${last.p} pts). Cruzamentos assumidos, pois o regulamento não os define: 2º×7º, 3º×6º e 4º×5º; semifinais: 1º × vencedor de 4º×5º e vencedor de 2º×7º × vencedor de 3º×6º.</p>`}
+document.addEventListener('click',e=>{const w=e.target.closest('[data-w]');
+ if(w){const p=w.dataset.w.split('|');if(WIN[p[0]]===p[1])delete WIN[p[0]];else WIN[p[0]]=p[1];render();return}
+ if(e.target.id==='ffclr'){for(const k in WIN)delete WIN[k];render()}});
+document.addEventListener('change',e=>{if(e.target.id==='ffsim'){FF.sim=e.target.checked;render()}});
 function tickRender(){const p=proximoJogo(),L=DATA.jogos.filter(j=>!j.placar).sort(ord).slice(0,6);
  $("#jg").innerHTML=`<div class="ag"><b>Jogos e eventos</b><span class="mut">Grupo B</span><button class="btn" data-a="jogos">Agenda completa</button></div>`+L.map(j=>`<div class="jc ${p&&j.n===p.j.n?"nx1":""}">${p&&j.n===p.j.n?'<b style="color:var(--g)">PRÓXIMO</b>':""}<span class="mut">${dow(j.data)} ${fmt(j.data)} · ${j.hora}</span><div class="r" data-t="${j.casa}">${bdg(j.casa,"sm")} ${SIG[j.casa]}</div><div class="r" data-t="${j.fora}">${bdg(j.fora,"sm")} ${SIG[j.fora]}</div><span class="mut">Grupo B · jogo ${j.n}</span></div>`).join("")}
 function render(){
@@ -374,7 +419,7 @@ function render(){
  else if(aba==="jogos")h=`<div class="card"><h2>Jogos do Grupo B</h2>${jogosHTML(DATA.jogos.slice().sort(ord))}</div>`;
  else if(aba==="stats")h=statsHTML();
  else if(aba==="notas")h=`<div class="card"><h2>Notas</h2>${notasHTML()}</div>`;
- else if(aba==="calc")h=calcHTML();else if(aba==="cartoes")h=cartoesHTML();else if(aba==="backup")h=backupHTML();else h=brechasHTML();
+ else if(aba==="calc")h=calcHTML();else if(aba==="fase")h=faseHTML();else if(aba==="cartoes")h=cartoesHTML();else if(aba==="backup")h=backupHTML();else h=brechasHTML();
  $("#app").innerHTML=h;if(aba==="cartoes")cartoesInit();
 }
 $("#sub").textContent=DATA.grupo;
