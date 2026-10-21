@@ -189,7 +189,7 @@ function tabHTML(hl=meu){
  const r=tabela();
  return `<div class="wrap"><table><tr><th>#</th><th>Time</th><th>P</th><th>J</th><th>V</th><th>E</th><th>D</th><th>GP</th><th>GC</th><th>SG</th></tr>`+
  r.map((x,i)=>`<tr class="${x.n===hl?"me":""}"><td>${i+1}</td><td>${x.n}</td><td><b>${x.p}</b></td><td>${x.j}</td><td>${x.v}</td><td>${x.e}</td><td>${x.d}</td><td>${x.gp}</td><td>${x.gc}</td><td>${x.sg}</td></tr>`).join("")+
- `</table></div><p class="mut">Classificação calculada a partir dos resultados do site oficial (consulta de 18/10/2026), mais Brasil 2×1 Chile, informado manualmente e ainda não lançado no site. Pontuação 3-1-0 e desempate por saldo e gols pró assumidos: não estão no regulamento.</p>`;
+ `</table></div><p class="mut">Classificação calculada a partir dos resultados do site oficial (consulta de 20/10/2026), mais Peru 1×2 Argentina, informado manualmente e ainda não lançado no site. Pontuação 3-1-0 e desempate por saldo e gols pró assumidos: não estão no regulamento.</p>`;
 }
 function jogoHTML(j){
  const me=j.casa===meu||j.fora===meu;
@@ -382,7 +382,7 @@ function ffTeam(t,id){
 function bracket(r){
  const N=r.length,pairs=[];for(let i=1;i<N-1-i;i++)pairs.push([i,N-1-i]);
  const by=n=>r.find(x=>x.n===n),B={};
- const ok=(id,a,b)=>{if(WIN[id]&&!((a&&a.n===WIN[id])||(b&&b.n===WIN[id])))delete WIN[id]};
+ const ok=(id,a,b)=>{if(WIN[id]&&!(a&&b&&(a.n===WIN[id]||b.n===WIN[id])))delete WIN[id]};
  const w=id=>WIN[id]?by(WIN[id]):null;
  pairs.forEach((p,k)=>{const id='Q'+(k+1);B[id]=[r[p[0]],r[p[1]]];ok(id,B[id][0],B[id][1])});
  B.S1=[r[0],w('Q'+pairs.length)];ok('S1',B.S1[0],B.S1[1]);
