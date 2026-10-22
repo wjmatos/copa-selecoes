@@ -257,16 +257,21 @@ function quando(j,t){const n=new Date(),d=Math.round((t-n)/6e4),hh=j.hora.replac
  if(new Date(n.getTime()+864e5).toDateString()===t.toDateString())return"Amanhã às "+hh;
  return dow(j.data)+" "+fmt(j.data)+" às "+hh}
 function proxHTML(){const p=proximoJogo();if(!p)return"";const j=p.j,r=tabela(),inf=n=>{const i=r.findIndex(x=>x.n===n);return i<0?"":(i+1)+"º · "+r[i].p+" pts"};
- return `<div class="nx"><div class="nxh"><span class="tag">PRÓXIMO JOGO</span><span class="nxw">${quando(j,p.t)}</span></div><div class="nxm"><div class="nxt" data-t="${j.casa}">${bdg(j.casa,"lg")}<b>${j.casa}</b><small>${inf(j.casa)}</small></div><span class="nxv">×</span><div class="nxt" data-t="${j.fora}">${bdg(j.fora,"lg")}<b>${j.fora}</b><small>${inf(j.fora)}</small></div></div><div class="nxc">${ctxTime(j.casa)}</div><div class="nxc">${ctxTime(j.fora)}</div><div class="mut" style="text-align:center;margin-top:8px">Grupo B · jogo ${j.n}</div></div>`}
+ return `<div class="nx"><div class="nxh"><span class="tag">PRÓXIMO JOGO</span><span class="nxw">${quando(j,p.t)}</span></div><div class="nxm"><div class="nxt" data-t="${j.casa}">${bdg(j.casa,"lg")}<b>${j.casa}</b><small>${inf(j.casa)}</small></div><span class="nxv">×</span><div class="nxt" data-t="${j.fora}">${bdg(j.fora,"lg")}<b>${j.fora}</b><small>${inf(j.fora)}</small></div></div><div class="nxc">${ctxTime(j.casa,0)}</div><div class="nxc">${ctxTime(j.fora,1)}</div><div class="mut" style="text-align:center;margin-top:8px">Grupo B · jogo ${j.n}</div></div>`}
 const ABR={EUA:'EUA',PERU:'PER',URUGUAI:'URU','MÉXICO':'MEX',ARGENTINA:'ARG',CHILE:'CHI',PARAGUAI:'PAR',BRASIL:'BRA'};
 const nome=n=>n==='EUA'?'EUA':tc(n);
-function ctxTime(n){const r=tabela(),i=r.findIndex(x=>x.n===n);if(i<0)return'';const me=r[i],l=r[0],u=r[r.length-1],nm=nome(n);
- if(i===0)return nm+' lidera com '+me.p+' pontos e quer abrir vantagem.';
- if(i===r.length-1)return nm+' é o último e precisa pontuar para sair da zona de eliminação.';
- if(i===1){const g=l.p-me.p;return g===0?nm+' está empatado em pontos com '+nome(l.n)+' na liderança.':nm+' busca a liderança: '+g+' ponto'+(g===1?'':'s')+' atrás de '+nome(l.n)+'.'}
+function ctxTime(n,alt){const r=tabela(),i=r.findIndex(x=>x.n===n);if(i<0)return'';const me=r[i],l=r[0],u=r[r.length-1],nm=nome(n),a=alt?1:0,pl=(v,s,p)=>v+' '+(v===1?s:p);
+ if(i===0)return[nm+' lidera com '+me.p+' pontos e quer abrir vantagem.','Na ponta, '+nm+' soma '+me.p+' pontos e quer ampliar a vantagem.'][a];
+ if(i===r.length-1)return[nm+' é o último e precisa pontuar para sair da zona de eliminação.','Lanterna da tabela, '+nm+' precisa vencer para escapar da eliminação.'][a];
+ if(i===1){const g=l.p-me.p;
+  if(g===0)return[nm+' está empatado em pontos com '+nome(l.n)+' na liderança.',nm+' divide a ponta em pontos com '+nome(l.n)+'.'][a];
+  return[nm+' busca a liderança: '+pl(g,'ponto','pontos')+' atrás de '+nome(l.n)+'.',nm+' está a '+pl(g,'ponto','pontos')+' de '+nome(l.n)+' e mira a liderança.'][a]}
+ const mx=Math.max(...r.map(x=>x.j)),gm=mx-me.j,rem=(r.length-1)-me.j,jg=gm===1?'jogo':'jogos';
+ if(gm>=1&&i>=2)return[nm+' tem '+gm+' '+jg+' a menos e busca subir na tabela.','Com '+gm+' '+jg+' a menos, '+nm+(me.p+3*rem>=l.p?' ainda pode brigar pelos primeiros lugares.':' ainda tem chance de subir na tabela.')][a];
  const d=me.p-u.p;
- if(d<=3)return nm+' quer se afastar do fim da tabela: '+d+' ponto'+(d===1?'':'s')+' acima do último.';
- return nm+' briga por vaga na semifinal: '+me.p+' pontos, '+(i+1)+'º lugar.'}
+ if(d===0)return[nm+' está empatado em pontos com o último e precisa vencer para se afastar.','Com '+me.p+' pontos, '+nm+' divide o fim da tabela e precisa pontuar.'][a];
+ if(d<=3)return[nm+' quer se afastar do fim da tabela: '+pl(d,'ponto','pontos')+' acima do último.','Com '+me.p+' pontos, '+nm+' tem só '+pl(d,'ponto','pontos')+' de folga sobre o último e precisa somar.'][a];
+ return[nm+' briga por vaga na semifinal: '+me.p+' pontos, '+(i+1)+'º lugar.','Com '+me.p+' pontos, '+nm+' é o '+(i+1)+'º e busca uma boa posição no playoff.'][a]}
 function resTxt(j){const[a,b]=j.placar,r=tabela(),pt=n=>(r.find(x=>x.n===n)||{p:0}).p;
  if(a===b)return nome(j.casa)+' e '+nome(j.fora)+' empatam por '+a+' a '+b+'.';
  const w=a>b?j.casa:j.fora,l=a>b?j.fora:j.casa,g=Math.max(a,b),m=Math.min(a,b);
@@ -294,7 +299,7 @@ async function cardJogo(){const p=proximoJogo();const j=p&&p.j;
  T(x,'×',540,470,150,'rgba(255,255,255,.8)','center',FH,700);
  T(x,nome(j.casa).toUpperCase(),275,610,96,'#fff','center',FH,700);T(x,nome(j.fora).toUpperCase(),805,610,96,'#fff','center',FH,700);
  T(x,inf(j.casa),275,665,38,'rgba(255,255,255,.85)','center',FB,400);T(x,inf(j.fora),805,665,38,'rgba(255,255,255,.85)','center',FB,400);
- [j.casa,j.fora].forEach((n,k)=>{const y=760+k*210;rr(x,60,y,960,180,18,'rgba(255,255,255,.09)');rr(x,60,y,12,180,6,'#ffd800');wrap(x,ctxTime(n),100,y+70,880,52,40,'#fff')});
+ [j.casa,j.fora].forEach((n,k)=>{const y=760+k*210;rr(x,60,y,960,180,18,'rgba(255,255,255,.09)');rr(x,60,y,12,180,6,'#ffd800');wrap(x,ctxTime(n,k),100,y+70,880,52,40,'#fff')});
  return c}
 async function cardTabela(){const[c,x]=await baseCard('CLASSIFICAÇÃO','ATUALIZADO '+DATA.atualizado.slice(0,5));const r=tabela();
  T(x,'P',780,235,32,'rgba(255,255,255,.6)','center',FB,700);T(x,'J',870,235,32,'rgba(255,255,255,.6)','center',FB,700);T(x,'SG',965,235,32,'rgba(255,255,255,.6)','center',FB,700);
