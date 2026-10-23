@@ -1,6 +1,6 @@
 /* Dados do painel. Edite pelo admin.html ou direto aqui. */
 const DATA={
- atualizado:"20/10/2026",
+ atualizado:"22/10/2026",
 
  grupo:"Grupo B · 39 a 46 anos · Masculino",
  elencos:{
@@ -39,7 +39,7 @@ const DATA={
   {n:21,data:"2026-10-18",hora:"13:10",casa:"URUGUAI",fora:"PARAGUAI",placar:[1,3]},
   {n:22,data:"2026-10-18",hora:"14:50",casa:"BRASIL",fora:"CHILE",placar:[2,1]},
   {n:23,data:"2026-10-20",hora:"20:00",casa:"PERU",fora:"ARGENTINA",placar:[1,2]},
-  {n:28,data:"2026-10-22",hora:"20:00",casa:"PARAGUAI",fora:"BRASIL",placar:null},
+  {n:28,data:"2026-10-22",hora:"20:00",casa:"PARAGUAI",fora:"BRASIL",placar:[1,1]},
   {n:24,data:"2026-10-25",hora:"11:00",casa:"CHILE",fora:"URUGUAI",placar:null},
   {n:25,data:"2026-10-25",hora:"12:40",casa:"EUA",fora:"BRASIL",placar:null},
   {n:26,data:"2026-10-25",hora:"14:20",casa:"MÉXICO",fora:"ARGENTINA",placar:null},
@@ -49,9 +49,10 @@ const DATA={
  artilharia:[],
  cartoes:[],
  noticias:[
-  {tag:"Terça, 20/10",t:"Argentina vence o Peru por 2 a 1 e chega a 9 pontos",x:"O Peru perde a invencibilidade, mas segue em 2º pelo saldo de gols; a Argentina sobe para o 3º lugar. Placar ainda não lançado no site oficial.",times:["ARGENTINA","PERU"]},
+  {tag:"Quinta, 22/10",t:"Paraguai e Brasil empatam em 1 a 1",x:"O Paraguai chega a 8 pontos e fica em 4º, com um jogo a menos que a maioria; o Brasil soma 7 e segue em 7º. Placar ainda não lançado no site oficial.",times:["PARAGUAI","BRASIL"]},
+  {tag:"Terça, 20/10",t:"Argentina vence o Peru por 2 a 1 e chega a 9 pontos",x:"O Peru perde a invencibilidade, mas segue em 2º pelo saldo de gols; a Argentina sobe para o 3º lugar.",times:["ARGENTINA","PERU"]},
   {tag:"Domingo, 18/10",t:"Brasil vence o Chile por 2 a 1 e sai da lanterna",x:"Com 6 pontos, o Brasil sobe para o 7º lugar; o Chile (5 pontos) passa a ser o último.",times:["BRASIL","CHILE"]},
-  {tag:"Domingo, 18/10",t:"Paraguai vence o Uruguai por 3 a 1 e chega a 7 pontos",x:"O Paraguai fica em 5º, empatado em pontos com México e Uruguai; o saldo de gols define a ordem.",times:["PARAGUAI","URUGUAI"]},
+  {tag:"Domingo, 18/10",t:"Paraguai vence o Uruguai por 3 a 1 e chega a 7 pontos",x:"O Paraguai chega a 7 pontos, empatado com México e Uruguai; o saldo de gols define a ordem.",times:["PARAGUAI","URUGUAI"]},
   {tag:"Sábado, 17/10",t:"Peru e México empatam em 1 a 1",x:"O Peru chega a 9 pontos, segue invicto em 5 jogos e fica 3 atrás dos EUA. O México soma 7.",times:["PERU","MÉXICO"]},
   {tag:"Sexta, 16/10",t:"EUA vencem a Argentina por 5 a 3 e abrem vantagem na ponta",x:"Com 12 pontos, os EUA estão 3 à frente do Peru (9).",times:["EUA","ARGENTINA"]},
   {tag:"Defesa",t:"Peru tem a melhor defesa do Grupo B",x:"Apenas 5 gols sofridos em 6 jogos.",times:["PERU"]},
