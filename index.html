@@ -189,7 +189,7 @@ function tabHTML(hl=meu){
  const r=tabela();
  return `<div class="wrap"><table><tr><th>#</th><th>Time</th><th>P</th><th>J</th><th>V</th><th>E</th><th>D</th><th>GP</th><th>GC</th><th>SG</th></tr>`+
  r.map((x,i)=>`<tr class="${x.n===hl?"me":""}"><td>${i+1}</td><td>${x.n}</td><td><b>${x.p}</b></td><td>${x.j}</td><td>${x.v}</td><td>${x.e}</td><td>${x.d}</td><td>${x.gp}</td><td>${x.gc}</td><td>${x.sg}</td></tr>`).join("")+
- `</table></div><p class="mut">Classificação calculada a partir dos resultados do site oficial (consulta de 20/10/2026), mais Peru 1×2 Argentina, informado manualmente e ainda não lançado no site. Pontuação 3-1-0 e desempate por saldo e gols pró assumidos: não estão no regulamento.</p>`;
+ `</table></div><p class="mut">Classificação calculada a partir dos resultados do site oficial (consulta de 22/10/2026), mais Paraguai 1×1 Brasil, informado manualmente e ainda não lançado no site. Pontuação 3-1-0 e desempate por saldo e gols pró assumidos: não estão no regulamento.</p>`;
 }
 function jogoHTML(j){
  const me=j.casa===meu||j.fora===meu;
