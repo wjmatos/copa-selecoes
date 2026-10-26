@@ -183,13 +183,13 @@ function tabela(){
   if(a>b){c.v++;f.d++}else if(a<b){f.v++;c.d++}else{c.e++;f.e++}
  });
  return Object.values(t).map(x=>({...x,p:x.v*3+x.e,sg:x.gp-x.gc}))
-  .sort((a,b)=>b.p-a.p||b.sg-a.sg||b.gp-a.gp||a.n.localeCompare(b.n));
+  .sort((a,b)=>b.p-a.p||b.v-a.v||b.sg-a.sg||b.gp-a.gp||a.n.localeCompare(b.n));
 }
 function tabHTML(hl=meu){
  const r=tabela();
  return `<div class="wrap"><table><tr><th>#</th><th>Time</th><th>P</th><th>J</th><th>V</th><th>E</th><th>D</th><th>GP</th><th>GC</th><th>SG</th></tr>`+
  r.map((x,i)=>`<tr class="${x.n===hl?"me":""}"><td>${i+1}</td><td>${x.n}</td><td><b>${x.p}</b></td><td>${x.j}</td><td>${x.v}</td><td>${x.e}</td><td>${x.d}</td><td>${x.gp}</td><td>${x.gc}</td><td>${x.sg}</td></tr>`).join("")+
- `</table></div><p class="mut">Classificação calculada a partir dos resultados do site oficial (consulta de 22/10/2026), mais Paraguai 1×1 Brasil, informado manualmente e ainda não lançado no site. Pontuação 3-1-0 e desempate por saldo e gols pró assumidos: não estão no regulamento.</p>`;
+ `</table></div><p class="mut">Classificação calculada a partir dos resultados do site oficial (consulta de 22/10/2026) e dos placares informados manualmente depois dessa data. Pontuação 3-1-0 e desempate (1º número de vitórias, depois saldo e gols pró), como informado: não estão no regulamento.</p>`;
 }
 function jogoHTML(j){
  const me=j.casa===meu||j.fora===meu;
@@ -335,7 +335,7 @@ function simTabela(){
  const t={};DATA.times.forEach(n=>t[n]={n,j:0,v:0,e:0,d:0,gp:0,gc:0});
  DATA.jogos.forEach(j=>{const pl=j.placar||SIM[j.n];if(!pl)return;const a=pl[0],b=pl[1],c=t[j.casa],f=t[j.fora];if(!c||!f)return;
   c.j++;f.j++;c.gp+=a;c.gc+=b;f.gp+=b;f.gc+=a;if(a>b){c.v++;f.d++}else if(a<b){f.v++;c.d++}else{c.e++;f.e++}});
- return Object.values(t).map(x=>({...x,p:x.v*3+x.e,sg:x.gp-x.gc})).sort((a,b)=>b.p-a.p||b.sg-a.sg||b.gp-a.gp||a.n.localeCompare(b.n))}
+ return Object.values(t).map(x=>({...x,p:x.v*3+x.e,sg:x.gp-x.gc})).sort((a,b)=>b.p-a.p||b.v-a.v||b.sg-a.sg||b.gp-a.gp||a.n.localeCompare(b.n))}
 function cenarios(team){
  const names=DATA.times,idx={},pts=[],N=names.length;names.forEach((n,i)=>idx[n]=i);
  simTabela().forEach(x=>pts[idx[x.n]]=x.p);
@@ -356,7 +356,7 @@ function calcOut(){
  const tb=`<div class='wrap'><table><tr><th>#</th><th>Time</th><th>P</th><th>J</th><th>SG</th><th></th></tr>`+r.map((x,i)=>{
   const d=real.indexOf(x.n)-i,z=i===0?'var(--y)':i===N-1?'var(--bad)':'var(--g)';
   return `<tr class='${x.n===me?'me':''}'><td style='border-left:5px solid ${z}'>${i+1}</td><td>${bdg(x.n,'sm')} ${x.n}</td><td><b>${x.p}</b></td><td>${x.j}</td><td>${x.sg>0?'+':''}${x.sg}</td><td>${d>0?'▲'+d:d<0?'▼'+(-d):''}</td></tr>`}).join('')+
-  `</table></div><p class='mut'>Amarelo: semifinal direta · Azul: playoff · Vermelho: eliminado. Desempate por pontos, saldo e gols pró (regra assumida).</p>`;
+  `</table></div><p class='mut'>Amarelo: semifinal direta · Azul: playoff · Vermelho: eliminado. Desempate por pontos, vitórias, saldo e gols pró (regra informada).</p>`;
  const c=cenarios(me),ks=Object.keys(c.res).map(Number).sort((a,b)=>a-b);
  const S={d:0,p:0,e:0,i:0};ks.forEach(k=>{for(const z in S)S[z]+=c.res[k][z]});
  const pc=(v,t)=>(t?Math.round(v*100/t):0)+'%';
@@ -365,9 +365,9 @@ function calcOut(){
  return `<div class='card'><h2>Tabela simulada</h2>${tb}</div>
  <div class='card'><h2>Situação · ${me}</h2>
  <p><b>${me}</b> tem ${mine.p} ponto(s) na simulação e ${livres} jogo(s) ainda sem palpite (máximo possível: ${mine.p+3*livres}).</p>
- <p>Entre os ${c.tot.toLocaleString('pt-BR')} cenários possíveis dos ${c.free} jogos sem palpite: semifinal direta <b>${pc(S.d,c.tot)}</b> · playoff <b>${pc(S.p,c.tot)}</b> · eliminado <b>${pc(S.e,c.tot)}</b> · depende do saldo de gols <b>${pc(S.i,c.tot)}</b>.</p>
+ <p>Entre os ${c.tot.toLocaleString('pt-BR')} cenários possíveis dos ${c.free} jogos sem palpite: semifinal direta <b>${pc(S.d,c.tot)}</b> · playoff <b>${pc(S.p,c.tot)}</b> · eliminado <b>${pc(S.e,c.tot)}</b> · depende do desempate <b>${pc(S.i,c.tot)}</b>.</p>
  <p>${gS!==undefined?`Com <b>${gS} pontos</b> no fim, ${me} garante não ficar em último.`:`Ainda não há total de pontos que garanta sair do último lugar.`} ${gD!==undefined?`Com <b>${gD} pontos</b> garante a semifinal direta.`:`Nenhum total de pontos garante a semifinal direta ainda.`}</p>
- <div class='wrap cz'><table><tr><th>Pontos finais</th><th>Direta</th><th>Playoff</th><th>Eliminado</th><th>Saldo decide</th></tr>${ks.map(k=>{const o=c.res[k];return `<tr><td><b>${k}</b></td><td>${pc(o.d,o.n)}</td><td>${pc(o.p,o.n)}</td><td>${pc(o.e,o.n)}</td><td>${pc(o.i,o.n)}</td></tr>`}).join('')}</table></div>
+ <div class='wrap cz'><table><tr><th>Pontos finais</th><th>Direta</th><th>Playoff</th><th>Eliminado</th><th>Desempate decide</th></tr>${ks.map(k=>{const o=c.res[k];return `<tr><td><b>${k}</b></td><td>${pc(o.d,o.n)}</td><td>${pc(o.p,o.n)}</td><td>${pc(o.e,o.n)}</td><td>${pc(o.i,o.n)}</td></tr>`}).join('')}</table></div>
  <p class='mut'>Cada linha mostra, entre os cenários em que o time termina com aquele total de pontos, em quantos ele cai em cada faixa. Não é previsão: todos os resultados possíveis (vitória, empate, derrota) são contados com o mesmo peso.</p></div>`}
 function calcHTML(){
  const T=DATA.times;if(!CALC.team)CALC.team=meu||(tabela()[0]||{}).n||T[0];
