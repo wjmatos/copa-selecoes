@@ -146,6 +146,23 @@ nav button{font-family:var(--fh);font-size:16px;letter-spacing:.6px;text-transfo
 .ft.mine{box-shadow:inset 4px 0 0 var(--g)}
 .ft.tbd{color:var(--mut);cursor:default;justify-content:center}
 .champ{text-align:center;font-size:15px;padding:8px}
+.vb{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:7px 14px;border-radius:8px;cursor:pointer;font:inherit}
+.vb.on{background:var(--y);border-color:var(--y);color:#01123a;font-weight:700}
+.vp{position:relative;width:100%;max-width:560px;padding-bottom:112%;background:#2f7d3a;border-radius:12px;overflow:hidden;margin:10px auto}
+.vp .ln{position:absolute;border:2px solid rgba(255,255,255,.55)}
+.vmsg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;text-align:center;padding:20px}
+.vs{position:absolute;transform:translate(-50%,-50%);background:none;border:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;width:92px;padding:0;color:#fff}
+.vs .dt{min-width:42px;height:42px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px}
+.vs .dt:not(:has(.bdg)){width:42px;border-radius:50%;background:#fff;color:#2f7d3a;border:2px solid #fff}
+.vs .lb{font-size:11.5px;background:rgba(0,0,0,.55);padding:1px 6px;border-radius:4px;white-space:nowrap;max-width:92px;overflow:hidden;text-overflow:ellipsis}
+.vs.cur .dt{box-shadow:0 0 0 3px var(--y);border-radius:8px}
+.vpick{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px;margin:10px 0}
+.vpick input{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;background:var(--card);color:var(--ink)}
+.vch{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.vch .vb{padding:3px 10px;border-radius:14px;font-size:12px}
+.vl{max-height:230px;overflow:auto}
+.vi{display:flex;align-items:center;gap:8px;padding:7px 4px;border-bottom:1px solid var(--line);cursor:pointer;font-size:14px}
+.vi.off{opacity:.4;cursor:default}
 </style>
 </head>
 <body>
@@ -165,7 +182,8 @@ nav button{font-family:var(--fh);font-size:16px;letter-spacing:.6px;text-transfo
 
 <script src="dados.js"></script>
 <script>
-const TABS=[["inicio","Início"],["tabela","Tabela"],["jogos","Jogos"],["cartoes","Cartões"],["calc","Calculadora"],["fase","Fase final"],["notas","Notas"]];
+const TABS=[["inicio","Início"],["tabela","Tabela"],["jogos","Jogos"],["cartoes","Cartões"],["calc","Calculadora"],["fase","Fase final"],["votar","Votação"],["notas","Notas"]];
+if(DATA.votacao&&DATA.votacao.oculta){const i=TABS.findIndex(t=>t[0]==='votar');if(i>=0)TABS.splice(i,1)}
 const $=s=>document.querySelector(s);
 let aba="inicio",meu="";
 const st={get(k){try{return localStorage.getItem(k)||""}catch(e){return ""}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
@@ -412,6 +430,57 @@ document.addEventListener('click',e=>{const w=e.target.closest('[data-w]');
  if(w){const p=w.dataset.w.split('|');if(WIN[p[0]]===p[1])delete WIN[p[0]];else WIN[p[0]]=p[1];render();return}
  if(e.target.id==='ffclr'){for(const k in WIN)delete WIN[k];render()}});
 document.addEventListener('change',e=>{if(e.target.id==='ffsim'){FF.sim=e.target.checked;render()}});
+const VFM={'433':[['Goleiro',50,90],['Lateral',13,70],['Zagueiro',38,72],['Zagueiro',62,72],['Lateral',87,70],['Meia',24,47],['Meia',50,52],['Meia',76,47],['Atacante',20,21],['Atacante',50,14],['Atacante',80,21]],
+'442':[['Goleiro',50,90],['Lateral',13,70],['Zagueiro',38,72],['Zagueiro',62,72],['Lateral',87,70],['Volante',36,54],['Volante',64,54],['Meia',17,35],['Meia',83,35],['Atacante',37,15],['Atacante',63,15]]};
+const VT={fm:'433',cur:-1,team:'Todos',sel:{'433':{},'442':{}},view:'votar',res:null,msg:''},VP=[];
+function vload(){if(VP.length)return;DATA.times.forEach(t=>{const E=(DATA.elencos||{})[t];if(E)E.j.forEach(n=>{const g=n.endsWith('|G');VP.push({n:tc(g?n.slice(0,-2):n),t,g})})})}
+const vshort=n=>{const w=n.split(' ');return w.length>1?w[0]+' '+w[w.length-1][0]+'.':w[0]};
+const vesq=()=>VT.fm[0]+'-'+VT.fm[1]+'-'+VT.fm[2];
+const vtem=()=>DATA.votacao&&DATA.votacao.url;
+const VLN="<div class='ln' style='left:6%;right:6%;top:4%;bottom:4%'></div><div class='ln' style='left:6%;right:6%;top:50%;height:0'></div><div class='ln' style='left:36%;right:36%;top:4%;height:12%'></div><div class='ln' style='left:36%;right:36%;bottom:4%;height:12%'></div>";
+function vPitch(){const sl=VFM[VT.fm];let h=VLN;
+ if(VT.view==='res'){
+  const R=VT.res;if(!R)return h+"<div class='vmsg'>Carregando resultado...</div>";
+  if(R.erro)return h+"<div class='vmsg'>"+(R.erro==='sem url'?'O resultado aparece quando a planilha estiver ligada ao site.':'Não foi possível carregar o resultado agora.')+"</div>";
+  const E=(R.resultado||{})[vesq()]||{},usados={},idx={};
+  sl.forEach((p,i)=>{const L=E[p[0]]||[];let x=null;for(const c of L){if(!usados[c.time+c.jogador]){x=c;usados[c.time+c.jogador]=1;break}}
+   h+=`<div class='vs'  style='left:${p[1]}%;top:${p[2]}%'><span class='dt'>${x?bdg(x.time==='EUA'?'EUA':x.time.toUpperCase()):'?'}</span><span class='lb'>${x?vshort(x.jogador)+' · '+x.votos:p[0]}</span></div>`});
+  return h}
+ const s=VT.sel[VT.fm];
+ sl.forEach((p,i)=>{const x=s[i];h+=`<button class='vs${VT.cur===i?' cur':''}' style='left:${p[1]}%;top:${p[2]}%' data-vi='${i}'><span class='dt'>${x?bdg(x.t):'+'}</span><span class='lb'>${x?vshort(x.n):p[0]}</span></button>`});
+ return h}
+function vList(){const s=VT.sel[VT.fm],used=Object.values(s).map(x=>x.t+x.n),q=((document.getElementById('vq')||{}).value||'').toLowerCase(),gk=VFM[VT.fm][VT.cur][0]==='Goleiro';
+ let L=VP.map((p,i)=>({p,i})).filter(o=>(VT.team==='Todos'||o.p.t===VT.team)&&o.p.n.toLowerCase().includes(q));
+ L.sort((a,b)=>gk?(b.p.g-a.p.g)||a.p.n.localeCompare(b.p.n):a.p.n.localeCompare(b.p.n));
+ return L.map(o=>`<div class='vi${used.includes(o.p.t+o.p.n)?' off':''}' data-vn='${o.i}'>${bdg(o.p.t,'sm')}<span style='flex:1'>${o.p.n}</span>${o.p.g?"<small class='mut'>G</small>":''}</div>`).join('')||"<div class='vi off'>Nenhum jogador encontrado</div>"}
+function vPick(){if(VT.cur<0||VT.view!=='votar')return'';
+ return `<div class='vpick'><div class='row'><b>Escolha o ${VFM[VT.fm][VT.cur][0].toLowerCase()}</b><button class='vb' id='vx' style='margin-left:auto'>Fechar</button></div><input id='vq' placeholder='Buscar jogador pelo nome'><div class='vch'>${['Todos',...DATA.times].map(t=>`<button class='vb${t===VT.team?' on':''}' data-vt='${t}'>${t==='Todos'?'Todos os times':t}</button>`).join('')}</div><div class='vl' id='vl'>${vList()}</div></div>`}
+function vRefresh(){const a=document.getElementById('vp'),b=document.getElementById('vpick'),c=document.getElementById('vcnt');if(a)a.innerHTML=vPitch();if(b)b.innerHTML=vPick();if(c)c.textContent=VT.view==='votar'?Object.keys(VT.sel[VT.fm]).length+' de 11 escolhidos':(VT.res&&VT.res.totais?'Votos neste esquema: '+(VT.res.totais[vesq()]||0):'')}
+function votacaoHTML(){vload();
+ if(DATA.votacao&&DATA.votacao.ativa===false)return `<div class='card'><h2>Votação</h2><p class='mut'>A votação está encerrada.</p></div>`;
+ return `<div class='card'><h2>Seleção da fase de grupos</h2><p class='mut'>Escolha os 11 melhores. Cada celular vota uma vez por esquema.${vtem()?'':' <b>Modo de teste: os votos não são enviados.</b>'}</p>
+ <div class='row'><button class='vb${VT.view==='votar'?' on':''}' data-vv='votar'>Votar</button><button class='vb${VT.view==='res'?' on':''}' data-vv='res'>Resultado parcial</button></div>
+ <div class='row'><button class='vb${VT.fm==='433'?' on':''}' data-vf='433'>4-3-3</button><button class='vb${VT.fm==='442'?' on':''}' data-vf='442'>4-4-2</button><span class='mut' id='vcnt'>${VT.view==='votar'?Object.keys(VT.sel[VT.fm]).length+' de 11 escolhidos':''}</span></div>
+ <div class='vp' id='vp'>${vPitch()}</div><div id='vpick'>${vPick()}</div>
+ ${VT.view==='votar'?`<div class='row'><button class='btn' id='vsend'>Enviar voto</button><span class='mut' id='vmsg'>${VT.msg}</span></div>`:''}</div>`}
+async function vCarregar(){VT.res=null;if(!vtem()){VT.res={erro:'sem url'};return}
+ try{const r=await fetch(DATA.votacao.url+'?acao=resultado');VT.res=await r.json()}catch(e){VT.res={erro:'falha'}}}
+async function vEnviar(){const m=document.getElementById('vmsg'),s=VT.sel[VT.fm],n=Object.keys(s).length,say=t=>{VT.msg=t;if(m)m.textContent=t};
+ if(n<11)return say('Faltam '+(11-n)+' posições para enviar.');
+ if(!vtem())return say('Modo de teste: nada foi enviado. Falta ligar o site à planilha.');
+ if(st.get('voted_'+VT.fm))return say('Este celular já votou neste esquema.');
+ let d=st.get('vdid');if(!d){d=Math.random().toString(36).slice(2)+Date.now().toString(36);st.set('vdid',d)}
+ const body=JSON.stringify({id:d+'-'+VT.fm,esquema:vesq(),voto:VFM[VT.fm].map((p,i)=>({posicao:p[0],jogador:s[i].n,time:nome(s[i].t)}))});
+ try{await fetch(DATA.votacao.url,{method:'POST',mode:'no-cors',body});st.set('voted_'+VT.fm,'1');say('Voto enviado. Obrigado!')}catch(e){say('Não foi possível enviar agora. Tente de novo.')}}
+document.addEventListener('click',async e=>{const t=e.target.closest('[data-vv],[data-vf],[data-vi],[data-vn],[data-vt],#vx,#vsend');if(!t)return;const d=t.dataset;
+ if(d.vv){VT.view=d.vv;VT.cur=-1;if(d.vv==='res'){VT.res=null;render();await vCarregar()}render()}
+ else if(d.vf){VT.fm=d.vf;VT.cur=-1;VT.msg='';render()}
+ else if(d.vi!==undefined){VT.cur=+d.vi;vRefresh()}
+ else if(d.vn!==undefined){const p=VP[+d.vn];if(Object.values(VT.sel[VT.fm]).some(x=>x.t===p.t&&x.n===p.n))return;VT.sel[VT.fm][VT.cur]=p;VT.cur=-1;VT.msg='';vRefresh()}
+ else if(d.vt){VT.team=d.vt;vRefresh()}
+ else if(t.id==='vx'){VT.cur=-1;vRefresh()}
+ else if(t.id==='vsend')vEnviar()});
+document.addEventListener('input',e=>{if(e.target.id==='vq'){const l=document.getElementById('vl');if(l)l.innerHTML=vList()}});
 function tickRender(){const p=proximoJogo(),L=DATA.jogos.filter(j=>!j.placar).sort(ord).slice(0,6);
  $("#jg").innerHTML=`<div class="ag"><b>Jogos e eventos</b><span class="mut">Grupo B</span><button class="btn" data-a="jogos">Agenda completa</button></div>`+L.map(j=>`<div class="jc ${p&&j.n===p.j.n?"nx1":""}">${p&&j.n===p.j.n?'<b style="color:var(--g)">PRÓXIMO</b>':""}<span class="mut">${dow(j.data)} ${fmt(j.data)} · ${j.hora}</span><div class="r" data-t="${j.casa}">${bdg(j.casa,"sm")} ${SIG[j.casa]}</div><div class="r" data-t="${j.fora}">${bdg(j.fora,"sm")} ${SIG[j.fora]}</div><span class="mut">Grupo B · jogo ${j.n}</span></div>`).join("")}
 function render(){
@@ -424,7 +493,7 @@ function render(){
  else if(aba==="jogos")h=`<div class="card"><h2>Jogos do Grupo B</h2>${jogosHTML(DATA.jogos.slice().sort(ord))}</div>`;
  else if(aba==="stats")h=statsHTML();
  else if(aba==="notas")h=`<div class="card"><h2>Notas</h2>${notasHTML()}</div>`;
- else if(aba==="calc")h=calcHTML();else if(aba==="fase")h=faseHTML();else if(aba==="cartoes")h=cartoesHTML();else if(aba==="backup")h=backupHTML();else h=brechasHTML();
+ else if(aba==="calc")h=calcHTML();else if(aba==="fase")h=faseHTML();else if(aba==="votar")h=votacaoHTML();else if(aba==="cartoes")h=cartoesHTML();else if(aba==="backup")h=backupHTML();else h=brechasHTML();
  $("#app").innerHTML=h;if(aba==="cartoes")cartoesInit();
 }
 $("#sub").textContent=DATA.grupo;
