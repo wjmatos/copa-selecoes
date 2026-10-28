@@ -462,7 +462,35 @@ function votacaoHTML(){vload();
  <div class='row'><button class='vb${VT.view==='votar'?' on':''}' data-vv='votar'>Votar</button><button class='vb${VT.view==='res'?' on':''}' data-vv='res'>Resultado parcial</button></div>
  <div class='row'><button class='vb${VT.fm==='433'?' on':''}' data-vf='433'>4-3-3</button><button class='vb${VT.fm==='442'?' on':''}' data-vf='442'>4-4-2</button><span class='mut' id='vcnt'>${VT.view==='votar'?Object.keys(VT.sel[VT.fm]).length+' de 11 escolhidos':''}</span></div>
  <div class='vp' id='vp'>${vPitch()}</div><div id='vpick'>${vPick()}</div>
- ${VT.view==='votar'?`<div class='row'><button class='btn' id='vsend'>Enviar voto</button><span class='mut' id='vmsg'>${VT.msg}</span></div>`:''}</div>`}
+ ${VT.view==='votar'?`<div class='row'><button class='btn' id='vsend'>Enviar voto</button><span class='mut' id='vmsg'>${VT.msg}</span></div><div class='row'><button class='vb' id='vimg'>Salvar imagem do meu voto</button></div>`:`<div class='row'><button class='vb' id='vimgr'>Salvar imagem da seleção</button></div>`}<div id='vprev'></div></div>`}
+async function cardSelecao(k){
+ const res=k==='selres',fm=VT.fm,sl=VFM[fm];
+ const tot=res&&VT.res&&VT.res.totais?(VT.res.totais[vesq()]||0):0;
+ const[c,x]=await baseCard(res?'SELEÇÃO MAIS VOTADA':'MINHA SELEÇÃO',res?tot+' VOTOS · '+vesq():vesq());
+ const X0=60,Y0=170,W=960,H=1040;
+ rr(x,X0,Y0,W,H,28,'#2f7d3a');
+ x.strokeStyle='rgba(255,255,255,.55)';x.lineWidth=4;
+ path(x,X0+58,Y0+42,W-116,H-84,0);x.stroke();
+ x.beginPath();x.moveTo(X0+58,Y0+H/2);x.lineTo(X0+W-58,Y0+H/2);x.stroke();
+ path(x,X0+W*0.36,Y0+42,W*0.28,H*0.12,0);x.stroke();
+ path(x,X0+W*0.36,Y0+H-42-H*0.12,W*0.28,H*0.12,0);x.stroke();
+ const items=[];
+ if(res){const E=((VT.res||{}).resultado||{})[vesq()]||{},us={};
+  sl.forEach(p=>{let it=null;for(const q of(E[p[0]]||[])){const key=q.time+q.jogador;if(!us[key]){us[key]=1;it={n:q.jogador,t:q.time.toUpperCase(),v:q.votos};break}}items.push(it)})}
+ else{const s=VT.sel[fm];sl.forEach((p,i)=>items.push(s[i]?{n:s[i].n,t:s[i].t}:null))}
+ for(let i=0;i<sl.length;i++){const p=sl[i],it=items[i],cx=X0+W*p[1]/100,cy=Y0+H*p[2]/100;
+  if(it&&FLAG[it.t])await drawFlag(x,it.t,cx-65,cy-62,130);
+  else{x.fillStyle='#fff';x.beginPath();x.arc(cx,cy-20,36,0,7);x.fill();T(x,'?',cx,cy-6,44,'#2f7d3a','center',FH,700)}
+  const lab=it?vshort(it.n)+(it.v?' · '+it.v:''):p[0];
+  let fs=40;x.font='700 '+fs+'px '+FH;while(x.measureText(lab).width>190&&fs>24){fs-=2;x.font='700 '+fs+'px '+FH}
+  const tw=x.measureText(lab).width+28;rr(x,cx-tw/2,cy+36,tw,50,10,'rgba(0,0,0,.6)');T(x,lab,cx,cy+73,fs,'#fff','center',FH,700)}
+ if(res)T(x,'O número ao lado do nome é a quantidade de votos',X0+30,Y0+32,22,'rgba(255,255,255,.8)','left',FB,400);
+ return c}
+async function vCard(k){const pv=document.getElementById('vprev'),say=t=>{if(pv)pv.innerHTML=`<p class='mut'>${t}</p>`};
+ if(k==='meu'&&Object.keys(VT.sel[VT.fm]).length<11)return say('Escolha os 11 jogadores primeiro.');
+ if(k==='selres'&&(!VT.res||VT.res.erro))return say('O resultado ainda não está disponível.');
+ say('Gerando imagem...');
+ try{const c=await cardSelecao(k);CV[k]=c;if(pv)pv.innerHTML=`<img class='cim' src='${c.toDataURL('image/png')}' alt=''><p class='mut'>Se o download não começar, segure a imagem para salvar.</p>`;await salvarImg(k)}catch(e){say('Não foi possível gerar a imagem.')}}
 async function vCarregar(){VT.res=null;if(!vtem()){VT.res={erro:'sem url'};return}
  try{const r=await fetch(DATA.votacao.url+'?acao=resultado');VT.res=await r.json()}catch(e){VT.res={erro:'falha'}}}
 async function vEnviar(){const m=document.getElementById('vmsg'),s=VT.sel[VT.fm],n=Object.keys(s).length,say=t=>{VT.msg=t;if(m)m.textContent=t};
@@ -472,14 +500,16 @@ async function vEnviar(){const m=document.getElementById('vmsg'),s=VT.sel[VT.fm]
  let d=st.get('vdid');if(!d){d=Math.random().toString(36).slice(2)+Date.now().toString(36);st.set('vdid',d)}
  const body=JSON.stringify({id:d+'-'+VT.fm,esquema:vesq(),voto:VFM[VT.fm].map((p,i)=>({posicao:p[0],jogador:s[i].n,time:nome(s[i].t)}))});
  try{await fetch(DATA.votacao.url,{method:'POST',mode:'no-cors',body});st.set('voted_'+VT.fm,'1');say('Voto enviado. Obrigado!')}catch(e){say('Não foi possível enviar agora. Tente de novo.')}}
-document.addEventListener('click',async e=>{const t=e.target.closest('[data-vv],[data-vf],[data-vi],[data-vn],[data-vt],#vx,#vsend');if(!t)return;const d=t.dataset;
+document.addEventListener('click',async e=>{const t=e.target.closest('[data-vv],[data-vf],[data-vi],[data-vn],[data-vt],#vx,#vsend,#vimg,#vimgr');if(!t)return;const d=t.dataset;
  if(d.vv){VT.view=d.vv;VT.cur=-1;if(d.vv==='res'){VT.res=null;render();await vCarregar()}render()}
  else if(d.vf){VT.fm=d.vf;VT.cur=-1;VT.msg='';render()}
  else if(d.vi!==undefined){VT.cur=+d.vi;vRefresh()}
  else if(d.vn!==undefined){const p=VP[+d.vn];if(Object.values(VT.sel[VT.fm]).some(x=>x.t===p.t&&x.n===p.n))return;VT.sel[VT.fm][VT.cur]=p;VT.cur=-1;VT.msg='';vRefresh()}
  else if(d.vt){VT.team=d.vt;vRefresh()}
  else if(t.id==='vx'){VT.cur=-1;vRefresh()}
- else if(t.id==='vsend')vEnviar()});
+ else if(t.id==='vsend')vEnviar()
+ else if(t.id==='vimg')vCard('meu')
+ else if(t.id==='vimgr')vCard('selres')});
 document.addEventListener('input',e=>{if(e.target.id==='vq'){const l=document.getElementById('vl');if(l)l.innerHTML=vList()}});
 function tickRender(){const p=proximoJogo(),L=DATA.jogos.filter(j=>!j.placar).sort(ord).slice(0,6);
  $("#jg").innerHTML=`<div class="ag"><b>Jogos e eventos</b><span class="mut">Grupo B</span><button class="btn" data-a="jogos">Agenda completa</button></div>`+L.map(j=>`<div class="jc ${p&&j.n===p.j.n?"nx1":""}">${p&&j.n===p.j.n?'<b style="color:var(--g)">PRÓXIMO</b>':""}<span class="mut">${dow(j.data)} ${fmt(j.data)} · ${j.hora}</span><div class="r" data-t="${j.casa}">${bdg(j.casa,"sm")} ${SIG[j.casa]}</div><div class="r" data-t="${j.fora}">${bdg(j.fora,"sm")} ${SIG[j.fora]}</div><span class="mut">Grupo B · jogo ${j.n}</span></div>`).join("")}
