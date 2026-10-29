@@ -58,7 +58,7 @@ function doPost(e) {
   }
 }
 
-// Devolve o resultado parcial: os mais votados por esquema e posição
+// Devolve o resultado parcial: os mais votados por posição, somando os votos de todos os esquemas
 function doGet(e) {
   var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(ABA_VOTOS);
   var n = sh.getLastRow() - 1;
@@ -69,23 +69,20 @@ function doGet(e) {
     if (!id || !jog) return;
     ids[esq] = ids[esq] || {};
     ids[esq][id] = 1;
-    var k = esq + '|' + pos + '|' + jog + '|' + time;
+    var k = pos + '|' + jog + '|' + time;
     cont[k] = (cont[k] || 0) + 1;
   });
   var res = {};
   Object.keys(cont).forEach(function (k) {
     var p = k.split('|');
-    res[p[0]] = res[p[0]] || {};
-    res[p[0]][p[1]] = res[p[0]][p[1]] || [];
-    res[p[0]][p[1]].push({ jogador: p[2], time: p[3], votos: cont[k] });
+    res[p[0]] = res[p[0]] || [];
+    res[p[0]].push({ jogador: p[1], time: p[2], votos: cont[k] });
   });
-  Object.keys(res).forEach(function (esq) {
-    Object.keys(res[esq]).forEach(function (pos) {
-      res[esq][pos].sort(function (a, b) { return b.votos - a.votos; });
-      res[esq][pos] = res[esq][pos].slice(0, 6);
-    });
+  Object.keys(res).forEach(function (pos) {
+    res[pos].sort(function (a, b) { return b.votos - a.votos; });
+    res[pos] = res[pos].slice(0, 8);
   });
-  var tot = {};
-  Object.keys(ids).forEach(function (esq) { tot[esq] = Object.keys(ids[esq]).length; });
-  return json_({ totais: tot, resultado: res });
+  var tot = {}, soma = 0;
+  Object.keys(ids).forEach(function (esq) { tot[esq] = Object.keys(ids[esq]).length; soma += tot[esq]; });
+  return json_({ total: soma, totais: tot, resultado: res });
 }
