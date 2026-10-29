@@ -442,7 +442,7 @@ function vPitch(){const sl=VFM[VT.fm];let h=VLN;
  if(VT.view==='res'){
   const R=VT.res;if(!R)return h+"<div class='vmsg'>Carregando resultado...</div>";
   if(R.erro)return h+"<div class='vmsg'>"+(R.erro==='sem url'?'O resultado aparece quando a planilha estiver ligada ao site.':'Não foi possível carregar o resultado agora.')+"</div>";
-  const E=(R.resultado||{})[vesq()]||{},usados={},idx={};
+  const E=vComb(R),usados={},idx={};
   sl.forEach((p,i)=>{const L=E[p[0]]||[];let x=null;for(const c of L){if(!usados[c.time+c.jogador]){x=c;usados[c.time+c.jogador]=1;break}}
    h+=`<div class='vs'  style='left:${p[1]}%;top:${p[2]}%'><span class='dt'>${x?bdg(x.time==='EUA'?'EUA':x.time.toUpperCase()):'?'}</span><span class='lb'>${x?vshort(x.jogador)+' · '+x.votos:p[0]}</span></div>`});
   return h}
@@ -455,17 +455,17 @@ function vList(){const s=VT.sel[VT.fm],used=Object.values(s).map(x=>x.t+x.n),q=(
  return L.map(o=>`<div class='vi${used.includes(o.p.t+o.p.n)?' off':''}' data-vn='${o.i}'>${bdg(o.p.t,'sm')}<span style='flex:1'>${o.p.n}</span>${o.p.g?"<small class='mut'>G</small>":''}</div>`).join('')||"<div class='vi off'>Nenhum jogador encontrado</div>"}
 function vPick(){if(VT.cur<0||VT.view!=='votar')return'';
  return `<div class='vpick'><div class='row'><b>Escolha o ${VFM[VT.fm][VT.cur][0].toLowerCase()}</b><button class='vb' id='vx' style='margin-left:auto'>Fechar</button></div><input id='vq' placeholder='Buscar jogador pelo nome'><div class='vch'>${['Todos',...DATA.times].map(t=>`<button class='vb${t===VT.team?' on':''}' data-vt='${t}'>${t==='Todos'?'Todos os times':t}</button>`).join('')}</div><div class='vl' id='vl'>${vList()}</div></div>`}
-function vRefresh(){const a=document.getElementById('vp'),b=document.getElementById('vpick'),c=document.getElementById('vcnt');if(a)a.innerHTML=vPitch();if(b)b.innerHTML=vPick();if(c)c.textContent=VT.view==='votar'?Object.keys(VT.sel[VT.fm]).length+' de 11 escolhidos':(VT.res&&VT.res.totais?'Votos neste esquema: '+(VT.res.totais[vesq()]||0):'')}
+function vRefresh(){const a=document.getElementById('vp'),b=document.getElementById('vpick'),c=document.getElementById('vcnt');if(a)a.innerHTML=vPitch();if(b)b.innerHTML=vPick();if(c)c.textContent=VT.view==='votar'?Object.keys(VT.sel[VT.fm]).length+' de 11 escolhidos':(VT.res&&VT.res.totais?'Votos recebidos: '+vTot(VT.res):'')}
 function votacaoHTML(){vload();
  if(DATA.votacao&&DATA.votacao.ativa===false)return `<div class='card'><h2>Votação</h2><p class='mut'>A votação está encerrada.</p></div>`;
- return `<div class='card'><h2>Seleção da fase de grupos</h2><p class='mut'>Escolha os 11 melhores. Cada celular vota uma vez por esquema.${vtem()?'':' <b>Modo de teste: os votos não são enviados.</b>'}</p>
+ return `<div class='card'><h2>Seleção da fase de grupos</h2><p class='mut'>Escolha os 11 melhores. Cada celular vota uma vez por esquema, e os votos dos dois esquemas são somados por jogador e posição.${vtem()?'':' <b>Modo de teste: os votos não são enviados.</b>'}</p>
  <div class='row'><button class='vb${VT.view==='votar'?' on':''}' data-vv='votar'>Votar</button><button class='vb${VT.view==='res'?' on':''}' data-vv='res'>Resultado parcial</button></div>
  <div class='row'><button class='vb${VT.fm==='433'?' on':''}' data-vf='433'>4-3-3</button><button class='vb${VT.fm==='442'?' on':''}' data-vf='442'>4-4-2</button><span class='mut' id='vcnt'>${VT.view==='votar'?Object.keys(VT.sel[VT.fm]).length+' de 11 escolhidos':''}</span></div>
  <div class='vp' id='vp'>${vPitch()}</div><div id='vpick'>${vPick()}</div>
  ${VT.view==='votar'?`<div class='row'><button class='btn' id='vsend'>Enviar voto</button><span class='mut' id='vmsg'>${VT.msg}</span></div><div class='row'><button class='vb' id='vimg'>Salvar imagem do meu voto</button></div>`:`<div class='row'><button class='vb' id='vimgr'>Salvar imagem da seleção</button></div>`}<div id='vprev'></div></div>`}
 async function cardSelecao(k){
  const res=k==='selres',fm=VT.fm,sl=VFM[fm];
- const tot=res&&VT.res&&VT.res.totais?(VT.res.totais[vesq()]||0):0;
+ const tot=res&&VT.res?vTot(VT.res):0;
  const[c,x]=await baseCard(res?'SELEÇÃO MAIS VOTADA':'MINHA SELEÇÃO',res?tot+' VOTOS · '+vesq():vesq());
  const X0=60,Y0=170,W=960,H=1040;
  rr(x,X0,Y0,W,H,28,'#2f7d3a');
@@ -475,7 +475,7 @@ async function cardSelecao(k){
  path(x,X0+W*0.36,Y0+42,W*0.28,H*0.12,0);x.stroke();
  path(x,X0+W*0.36,Y0+H-42-H*0.12,W*0.28,H*0.12,0);x.stroke();
  const items=[];
- if(res){const E=((VT.res||{}).resultado||{})[vesq()]||{},us={};
+ if(res){const E=vComb(VT.res||{}),us={};
   sl.forEach(p=>{let it=null;for(const q of(E[p[0]]||[])){const key=q.time+q.jogador;if(!us[key]){us[key]=1;it={n:q.jogador,t:q.time.toUpperCase(),v:q.votos};break}}items.push(it)})}
  else{const s=VT.sel[fm];sl.forEach((p,i)=>items.push(s[i]?{n:s[i].n,t:s[i].t}:null))}
  for(let i=0;i<sl.length;i++){const p=sl[i],it=items[i],cx=X0+W*p[1]/100,cy=Y0+H*p[2]/100;
@@ -491,6 +491,13 @@ async function vCard(k){const pv=document.getElementById('vprev'),say=t=>{if(pv)
  if(k==='selres'&&(!VT.res||VT.res.erro))return say('O resultado ainda não está disponível.');
  say('Gerando imagem...');
  try{const c=await cardSelecao(k);CV[k]=c;if(pv)pv.innerHTML=`<img class='cim' src='${c.toDataURL('image/png')}' alt=''><p class='mut'>Se o download não começar, segure a imagem para salvar.</p>`;await salvarImg(k)}catch(e){say('Não foi possível gerar a imagem.')}}
+function vComb(R){const src=R.resultado||{},ks=Object.keys(src);
+ if(ks.length&&Array.isArray(src[ks[0]]))return src;
+ const agg={},out={};
+ ks.forEach(esq=>{const E=src[esq]||{};Object.keys(E).forEach(pos=>E[pos].forEach(c=>{const k=pos+'|'+c.jogador+'|'+c.time;agg[k]=agg[k]||{pos,jogador:c.jogador,time:c.time,votos:0};agg[k].votos+=c.votos}))});
+ Object.values(agg).forEach(a=>{(out[a.pos]=out[a.pos]||[]).push({jogador:a.jogador,time:a.time,votos:a.votos})});
+ Object.keys(out).forEach(k=>out[k].sort((a,b)=>b.votos-a.votos));return out}
+const vTot=R=>R&&R.total!=null?R.total:Object.values((R&&R.totais)||{}).reduce((a,b)=>a+b,0);
 async function vCarregar(){VT.res=null;if(!vtem()){VT.res={erro:'sem url'};return}
  try{const r=await fetch(DATA.votacao.url+'?acao=resultado');VT.res=await r.json()}catch(e){VT.res={erro:'falha'}}}
 async function vEnviar(){const m=document.getElementById('vmsg'),s=VT.sel[VT.fm],n=Object.keys(s).length,say=t=>{VT.msg=t;if(m)m.textContent=t};
