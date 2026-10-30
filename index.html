@@ -8,6 +8,13 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Copa Grupo B">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%E2%9A%BD%3C/text%3E%3C/svg%3E">
+<meta name="description" content="Tabela, jogos, fase final e votação da seleção do Grupo B da Copa de Seleções.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Copa de Seleções · Grupo B">
+<meta property="og:description" content="Tabela, jogos, fase final e votação da seleção da fase de grupos.">
+<meta property="og:image" content="https://wjmatos.github.io/copa-selecoes/preview.png">
+<meta property="og:url" content="https://wjmatos.github.io/copa-selecoes/">
+<meta name="twitter:card" content="summary_large_image">
 <title>Painel · Copa de Seleções · Grupo B</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
@@ -518,9 +525,17 @@ document.addEventListener('click',async e=>{const t=e.target.closest('[data-vv],
  else if(t.id==='vimg')vCard('meu')
  else if(t.id==='vimgr')vCard('selres')});
 document.addEventListener('input',e=>{if(e.target.id==='vq'){const l=document.getElementById('vl');if(l)l.innerHTML=vList()}});
+const SLUG={inicio:'inicio',tabela:'tabela',jogos:'jogos',cartoes:'cartoes',calc:'calculadora',fase:'fase-final',votar:'votacao',stats:'jogadores',notas:'notas',brechas:'brechas',backup:'backup'};
+const slugT=n=>n.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-');
+function abaToHash(a){return a.slice(0,2)==='t:'?'time-'+slugT(a.slice(2)):(SLUG[a]||'inicio')}
+function hashToAba(h){h=(h||'').replace('#','').toLowerCase();if(!h)return null;if(h==='proximo'||h==='proximo-jogo')return'inicio';
+ for(const k in SLUG)if(SLUG[k]===h)return k;
+ if(h.indexOf('time-')===0){const t=DATA.times.find(n=>slugT(n)===h.slice(5));if(t)return't:'+t}return null}
+function syncHash(){try{const h='#'+abaToHash(aba);if(location.hash!==h)history.replaceState(null,'',h)}catch(e){}}
+window.addEventListener('hashchange',()=>{const a=hashToAba(location.hash);if(a&&a!==aba&&(a.slice(0,2)==='t:'||TABS.some(t=>t[0]===a))){aba=a;render()}});
 function tickRender(){const p=proximoJogo(),L=DATA.jogos.filter(j=>!j.placar).sort(ord).slice(0,6);
  $("#jg").innerHTML=`<div class="ag"><b>Jogos e eventos</b><span class="mut">Grupo B</span><button class="btn" data-a="jogos">Agenda completa</button></div>`+L.map(j=>`<div class="jc ${p&&j.n===p.j.n?"nx1":""}">${p&&j.n===p.j.n?'<b style="color:var(--g)">PRÓXIMO</b>':""}<span class="mut">${dow(j.data)} ${fmt(j.data)} · ${j.hora}</span><div class="r" data-t="${j.casa}">${bdg(j.casa,"sm")} ${SIG[j.casa]}</div><div class="r" data-t="${j.fora}">${bdg(j.fora,"sm")} ${SIG[j.fora]}</div><span class="mut">Grupo B · jogo ${j.n}</span></div>`).join("")}
-function render(){
+function render(){syncHash();
  stripRender();tickRender();
  $("#nav").innerHTML=TABS.map(t=>`<button class="${t[0]===aba?"on":""}" data-a="${t[0]}">${t[1]}</button>`).join("");
  let h="";
@@ -548,6 +563,9 @@ document.addEventListener("click",e=>{
 });
 document.addEventListener('change',e=>{if(e.target.id==='bki'&&e.target.files[0])importar(e.target.files[0])});
 document.addEventListener("input",e=>{if(e.target.dataset&&e.target.dataset.i!==undefined)st.set("ev"+e.target.dataset.i,e.target.value)});
+{const a0=hashToAba(location.hash);if(a0&&(a0.slice(0,2)==='t:'||TABS.some(t=>t[0]===a0)))aba=a0}
+if(!window.claude){const bt=document.createElement('button');bt.className='vb';bt.id='cplink';bt.textContent='Copiar link desta página';bt.style.marginLeft='10px';$('#foot').appendChild(bt)}
+document.addEventListener('click',async e=>{if(e.target.id==='cplink'){const u=location.href,el=e.target;try{await navigator.clipboard.writeText(u);el.textContent='Link copiado!'}catch(x){el.textContent='Copie: '+u}setTimeout(()=>{el.textContent='Copiar link desta página'},3500)}});
 render();
 setInterval(()=>{tickRender();if(aba==="inicio")render()},60000);
 </script>
