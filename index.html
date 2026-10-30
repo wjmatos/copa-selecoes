@@ -170,6 +170,43 @@ nav button{font-family:var(--fh);font-size:16px;letter-spacing:.6px;text-transfo
 .vl{max-height:230px;overflow:auto}
 .vi{display:flex;align-items:center;gap:8px;padding:7px 4px;border-bottom:1px solid var(--line);cursor:pointer;font-size:14px}
 .vi.off{opacity:.4;cursor:default}
+.enq{grid-column:1/-1;margin-top:8px;padding:10px;border-radius:10px;background:var(--bg);border:1px solid var(--line)}
+.nx .enq{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2);color:#fff}
+.nx .enq .vb{background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.3)}
+.eh{font-size:13px;font-weight:700;margin-bottom:8px}
+.ebt{display:flex;gap:8px;flex-wrap:wrap}
+.ebt .vb{padding:6px 12px;font-size:13px}
+.eq{display:grid;grid-template-columns:minmax(110px,150px) 1fr 40px;gap:8px;align-items:center;font-size:13px;margin:4px 0}
+.eb{height:10px;background:var(--line);border-radius:6px;overflow:hidden}
+.nx .eb{background:rgba(255,255,255,.2)}
+.eb i{display:block;height:100%;background:var(--y)}
+.eq b{text-align:right}
+.enq small{opacity:.8;font-size:12px}
+.enqc{background:var(--card);border:1px solid var(--line);border-top:6px solid var(--y);border-radius:14px;padding:14px;margin-bottom:16px}
+.enqc.pulse{animation:enqp 2.4s ease-out infinite}
+@keyframes enqp{0%{box-shadow:0 0 0 0 rgba(255,216,0,.55)}70%{box-shadow:0 0 0 14px rgba(255,216,0,0)}100%{box-shadow:0 0 0 0 rgba(255,216,0,0)}}
+@media (prefers-reduced-motion:reduce){.enqc.pulse{animation:none}}
+.ec-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ec-tag{background:var(--y);color:#01123a;font-weight:800;font-size:11px;letter-spacing:.6px;padding:2px 8px;border-radius:5px}
+.ec-t{font-family:var(--fh);font-size:30px;text-transform:uppercase;line-height:1;flex:1;min-width:140px}
+.ec-w{font-size:12.5px;color:var(--mut);width:100%}
+.ec-m{display:flex;align-items:center;justify-content:center;gap:18px;margin:12px 0}
+.ec-m b{font-family:var(--fh);font-size:34px;opacity:.6}
+.ec-b{display:grid;grid-template-columns:1fr .8fr 1fr;gap:8px}
+.ec-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:84px;padding:10px 6px;border-radius:12px;border:2px solid var(--g);background:var(--card);color:var(--ink);font:inherit;font-size:13px;cursor:pointer;text-align:center;line-height:1.2}
+.ec-btn b{font-family:var(--fh);font-size:20px;text-transform:uppercase}
+.ec-btn:hover,.ec-btn:active{background:var(--y);border-color:var(--y);color:#01123a}
+.ec-btn.emp{border-color:var(--mut)}
+.ec-s{display:block;margin-top:10px;color:var(--mut);font-size:12px}
+.ec-r{display:grid;grid-template-columns:minmax(110px,150px) 1fr 44px;gap:8px;align-items:center;margin:8px 0;font-size:14px}
+.ec-bar{height:16px;background:var(--line);border-radius:8px;overflow:hidden}
+.ec-bar i{display:block;height:100%;background:var(--g)}
+.ec-r.me .ec-bar i{background:var(--y)}
+.ec-r.me span{font-weight:700}
+.ec-r b{text-align:right;font-family:var(--fh);font-size:20px}
+#enqbar:not(:empty){background:var(--y)}
+.enqbar{display:block;width:100%;max-width:1080px;margin:0 auto;border:0;background:transparent;color:#01123a;font:inherit;font-weight:700;padding:10px 14px;cursor:pointer;text-align:center;font-size:14px}
+.enqbar .ec-tag{background:#01123a;color:var(--y);margin-right:8px}
 </style>
 </head>
 <body>
@@ -183,6 +220,7 @@ nav button{font-family:var(--fh);font-size:16px;letter-spacing:.6px;text-transfo
  <nav id="nav"></nav>
 </header>
 <div class="stripwrap"><div class="strip" id="strip"></div></div>
+<div id="enqbar"></div>
 <div class="jg" id="jg"></div>
 <main id="app"></main>
 <footer id="foot"></footer>
@@ -218,7 +256,7 @@ function tabHTML(hl=meu){
 }
 function jogoHTML(j){
  const me=j.casa===meu||j.fora===meu;
- return `<div class="jogo ${me?"me":""}"><div class="t ${j.casa===meu?"m":""}">${bdg(j.casa,"sm")} ${j.casa}</div><div class="p">${j.placar?j.placar[0]+" × "+j.placar[1]:"× "}</div><div class="t ${j.fora===meu?"m":""}">${j.fora} ${bdg(j.fora,"sm")}</div><div class="d">${dow(j.data)} ${fmt(j.data)} · ${j.hora} · jogo ${j.n}${!j.placar&&new Date(j.data+"T"+j.hora)<new Date()?" · aguardando resultado":""}</div></div>`;
+ return `<div class="jogo ${me?"me":""}"><div class="t ${j.casa===meu?"m":""}">${bdg(j.casa,"sm")} ${j.casa}</div><div class="p">${j.placar?j.placar[0]+" × "+j.placar[1]:"× "}</div><div class="t ${j.fora===meu?"m":""}">${j.fora} ${bdg(j.fora,"sm")}</div><div class="d">${dow(j.data)} ${fmt(j.data)} · ${j.hora} · jogo ${j.n}${!j.placar&&new Date(j.data+"T"+j.hora)<new Date()?" · aguardando resultado":""}</div>${aba==="jogos"?enqueteHTML(j):""}</div>`;
 }
 const jogosHTML=l=>l.length?l.map(jogoHTML).join(""):`<div class="vazio">Nenhum jogo carregado.</div>`;
 function proximo(){return DATA.jogos.filter(j=>!j.placar).sort(ord)[0]}
@@ -268,7 +306,7 @@ function tile(n,c=""){if(!n)return"";const t=(n.times||[])[0],cor=COR[t]||"#0b3c
  const bg=n.img?`linear-gradient(transparent 30%,rgba(0,0,0,.78)),url(${n.img})`:`linear-gradient(160deg,${cor},#01123a)`;
  return `<div class="tile ${c}" ${t?`data-t="${t}"`:""} style="background-image:${bg}"><span class="tag">${n.tag}</span><b>${n.t}</b><span class="sm">${n.x}</span></div>`}
 function homeHTML(){const L=todas();
- return proxHTML()+`<div class="fx">${tile(L[0],"big")}${tile(L[1])}${tile(L[2])}</div><div class="grid"><div><div class="card"><h2>Mais notícias</h2>${L.slice(3).map(nw).join("")||`<div class="vazio">Sem mais notícias.</div>`}</div><div class="card"><h2>Próximos jogos</h2>${jogosHTML(DATA.jogos.filter(j=>!j.placar).sort(ord).slice(0,5))}</div></div><div><div class="card"><h2>Classificação</h2>${tabHTML()}</div></div></div>`}
+ return enqSection()+proxHTML()+`<div class="fx">${tile(L[0],"big")}${tile(L[1])}${tile(L[2])}</div><div class="grid"><div><div class="card"><h2>Mais notícias</h2>${L.slice(3).map(nw).join("")||`<div class="vazio">Sem mais notícias.</div>`}</div><div class="card"><h2>Próximos jogos</h2>${jogosHTML(DATA.jogos.filter(j=>!j.placar).sort(ord).slice(0,5))}</div></div><div><div class="card"><h2>Classificação</h2>${tabHTML()}</div></div></div>`}
 function timeHTML(n){const r=tabela(),i=r.findIndex(x=>x.n===n),x=r[i]||{p:0,j:0},ns=todas().filter(m=>(m.times||[]).includes(n)),js=DATA.jogos.filter(j=>j.casa===n||j.fora===n).sort(ord);
  return `<div class="th" style="background:linear-gradient(135deg,${COR[n]||"#0b3cae"},#01123a)">${bdg(n,"lg")}<div><h2>${n}</h2><p>${i+1}º no Grupo B · ${x.p} pts · ${x.j} jogo(s)</p></div></div><div class="grid"><div><div class="card"><h2>Notícias do time</h2>${ns.length?ns.map(nw).join(""):`<div class="vazio">Sem notícias deste time ainda.</div>`}</div><div class="card"><h2>Jogos</h2>${jogosHTML(js)}</div></div><div><div class="card"><h2>Classificação</h2>${tabHTML(n)}</div>${elencoHTML(n)}</div></div>`}
 const tc=s=>s.toLowerCase().replace(/(^|\s)(\S)/g,(m,a,b)=>a+b.toUpperCase()).replace(/ (De|Da|Do|Dos|Das|E) /g,x=>x.toLowerCase());
@@ -505,6 +543,30 @@ function vComb(R){const src=R.resultado||{},ks=Object.keys(src);
  Object.values(agg).forEach(a=>{(out[a.pos]=out[a.pos]||[]).push({jogador:a.jogador,time:a.time,votos:a.votos})});
  Object.keys(out).forEach(k=>out[k].sort((a,b)=>b.votos-a.votos));return out}
 const vTot=R=>R&&R.total!=null?R.total:Object.values((R&&R.totais)||{}).reduce((a,b)=>a+b,0);
+const ENQ={res:null};
+const vdid=()=>{let d=st.get('vdid');if(!d){d=Math.random().toString(36).slice(2)+Date.now().toString(36);st.set('vdid',d)}return d};
+function enqueteHTML(j){if(j.placar)return'';
+ const ini=new Date(j.data+'T'+j.hora),aberta=ini>new Date(),mv=st.get('enq_'+j.n),r=(ENQ.res||{})[j.n]||{casa:0,empate:0,fora:0},tot=r.casa+r.empate+r.fora;
+ const lab={casa:'Vitória '+nome(j.casa),empate:'Empate',fora:'Vitória '+nome(j.fora)},pc=k=>tot?Math.round(r[k]*100/tot):0;
+ const bar=k=>`<div class='eq'><span>${lab[k]}</span><div class='eb'><i style='width:${pc(k)}%'></i></div><b>${pc(k)}%</b></div>`;
+ if(mv||!aberta)return `<div class='enq'><div class='eh'>Palpite do pessoal · ${tot} voto${tot===1?'':'s'}</div>${['casa','empate','fora'].map(bar).join('')}${mv?`<small>Você votou em: ${lab[mv]}</small>`:`<small>Enquete encerrada.</small>`}</div>`;
+ return `<div class='enq'><div class='eh'>Quem vence? Vote e veja o palpite do pessoal</div><div class='ebt'>${['casa','empate','fora'].map(k=>`<button class='vb' data-eq='${j.n}|${k}'>${lab[k]}</button>`).join('')}</div></div>`}
+async function enqLoad(){if(!vtem())return;
+ try{const r=await fetch(DATA.votacao.url+'?acao=enquete'),j=await r.json();ENQ.res=j.jogos||{};if(aba==='inicio'||aba==='jogos')render()}catch(e){}}
+document.addEventListener('click',async e=>{const t=e.target.closest('[data-eq]');if(!t)return;const p=t.dataset.eq.split('|'),n=p[0],k=p[1];
+ if(st.get('enq_'+n))return;st.set('enq_'+n,k);ENQ.res=ENQ.res||{};const r=ENQ.res[n]=ENQ.res[n]||{casa:0,empate:0,fora:0};r[k]++;render();
+ if(vtem()){try{await fetch(DATA.votacao.url,{method:'POST',mode:'no-cors',body:JSON.stringify({tipo:'enquete',id:vdid()+'-'+n,jogo:+n,palpite:k})})}catch(x){}}});
+function enqCard(j){const ini=new Date(j.data+'T'+j.hora),mv=st.get('enq_'+j.n),r=(ENQ.res||{})[j.n]||{casa:0,empate:0,fora:0},tot=r.casa+r.empate+r.fora,aberta=ini>new Date();
+ const nm={casa:nome(j.casa),fora:nome(j.fora)},pc=k=>tot?Math.round(r[k]*100/tot):0;
+ const head=`<div class='ec-h'><span class='ec-tag'>ENQUETE</span><span class='ec-t'>${aberta?'Quem vence?':'Palpite do pessoal'}</span><span class='ec-w'>${aberta?'Fecha quando a bola rolar · '+quando(j,ini):'Encerrada'}</span></div><div class='ec-m'>${bdg(j.casa,'lg')}<b>×</b>${bdg(j.fora,'lg')}</div>`;
+ if(aberta&&!mv)return `<div class='enqc pulse'>${head}<div class='ec-b'><button class='ec-btn' data-eq='${j.n}|casa'>${bdg(j.casa,'sm')}<span>Vitória<br><b>${nm.casa}</b></span></button><button class='ec-btn emp' data-eq='${j.n}|empate'><span>Empate</span></button><button class='ec-btn' data-eq='${j.n}|fora'>${bdg(j.fora,'sm')}<span>Vitória<br><b>${nm.fora}</b></span></button></div><small class='ec-s'>Um voto por celular. O resultado aparece depois que você votar.</small></div>`;
+ const row=(k,l)=>`<div class='ec-r${mv===k?' me':''}'><span>${l}</span><div class='ec-bar'><i style='width:${pc(k)}%'></i></div><b>${pc(k)}%</b></div>`;
+ return `<div class='enqc'>${head}${row('casa','Vitória '+nm.casa)}${row('empate','Empate')}${row('fora','Vitória '+nm.fora)}<small class='ec-s'>${tot} voto${tot===1?'':'s'}${mv?' · você votou em '+(mv==='empate'?'empate':'vitória '+nm[mv]):''}</small></div>`}
+const enqSection=()=>pend().filter(j=>new Date(j.data+'T'+j.hora)>new Date()).slice(0,2).map(enqCard).join('');
+function enqBarRender(){const el=document.getElementById('enqbar');if(!el)return;
+ const j=aba==='inicio'?null:pend().find(x=>new Date(x.data+'T'+x.hora)>new Date()&&!st.get('enq_'+x.n));
+ el.innerHTML=j?`<button class='enqbar' data-enqgo='1'><span class='ec-tag'>ENQUETE</span>Quem vence: ${nome(j.casa)} × ${nome(j.fora)}? Vote agora →</button>`:''}
+document.addEventListener('click',e=>{if(e.target.closest('[data-enqgo]')){aba='inicio';render();window.scrollTo(0,0)}});
 async function vCarregar(){VT.res=null;if(!vtem()){VT.res={erro:'sem url'};return}
  try{const r=await fetch(DATA.votacao.url+'?acao=resultado');VT.res=await r.json()}catch(e){VT.res={erro:'falha'}}}
 async function vEnviar(){const m=document.getElementById('vmsg'),s=VT.sel[VT.fm],n=Object.keys(s).length,say=t=>{VT.msg=t;if(m)m.textContent=t};
@@ -536,7 +598,7 @@ window.addEventListener('hashchange',()=>{const a=hashToAba(location.hash);if(a&
 function tickRender(){const p=proximoJogo(),L=DATA.jogos.filter(j=>!j.placar).sort(ord).slice(0,6);
  $("#jg").innerHTML=`<div class="ag"><b>Jogos e eventos</b><span class="mut">Grupo B</span><button class="btn" data-a="jogos">Agenda completa</button></div>`+L.map(j=>`<div class="jc ${p&&j.n===p.j.n?"nx1":""}">${p&&j.n===p.j.n?'<b style="color:var(--g)">PRÓXIMO</b>':""}<span class="mut">${dow(j.data)} ${fmt(j.data)} · ${j.hora}</span><div class="r" data-t="${j.casa}">${bdg(j.casa,"sm")} ${SIG[j.casa]}</div><div class="r" data-t="${j.fora}">${bdg(j.fora,"sm")} ${SIG[j.fora]}</div><span class="mut">Grupo B · jogo ${j.n}</span></div>`).join("")}
 function render(){syncHash();
- stripRender();tickRender();
+ stripRender();tickRender();enqBarRender();
  $("#nav").innerHTML=TABS.map(t=>`<button class="${t[0]===aba?"on":""}" data-a="${t[0]}">${t[1]}</button>`).join("");
  let h="";
  if(aba==="inicio")h=homeHTML();
@@ -568,6 +630,7 @@ if(!window.claude){const bt=document.createElement('button');bt.className='vb';b
 document.addEventListener('click',async e=>{if(e.target.id==='cplink'){const u=location.href,el=e.target;try{await navigator.clipboard.writeText(u);el.textContent='Link copiado!'}catch(x){el.textContent='Copie: '+u}setTimeout(()=>{el.textContent='Copiar link desta página'},3500)}});
 render();
 setInterval(()=>{tickRender();if(aba==="inicio")render()},60000);
+enqLoad();setInterval(enqLoad,60000);
 </script>
 </body>
 </html>
