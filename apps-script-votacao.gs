@@ -20,6 +20,7 @@ function doPost(e) {
   lock.waitLock(15000);
   try {
     var d = JSON.parse(e.postData.contents);
+    if (d.tipo === 'enquete') return enquetePost_(d);
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var esperado = ESQUEMAS[d.esquema];
     if (!esperado || !d.id || String(d.id).length > 80 || !d.voto || d.voto.length !== 11) return json_({ ok: false, erro: 'voto invalido' });
@@ -60,6 +61,7 @@ function doPost(e) {
 
 // Devolve o resultado parcial: os mais votados por posição, somando os votos de todos os esquemas
 function doGet(e) {
+  if (e && e.parameter && e.parameter.acao === 'enquete') return json_({ jogos: enqueteResultado_() });
   var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(ABA_VOTOS);
   var n = sh.getLastRow() - 1;
   var v = n > 0 ? sh.getRange(2, 1, n, 6).getValues() : [];
@@ -85,4 +87,44 @@ function doGet(e) {
   var tot = {}, soma = 0;
   Object.keys(ids).forEach(function (esq) { tot[esq] = Object.keys(ids[esq]).length; soma += tot[esq]; });
   return json_({ total: soma, totais: tot, resultado: res });
+}
+
+// ===== Enquete rápida por jogo (vitória da casa, empate ou vitória do visitante) =====
+function abaEnquetes_() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = ss.getSheetByName('Enquetes');
+  if (!sh) {
+    sh = ss.insertSheet('Enquetes');
+    sh.getRange(1, 1, 1, 4).setValues([['Data/hora', 'Voto (ID)', 'Jogo', 'Palpite']]);
+  }
+  return sh;
+}
+
+function enquetePost_(d) {
+  var ok = { casa: 1, empate: 1, fora: 1 };
+  var jogo = parseInt(d.jogo, 10);
+  if (!d.id || String(d.id).length > 80 || !(jogo >= 1 && jogo <= 500) || !ok[d.palpite]) return json_({ ok: false, erro: 'enquete invalida' });
+  var sh = abaEnquetes_();
+  var ult = sh.getLastRow();
+  if (ult > 1) {
+    var ids = sh.getRange(2, 2, ult - 1, 1).getValues();
+    for (var i = 0; i < ids.length; i++) if (ids[i][0] === d.id) return json_({ ok: false, erro: 'duplicado' });
+  }
+  var agora = Utilities.formatDate(new Date(), 'America/Sao_Paulo', 'dd/MM/yyyy HH:mm:ss');
+  sh.getRange(ult + 1, 1, 1, 4).setNumberFormat('@').setValues([[agora, d.id, String(jogo), d.palpite]]);
+  return json_({ ok: true });
+}
+
+function enqueteResultado_() {
+  var sh = abaEnquetes_();
+  var n = sh.getLastRow() - 1;
+  var v = n > 0 ? sh.getRange(2, 1, n, 4).getValues() : [];
+  var res = {};
+  v.forEach(function (r) {
+    var j = String(r[2]), p = r[3];
+    if (!j || !p) return;
+    res[j] = res[j] || { casa: 0, empate: 0, fora: 0 };
+    if (res[j][p] !== undefined) res[j][p]++;
+  });
+  return res;
 }
