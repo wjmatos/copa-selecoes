@@ -209,6 +209,7 @@ nav button{font-family:var(--fh);font-size:16px;letter-spacing:.6px;text-transfo
 #enqbar:not(:empty){background:var(--y)}
 .enqbar{display:block;width:100%;max-width:1080px;margin:0 auto;border:0;background:transparent;color:#01123a;font:inherit;font-weight:700;padding:10px 14px;cursor:pointer;text-align:center;font-size:14px}
 .enqbar .ec-tag{background:#01123a;color:var(--y);margin-right:8px}
+.btn.alt{background:var(--mut);color:#fff}
 </style>
 </head>
 <body>
@@ -386,8 +387,13 @@ async function cardResultados(){const[c,x]=await baseCard('RESULTADOS','Grupo B'
  if(L[0]){rr(x,60,990,960,200,18,'rgba(255,255,255,.09)');rr(x,60,990,12,200,6,'#ffd800');wrap(x,resTxt(L[0]),100,1065,880,52,40,'#fff')}
  return c}
 const CARD={jogo:cardJogo,tabela:cardTabela,res:cardResultados,enq:cardEnq},CV={};
-function cartoesHTML(){return `<div class='card'><h2>Cartões para WhatsApp</h2><p class='mut'>Toque em Salvar imagem e envie no grupo. No celular, também dá para segurar a imagem para salvar.</p></div><div class='cds'>`+[['jogo','Próximo jogo'],['tabela','Tabela'],['res','Resultados'],['enq','Enquete / torcidômetro']].map(k=>`<div class='card'><h2>${k[1]}</h2><img id='im-${k[0]}' alt='${k[1]}' class='cim'><button class='btn' data-sv='${k[0]}'>Salvar imagem</button></div>`).join('')+`</div>`}
+function cartoesHTML(){return `<div class='card'><h2>Cartões para WhatsApp</h2><p class='mut'>Toque em Salvar imagem e envie no grupo. No celular, também dá para segurar a imagem para salvar.</p></div><div class='cds'>`+[['jogo','Próximo jogo'],['tabela','Tabela'],['res','Resultados'],['enq','Enquete / torcidômetro']].map(k=>`<div class='card'><h2>${k[1]}</h2><img id='im-${k[0]}' alt='${k[1]}' class='cim'><button class='btn' data-sh='${k[0]}'>Compartilhar</button> <button class='btn alt' data-sv='${k[0]}'>Salvar imagem</button></div>`).join('')+`</div>`}
 async function cartoesInit(){for(const k of Object.keys(CARD)){try{const c=await CARD[k]();CV[k]=c;const im=document.getElementById('im-'+k);if(im)im.src=c.toDataURL('image/png')}catch(e){}}}
+async function shareImg(k){const c=CV[k];if(!c)return;
+ try{const b=await new Promise(r=>c.toBlob(r,'image/png')),f=new File([b],'cartao-'+k+'.png',{type:'image/png'});
+  if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],text:'Copa de Seleções · Grupo B\nhttps://wjmatos.github.io/copa-selecoes/'});return}}
+ catch(e){if(e&&e.name==='AbortError')return}
+ await salvarImg(k)}
 async function salvarImg(k){const c=CV[k];if(!c)return;try{const fn='cartao-'+k+'-'+DATA.atualizado.split('/').join('-')+'.png';const dl=window.claude&&await claude.use('downloads');if(!dl){const a=document.createElement('a');a.href=c.toDataURL('image/png');a.download=fn;document.body.appendChild(a);a.click();a.remove();return}const b=await new Promise(r=>c.toBlob(r,'image/png'));await dl.save({filename:fn,data:b})}catch(e){}}
 function backupHTML(){return `<div class='card'><h2>Backup dos dados</h2><p class='mut'>Guarda em um arquivo todos os dados do painel: jogos, placares, times, elencos, notícias e as evidências que você anotou. Faça um backup depois de cada atualização importante.</p><button class='btn' id='bk'>Exportar backup</button> <label class='btn' style='display:inline-block;background:var(--mut);color:#fff'>Importar backup<input type='file' id='bki' accept='.json,application/json' hidden></label><p class='mut' id='bkm'></p></div>`}
 async function exportar(){const o={versao:1,exportadoEm:new Date().toISOString(),dados:DATA,evidencias:{},meuTime:meu};DATA.brechas.forEach((b,i)=>{const v=st.get('ev'+i);if(v)o.evidencias[i]=v});const txt=JSON.stringify(o,null,1),m=$('#bkm');
@@ -537,7 +543,7 @@ async function vCard(k){const pv=document.getElementById('vprev'),say=t=>{if(pv)
  if(k==='meu'&&Object.keys(VT.sel[VT.fm]).length<11)return say('Escolha os 11 jogadores primeiro.');
  if(k==='selres'&&(!VT.res||VT.res.erro))return say('O resultado ainda não está disponível.');
  say('Gerando imagem...');
- try{const c=await cardSelecao(k);CV[k]=c;if(pv)pv.innerHTML=`<img class='cim' src='${c.toDataURL('image/png')}' alt=''><p class='mut'>Se o download não começar, segure a imagem para salvar.</p>`;await salvarImg(k)}catch(e){say('Não foi possível gerar a imagem.')}}
+ try{const c=await cardSelecao(k);CV[k]=c;if(pv)pv.innerHTML=`<img class='cim' src='${c.toDataURL('image/png')}' alt=''><div class='row'><button class='btn' data-sh='${k}'>Compartilhar</button> <button class='btn alt' data-sv='${k}'>Salvar imagem</button></div>`}catch(e){say('Não foi possível gerar a imagem.')}}
 function vComb(R){const src=R.resultado||{},ks=Object.keys(src);
  if(ks.length&&Array.isArray(src[ks[0]]))return src;
  const agg={},out={};
@@ -656,6 +662,7 @@ $("#meu").onchange=e=>{meu=e.target.value;st.set("meuTime",meu);render()};
 document.addEventListener("click",e=>{
  const a=e.target.closest("[data-a]");if(a){aba=a.dataset.a;render();window.scrollTo(0,0);return}
  const tt=e.target.closest("[data-t]");if(tt){aba="t:"+tt.dataset.t;render();window.scrollTo(0,0);return}
+ const sh=e.target.closest('[data-sh]');if(sh){shareImg(sh.dataset.sh);return}
  const sv=e.target.closest('[data-sv]');if(sv){salvarImg(sv.dataset.sv);return}
  if(e.target.id==='bk'){exportar();return}
  if(e.target.id==="gerar")$("#resumo").value=resumo();
