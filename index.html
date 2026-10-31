@@ -560,6 +560,11 @@ async function jogosLoad(){if(!vtem())return;
    if(m.vivo){delete m.vivo;mud=true}
    if(!m.placar||m.placar[0]!==x.gc||m.placar[1]!==x.gf){m.placar=[x.gc,x.gf];mud=true}});
   if(mud)render()}catch(e){}}
+async function noticiasLoad(){if(!vtem())return;
+ try{const r=await fetch(DATA.votacao.url+'?acao=noticias'),j=await r.json();if(!Array.isArray(j.noticias)||!j.noticias.length)return;
+  const sa=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim();
+  const L=j.noticias.sort((a,b)=>(a.pos&&b.pos)?a.pos-b.pos:a.pos?-1:b.pos?1:a.ordem-b.ordem).map(n=>({tag:n.tag,t:n.t,x:n.x,times:n.times.split(',').map(s=>DATA.times.find(t=>sa(t)===sa(s))).filter(Boolean)}));
+  if(JSON.stringify(L)!==JSON.stringify(DATA.noticias)){DATA.noticias=L;render()}}catch(e){}}
 async function enqLoad(){if(!vtem())return;
  try{const r=await fetch(DATA.votacao.url+'?acao=enquete'),j=await r.json();ENQ.res=j.jogos||{};if(aba==='inicio'||aba==='jogos')render()}catch(e){}}
 document.addEventListener('click',async e=>{const t=e.target.closest('[data-eq]');if(!t)return;const p=t.dataset.eq.split('|'),n=p[0],k=p[1];
@@ -639,7 +644,7 @@ if(!window.claude){const bt=document.createElement('button');bt.className='vb';b
 document.addEventListener('click',async e=>{if(e.target.id==='cplink'){const u=location.href,el=e.target;try{await navigator.clipboard.writeText(u);el.textContent='Link copiado!'}catch(x){el.textContent='Copie: '+u}setTimeout(()=>{el.textContent='Copiar link desta página'},3500)}});
 render();
 setInterval(()=>{tickRender();if(aba==="inicio")render()},60000);
-enqLoad();setInterval(enqLoad,60000);jogosLoad();setInterval(jogosLoad,60000);
+enqLoad();setInterval(enqLoad,60000);jogosLoad();setInterval(jogosLoad,60000);noticiasLoad();setInterval(noticiasLoad,60000);
 if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
