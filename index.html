@@ -259,7 +259,22 @@ function tabHTML(hl=meu){
  r.map((x,i)=>`<tr class="${x.n===hl?"me":""}"><td>${i+1}</td><td>${x.n}</td><td><b>${x.p}</b></td><td>${x.j}</td><td>${x.v}</td><td>${x.e}</td><td>${x.d}</td><td>${x.gp}</td><td>${x.gc}</td><td>${x.sg}</td></tr>`).join("")+
  `</table></div><p class="mut">Classificação calculada a partir dos resultados do site oficial (consulta de 22/10/2026) e dos placares informados manualmente depois dessa data. Pontuação 3-1-0 e desempate (1º número de vitórias, depois saldo e gols pró), como informado: não estão no regulamento.</p>`;
 }
+function rankHip(map){const t={};DATA.times.forEach(n=>t[n]={n,j:0,v:0,e:0,d:0,gp:0,gc:0});
+ DATA.jogos.filter(j=>!j.fase).forEach(j=>{const pl=j.placar||map[j.n];if(!pl)return;const a=pl[0],b=pl[1],c=t[j.casa],f=t[j.fora];if(!c||!f)return;
+  c.j++;f.j++;c.gp+=a;c.gc+=b;f.gp+=b;f.gc+=a;if(a>b){c.v++;f.d++}else if(a<b){f.v++;c.d++}else{c.e++;f.e++}});
+ return Object.values(t).map(x=>({...x,p:x.v*3+x.e,sg:x.gp-x.gc})).sort((a,b)=>b.p-a.p||b.v-a.v||b.sg-a.sg||b.gp-a.gp||a.n.localeCompare(b.n))}
+function provJogos(){const G=DATA.jogos.filter(j=>!j.fase);if(!G.length||DATA.jogos.some(j=>j.fase))return[];
+ const pd=G.filter(j=>!j.placar);if(!pd.length||pd.length>4)return[];
+ const alts=[[0,0],[1,0],[0,1],[9,0],[0,9]],cand=Array.from({length:DATA.times.length},()=>new Set());
+ const go=(i,m)=>{if(i===pd.length){rankHip(m).forEach((x,k)=>cand[k].add(x.n));return}alts.forEach(a=>{m[pd[i].n]=a;go(i+1,m)})};go(0,{});
+ const dep=pd.map(j=>nome(j.casa)+' x '+nome(j.fora)).join(', ');
+ return FASE.map(f=>{const A=[...cand[f.a]],B=[...cand[f.b]];
+  return{n:f.n,data:f.data,hora:f.hora,fase:true,prov:true,dep,pa:f.a+1,pb:f.b+1,casa:A.length===1?A[0]:null,fora:B.length===1?B[0]:null,
+   ca:A.map(nome).join(', '),cb:B.map(nome).join(', ')}})}
+function jogoProv(j){const me=j.casa===meu||j.fora===meu,lado=(n,p,c,dir)=>n?(dir?`${n} ${bdg(n,'sm')}`:`${bdg(n,'sm')} ${n}`)+` <small class='mut'>${p}º</small>`:`${p}º colocado<br><small class='mut'>${c.replace(/, ([^,]*)$/,' ou $1')}</small>`;
+ return `<div class="jogo ${me?'me':''}"><div class="t">${lado(j.casa,j.pa,j.ca,0)}</div><div class="p">× </div><div class="t">${lado(j.fora,j.pb,j.cb,1)}</div><div class="d">${dow(j.data)} ${fmt(j.data)} · ${j.hora} · playoff · jogo ${j.n} · a confirmar após ${j.dep}</div></div>`}
 function jogoHTML(j){
+ if(j.prov)return jogoProv(j);
  const me=j.casa===meu||j.fora===meu;
  return `<div class="jogo ${me?"me":""}"><div class="t ${j.casa===meu?"m":""}">${bdg(j.casa,"sm")} ${j.casa}</div><div class="p">${j.placar?j.placar[0]+" × "+j.placar[1]:j.vivo?`<span style="color:#d00">● ${j.vivo[0]} × ${j.vivo[1]}</span>`:"× "}</div><div class="t ${j.fora===meu?"m":""}">${j.fora} ${bdg(j.fora,"sm")}</div><div class="d">${dow(j.data)} ${fmt(j.data)} · ${j.hora} · ${j.fase?'playoff · ':''}jogo ${j.n}${!j.placar&&new Date(j.data+"T"+j.hora)<new Date()?" · aguardando resultado":""}</div>${aba==="jogos"?enqueteHTML(j):""}</div>`;
 }
@@ -701,7 +716,7 @@ function render(){syncHash();
  if(aba==="inicio")h=homeHTML();
  else if(aba.slice(0,2)==="t:")h=timeHTML(aba.slice(2));
  else if(aba==="tabela")h=`<div class="card"><h2>Classificação · Grupo B</h2>${tabHTML()}</div>`;
- else if(aba==="jogos")h=`<div class="card"><h2>Jogos do Grupo B</h2>${jogosHTML(DATA.jogos.slice().sort(ord))}</div>`;
+ else if(aba==="jogos")h=`<div class="card"><h2>Jogos do Grupo B</h2>${jogosHTML(DATA.jogos.concat(provJogos()).sort(ord))}</div>`;
  else if(aba==="stats")h=statsHTML();
  else if(aba==="notas")h=`<div class="card"><h2>Notas</h2>${notasHTML()}</div>`;
  else if(aba==="calc")h=calcHTML();else if(aba==="fase")h=faseHTML();else if(aba==="votar")h=votacaoHTML();else if(aba==="mural")h=muralHTML();else if(aba==="cartoes")h=cartoesHTML();else if(aba==="backup")h=backupHTML();else h=brechasHTML();
