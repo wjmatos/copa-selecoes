@@ -269,7 +269,7 @@ function provJogos(){const G=DATA.jogos.filter(j=>!j.fase);if(!G.length||DATA.jo
  const go=(i,m)=>{if(i===pd.length){rankHip(m).forEach((x,k)=>cand[k].add(x.n));return}alts.forEach(a=>{m[pd[i].n]=a;go(i+1,m)})};go(0,{});
  const dep=pd.map(j=>nome(j.casa)+' x '+nome(j.fora)).join(', ');
  return FASE.map(f=>{const A=[...cand[f.a]],B=[...cand[f.b]];
-  return{n:f.n,data:f.data,hora:f.hora,fase:true,prov:true,dep,pa:f.a+1,pb:f.b+1,casa:A.length===1?A[0]:null,fora:B.length===1?B[0]:null,
+  return{n:f.n,data:f.data,hora:f.hora,fase:true,prov:true,dep,pa:f.a+1,pb:f.b+1,casa:A.length===1?A[0]:null,fora:B.length===1?B[0]:null,A,B,
    ca:A.map(nome).join(', '),cb:B.map(nome).join(', ')}})}
 function jogoProv(j){const me=j.casa===meu||j.fora===meu,lado=(n,p,c,dir)=>n?(dir?`${n} ${bdg(n,'sm')}`:`${bdg(n,'sm')} ${n}`)+` <small class='mut'>${p}º</small>`:`${p}º colocado<br><small class='mut'>${c.replace(/, ([^,]*)$/,' ou $1')}</small>`;
  return `<div class="jogo ${me?'me':''}"><div class="t">${lado(j.casa,j.pa,j.ca,0)}</div><div class="p">× </div><div class="t">${lado(j.fora,j.pb,j.cb,1)}</div><div class="d">${dow(j.data)} ${fmt(j.data)} · ${j.hora} · playoff · jogo ${j.n} · a confirmar após ${j.dep}</div></div>`}
@@ -707,8 +707,9 @@ function hashToAba(h){h=(h||'').replace('#','').toLowerCase();if(!h)return null;
  if(h.indexOf('time-')===0){const t=DATA.times.find(n=>slugT(n)===h.slice(5));if(t)return't:'+t}return null}
 function syncHash(){try{const h='#'+abaToHash(aba);if(location.hash!==h)history.replaceState(null,'',h)}catch(e){}}
 window.addEventListener('hashchange',()=>{const a=hashToAba(location.hash);if(a&&a!==aba&&(a.slice(0,2)==='t:'||TABS.some(t=>t[0]===a))){aba=a;render()}});
-function tickRender(){const p=proximoJogo(),L=DATA.jogos.filter(j=>!j.placar).sort(ord).slice(0,6);
- $("#jg").innerHTML=`<div class="ag"><b>Jogos e eventos</b><span class="mut">Grupo B</span><button class="btn" data-a="jogos">Agenda completa</button></div>`+L.map(j=>`<div class="jc ${p&&j.n===p.j.n?"nx1":""}">${p&&j.n===p.j.n?'<b style="color:var(--g)">PRÓXIMO</b>':""}<span class="mut">${dow(j.data)} ${fmt(j.data)} · ${j.hora}</span><div class="r" data-t="${j.casa}">${bdg(j.casa,"sm")} ${SIG[j.casa]}</div><div class="r" data-t="${j.fora}">${bdg(j.fora,"sm")} ${SIG[j.fora]}</div><span class="mut">Grupo B · jogo ${j.n}</span></div>`).join("")}
+function tickRender(){const p=proximoJogo(),L=DATA.jogos.filter(j=>!j.placar).concat(provJogos()).sort(ord).slice(0,6),
+ side=(n,pos,arr)=>n?`<div class="r" data-t="${n}">${bdg(n,"sm")} ${SIG[n]}</div>`:`<div class="r"><span class="mut">${pos}º</span> ${arr.map(x=>SIG[x]).join(' / ')}</div>`;
+ $("#jg").innerHTML=`<div class="ag"><b>Jogos e eventos</b><span class="mut">Grupo B</span><button class="btn" data-a="jogos">Agenda completa</button></div>`+L.map(j=>`<div class="jc ${p&&j.n===p.j.n?"nx1":""}">${p&&j.n===p.j.n?'<b style="color:var(--g)">PRÓXIMO</b>':""}<span class="mut">${dow(j.data)} ${fmt(j.data)} · ${j.hora}</span>${j.prov?side(j.casa,j.pa,j.A)+side(j.fora,j.pb,j.B):`<div class="r" data-t="${j.casa}">${bdg(j.casa,"sm")} ${SIG[j.casa]}</div><div class="r" data-t="${j.fora}">${bdg(j.fora,"sm")} ${SIG[j.fora]}</div>`}<span class="mut">Grupo B · ${j.fase?"playoff · ":""}jogo ${j.n}</span></div>`).join("")}
 function render(){syncHash();
  stripRender();tickRender();enqBarRender();
  $("#nav").innerHTML=TABS.map(t=>`<button class="${t[0]===aba?"on":""}" data-a="${t[0]}">${t[1]}</button>`).join("");
