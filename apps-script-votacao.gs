@@ -61,6 +61,7 @@ function doPost(e) {
 
 // Devolve o resultado parcial: os mais votados por posição, somando os votos de todos os esquemas
 function doGet(e) {
+  if (e && e.parameter && e.parameter.acao === 'noticias') return json_({ noticias: noticiasLista_() });
   if (e && e.parameter && e.parameter.acao === 'jogos') return json_({ jogos: jogosLista_() });
   if (e && e.parameter && e.parameter.acao === 'enquete') return json_({ jogos: enqueteResultado_() });
   var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(ABA_VOTOS);
@@ -141,6 +142,20 @@ function jogosLista_() {
     var gc = r[5], gf = r[6];
     if (gc === '' || gf === '' || isNaN(Number(gc)) || isNaN(Number(gf))) return;
     out.push({ n: n, gc: Number(gc), gf: Number(gf), vivo: String(r[7]).trim() !== '' });
+  });
+  return out;
+}
+
+
+// Aba "Noticias": Posicao | Etiqueta | Titulo | Texto | Times | Esconder?
+function noticiasLista_() {
+  var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Notícias');
+  if (!sh || sh.getLastRow() < 2) return [];
+  var v = sh.getRange(2, 1, sh.getLastRow() - 1, 6).getValues(), out = [];
+  v.forEach(function (r, i) {
+    if (!String(r[2]).trim() || String(r[5]).trim() !== '') return;
+    var p = Number(r[0]);
+    out.push({ pos: p > 0 ? p : 0, ordem: i, tag: String(r[1]), t: String(r[2]), x: String(r[3]), times: String(r[4]) });
   });
   return out;
 }
