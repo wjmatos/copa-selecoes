@@ -210,6 +210,7 @@ nav button{font-family:var(--fh);font-size:16px;letter-spacing:.6px;text-transfo
 .enqbar{display:block;width:100%;max-width:1080px;margin:0 auto;border:0;background:transparent;color:#01123a;font:inherit;font-weight:700;padding:10px 14px;cursor:pointer;text-align:center;font-size:14px}
 .enqbar .ec-tag{background:#01123a;color:var(--y);margin-right:8px}
 .btn.alt{background:var(--mut);color:#fff}
+.mu-f{display:grid;gap:8px;max-width:420px}.mu-f select,.mu-f input[type=text],.mu-f input:not([type]){padding:9px;border:1px solid var(--line);border-radius:8px;font:inherit;background:var(--card);color:var(--ink)}.mu-b{text-align:center;cursor:pointer}.mu-c{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}.mu-c .vb.on{background:var(--g);color:#fff}.mg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}.mg figure{margin:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--card)}.mg img{display:block;width:100%;aspect-ratio:1;object-fit:cover}.mg figcaption{padding:6px 8px;font-size:12px}
 </style>
 </head>
 <body>
@@ -230,8 +231,9 @@ nav button{font-family:var(--fh);font-size:16px;letter-spacing:.6px;text-transfo
 
 <script src="dados.js"></script>
 <script>
-const TABS=[["inicio","Início"],["tabela","Tabela"],["jogos","Jogos"],["cartoes","Cartões"],["calc","Calculadora"],["fase","Fase final"],["votar","Votação"],["notas","Notas"]];
+const TABS=[["inicio","Início"],["tabela","Tabela"],["jogos","Jogos"],["cartoes","Cartões"],["calc","Calculadora"],["fase","Fase final"],["votar","Votação"],["mural","Mural"],["notas","Notas"]];
 if(DATA.votacao&&DATA.votacao.oculta){const i=TABS.findIndex(t=>t[0]==='votar');if(i>=0)TABS.splice(i,1)}
+if(!(DATA.votacao&&DATA.votacao.url)||DATA.votacao.oculta){const i=TABS.findIndex(t=>t[0]==='mural');if(i>=0)TABS.splice(i,1)}
 const $=s=>document.querySelector(s);
 let aba="inicio",meu="";
 const st={get(k){try{return localStorage.getItem(k)||""}catch(e){return ""}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
@@ -577,6 +579,40 @@ async function noticiasLoad(){if(!vtem())return;
   const sa=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim();
   const L=j.noticias.sort((a,b)=>(a.pos&&b.pos)?a.pos-b.pos:a.pos?-1:b.pos?1:a.ordem-b.ordem).map(n=>({tag:n.tag,t:n.t,x:n.x,times:n.times.split(',').map(s=>DATA.times.find(t=>sa(t)===sa(s))).filter(Boolean)}));
   if(JSON.stringify(L)!==JSON.stringify(DATA.noticias)){DATA.noticias=L;render()}}catch(e){}}
+
+const MU={fotos:null,carregou:false,fil:'',msg:'',env:false};
+const muThumb=(id,w)=>'https://drive.google.com/thumbnail?id='+encodeURIComponent(id)+'&sz=w'+w;
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function muralLoad(){MU.carregou=true;if(!vtem())return;
+ try{const r=await fetch(DATA.votacao.url+'?acao=mural'),j=await r.json();MU.fotos=j.fotos||[]}catch(e){MU.fotos=[];MU.msg='Não foi possível carregar o mural agora.'}
+ if(aba==='mural')render()}
+function muralHTML(){const F=MU.fotos,tm=st.get('mu_time')||meu||'',nm=st.get('mu_nome')||'';
+ const form=`<div class='card'><h2>Mural da galera</h2><p class='mut'>Tirou uma foto no jogo? Envie aqui. Ela aparece no mural depois que o organizador aprovar.</p>
+ <div class='mu-f'><select id='mu-time'><option value=''>Time da foto…</option>${DATA.times.map(n=>`<option value='${n}' ${n===tm?'selected':''}>${nome(n)}</option>`).join('')}</select>
+ <input id='mu-nome' maxlength='40' placeholder='Seu nome (opcional)' value='${esc(nm)}'><input id='mu-leg' maxlength='140' placeholder='Legenda (opcional)'>
+ <label class='btn mu-b'>${MU.env?'Enviando…':'Tirar ou escolher foto'}<input id='mu-file' type='file' accept='image/*' hidden ${MU.env?'disabled':''}></label>
+ <p class='mut' id='mu-msg'>${esc(MU.msg)}</p><small class='mut'>Ao enviar, você autoriza a exibição da foto neste mural. Para remover uma foto, fale com o organizador.</small></div></div>`;
+ if(F===null)return form+`<div class='card'><div class='vazio'>Carregando o mural…</div></div>`;
+ const cont={};F.forEach(f=>cont[f.time]=(cont[f.time]||0)+1);
+ const chips=`<div class='mu-c'><button class='vb ${MU.fil?'':'on'}' data-muf=''>Todos (${F.length})</button>${DATA.times.filter(n=>cont[n]).map(n=>`<button class='vb ${MU.fil===n?'on':''}' data-muf='${n}'>${nome(n)} (${cont[n]})</button>`).join('')}</div>`;
+ const pess={};F.forEach(f=>{const k=(f.nome||'').trim();if(k)pess[k]=(pess[k]||0)+1});
+ const top=Object.entries(pess).sort((a,b)=>b[1]-a[1]).slice(0,5);
+ const L=F.filter(f=>!MU.fil||f.time===MU.fil);
+ const grid=L.length?`<div class='mg'>${L.map(f=>`<figure><a href='${muThumb(f.id,1600)}' target='_blank' rel='noopener'><img loading='lazy' src='${muThumb(f.id,600)}' alt='Foto do mural'></a><figcaption><b>${nome(f.time)}</b>${f.nome?' · '+esc(f.nome):''}${f.leg?'<br>'+esc(f.leg):''}</figcaption></figure>`).join('')}</div>`:`<div class='vazio'>Nenhuma foto aprovada ainda. Seja o primeiro!</div>`;
+ return form+`<div class='card'>${chips}${top.length?`<p class='mut'>Quem mais postou: ${top.map(t=>esc(t[0])+' ('+t[1]+')').join(' · ')}</p>`:''}${grid}</div>`}
+function muPrep(file){return new Promise((ok,no)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{
+ const go=(m,q)=>{const s=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);return c.toDataURL('image/jpeg',q)};
+ let d=go(1280,.78);if(d.length>900000)d=go(1000,.6);URL.revokeObjectURL(u);d.length>950000?no():ok(d)};im.onerror=no;im.src=u})}
+document.addEventListener('change',async e=>{if(e.target.id!=='mu-file')return;const f=e.target.files&&e.target.files[0],say=t=>{MU.msg=t;const m=document.getElementById('mu-msg');if(m)m.textContent=t};if(!f)return;
+ const time=document.getElementById('mu-time').value,nm=document.getElementById('mu-nome').value.trim(),leg=document.getElementById('mu-leg').value.trim();
+ if(!time){e.target.value='';return say('Escolha primeiro o time da foto.')}
+ if(!vtem())return say('Modo de teste: nada foi enviado.');
+ st.set('mu_time',time);st.set('mu_nome',nm);say('Preparando a foto…');
+ try{const img=await muPrep(f);MU.env=true;say('Enviando…');
+  await fetch(DATA.votacao.url,{method:'POST',mode:'no-cors',body:JSON.stringify({tipo:'foto',id:vdid(),time,nome:nm,legenda:leg,img})});
+  MU.env=false;MU.msg='Foto enviada! Ela aparece no mural depois de aprovada.';render()}
+ catch(x){MU.env=false;say('Não foi possível enviar a foto. Tente outra.')}});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-muf]');if(b){MU.fil=b.dataset.muf;render()}});
 async function enqLoad(){if(!vtem())return;
  try{const r=await fetch(DATA.votacao.url+'?acao=enquete'),j=await r.json();ENQ.res=j.jogos||{};if(aba==='inicio'||aba==='jogos')render()}catch(e){}}
 document.addEventListener('click',async e=>{const t=e.target.closest('[data-eq]');if(!t)return;const p=t.dataset.eq.split('|'),n=p[0],k=p[1];
@@ -631,7 +667,7 @@ document.addEventListener('click',async e=>{const t=e.target.closest('[data-vv],
  else if(t.id==='vimg')vCard('meu')
  else if(t.id==='vimgr')vCard('selres')});
 document.addEventListener('input',e=>{if(e.target.id==='vq'){const l=document.getElementById('vl');if(l)l.innerHTML=vList()}});
-const SLUG={inicio:'inicio',tabela:'tabela',jogos:'jogos',cartoes:'cartoes',calc:'calculadora',fase:'fase-final',votar:'votacao',stats:'jogadores',notas:'notas',brechas:'brechas',backup:'backup'};
+const SLUG={inicio:'inicio',tabela:'tabela',jogos:'jogos',cartoes:'cartoes',calc:'calculadora',fase:'fase-final',votar:'votacao',mural:'mural',stats:'jogadores',notas:'notas',brechas:'brechas',backup:'backup'};
 const slugT=n=>n.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-');
 function abaToHash(a){return a.slice(0,2)==='t:'?'time-'+slugT(a.slice(2)):(SLUG[a]||'inicio')}
 function hashToAba(h){h=(h||'').replace('#','').toLowerCase();if(!h)return null;if(h==='proximo'||h==='proximo-jogo')return'inicio';
@@ -651,8 +687,8 @@ function render(){syncHash();
  else if(aba==="jogos")h=`<div class="card"><h2>Jogos do Grupo B</h2>${jogosHTML(DATA.jogos.slice().sort(ord))}</div>`;
  else if(aba==="stats")h=statsHTML();
  else if(aba==="notas")h=`<div class="card"><h2>Notas</h2>${notasHTML()}</div>`;
- else if(aba==="calc")h=calcHTML();else if(aba==="fase")h=faseHTML();else if(aba==="votar")h=votacaoHTML();else if(aba==="cartoes")h=cartoesHTML();else if(aba==="backup")h=backupHTML();else h=brechasHTML();
- $("#app").innerHTML=h;if(aba==="cartoes")cartoesInit();
+ else if(aba==="calc")h=calcHTML();else if(aba==="fase")h=faseHTML();else if(aba==="votar")h=votacaoHTML();else if(aba==="mural")h=muralHTML();else if(aba==="cartoes")h=cartoesHTML();else if(aba==="backup")h=backupHTML();else h=brechasHTML();
+ $("#app").innerHTML=h;if(aba==="cartoes")cartoesInit();if(aba==="mural"&&!MU.carregou)muralLoad();
 }
 $("#sub").textContent=DATA.grupo;
 $("#foot").textContent="Painel não oficial, feito por um participante · dados do Grupo B atualizados em "+DATA.atualizado+".";
