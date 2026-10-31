@@ -61,6 +61,7 @@ function doPost(e) {
 
 // Devolve o resultado parcial: os mais votados por posição, somando os votos de todos os esquemas
 function doGet(e) {
+  if (e && e.parameter && e.parameter.acao === 'jogos') return json_({ jogos: jogosLista_() });
   if (e && e.parameter && e.parameter.acao === 'enquete') return json_({ jogos: enqueteResultado_() });
   var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(ABA_VOTOS);
   var n = sh.getLastRow() - 1;
@@ -127,4 +128,19 @@ function enqueteResultado_() {
     if (res[j][p] !== undefined) res[j][p]++;
   });
   return res;
+}
+
+
+// Placares lancados na aba "Jogos" (colunas: Jogo, Data, Hora, Casa, Fora, Gols casa, Gols fora, Ao vivo?)
+function jogosLista_() {
+  var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Jogos');
+  if (!sh || sh.getLastRow() < 2) return [];
+  var v = sh.getRange(2, 1, sh.getLastRow() - 1, 8).getValues(), out = [];
+  v.forEach(function (r) {
+    var n = Number(r[0]); if (!n) return;
+    var gc = r[5], gf = r[6];
+    if (gc === '' || gf === '' || isNaN(Number(gc)) || isNaN(Number(gf))) return;
+    out.push({ n: n, gc: Number(gc), gf: Number(gf), vivo: String(r[7]).trim() !== '' });
+  });
+  return out;
 }
