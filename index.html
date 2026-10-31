@@ -245,7 +245,7 @@ const ord=(a,b)=>(a.data+a.hora).localeCompare(b.data+b.hora);
 function tabela(){
  if(DATA.classificacao)return DATA.classificacao.map(r=>({n:r[0],p:r[1],j:r[2],v:r[3],e:r[4],d:r[5],gp:r[6],gc:r[7],sg:r[6]-r[7]}));
  const t={};DATA.times.forEach(n=>t[n]={n,j:0,v:0,e:0,d:0,gp:0,gc:0});
- DATA.jogos.filter(j=>j.placar).forEach(j=>{
+ DATA.jogos.filter(j=>j.placar&&!j.fase).forEach(j=>{
   const[a,b]=j.placar;const c=t[j.casa],f=t[j.fora];if(!c||!f)return;
   c.j++;f.j++;c.gp+=a;c.gc+=b;f.gp+=b;f.gc+=a;
   if(a>b){c.v++;f.d++}else if(a<b){f.v++;c.d++}else{c.e++;f.e++}
@@ -261,7 +261,7 @@ function tabHTML(hl=meu){
 }
 function jogoHTML(j){
  const me=j.casa===meu||j.fora===meu;
- return `<div class="jogo ${me?"me":""}"><div class="t ${j.casa===meu?"m":""}">${bdg(j.casa,"sm")} ${j.casa}</div><div class="p">${j.placar?j.placar[0]+" × "+j.placar[1]:j.vivo?`<span style="color:#d00">● ${j.vivo[0]} × ${j.vivo[1]}</span>`:"× "}</div><div class="t ${j.fora===meu?"m":""}">${j.fora} ${bdg(j.fora,"sm")}</div><div class="d">${dow(j.data)} ${fmt(j.data)} · ${j.hora} · jogo ${j.n}${!j.placar&&new Date(j.data+"T"+j.hora)<new Date()?" · aguardando resultado":""}</div>${aba==="jogos"?enqueteHTML(j):""}</div>`;
+ return `<div class="jogo ${me?"me":""}"><div class="t ${j.casa===meu?"m":""}">${bdg(j.casa,"sm")} ${j.casa}</div><div class="p">${j.placar?j.placar[0]+" × "+j.placar[1]:j.vivo?`<span style="color:#d00">● ${j.vivo[0]} × ${j.vivo[1]}</span>`:"× "}</div><div class="t ${j.fora===meu?"m":""}">${j.fora} ${bdg(j.fora,"sm")}</div><div class="d">${dow(j.data)} ${fmt(j.data)} · ${j.hora} · ${j.fase?'playoff · ':''}jogo ${j.n}${!j.placar&&new Date(j.data+"T"+j.hora)<new Date()?" · aguardando resultado":""}</div>${aba==="jogos"?enqueteHTML(j):""}</div>`;
 }
 const jogosHTML=l=>l.length?l.map(jogoHTML).join(""):`<div class="vazio">Nenhum jogo carregado.</div>`;
 function proximo(){return DATA.jogos.filter(j=>!j.placar).sort(ord)[0]}
@@ -325,7 +325,7 @@ function quando(j,t){const n=new Date(),d=Math.round((t-n)/6e4),hh=j.hora.replac
  if(new Date(n.getTime()+864e5).toDateString()===t.toDateString())return"Amanhã às "+hh;
  return dow(j.data)+" "+fmt(j.data)+" às "+hh}
 function proxHTML(){const p=proximoJogo();if(!p)return"";const j=p.j,r=tabela(),inf=n=>{const i=r.findIndex(x=>x.n===n);return i<0?"":(i+1)+"º · "+r[i].p+" pts"};
- return `<div class="nx"><div class="nxh"><span class="tag">PRÓXIMO JOGO</span><span class="nxw">${quando(j,p.t)}</span></div><div class="nxm"><div class="nxt" data-t="${j.casa}">${bdg(j.casa,"lg")}<b>${j.casa}</b><small>${inf(j.casa)}</small></div><span class="nxv">×</span><div class="nxt" data-t="${j.fora}">${bdg(j.fora,"lg")}<b>${j.fora}</b><small>${inf(j.fora)}</small></div></div><div class="nxc">${ctxTime(j.casa,0)}</div><div class="nxc">${ctxTime(j.fora,1)}</div><div class="mut" style="text-align:center;margin-top:8px">Grupo B · jogo ${j.n}</div></div>`}
+ return `<div class="nx"><div class="nxh"><span class="tag">PRÓXIMO JOGO</span><span class="nxw">${quando(j,p.t)}</span></div><div class="nxm"><div class="nxt" data-t="${j.casa}">${bdg(j.casa,"lg")}<b>${j.casa}</b><small>${inf(j.casa)}</small></div><span class="nxv">×</span><div class="nxt" data-t="${j.fora}">${bdg(j.fora,"lg")}<b>${j.fora}</b><small>${inf(j.fora)}</small></div></div><div class="nxc">${j.fase?ctxFase(j,0):ctxTime(j.casa,0)}</div><div class="nxc">${j.fase?ctxFase(j,1):ctxTime(j.fora,1)}</div><div class="mut" style="text-align:center;margin-top:8px">Grupo B · ${j.fase?"playoff · ":""}jogo ${j.n}</div></div>`}
 const ABR={EUA:'EUA',PERU:'PER',URUGUAI:'URU','MÉXICO':'MEX',ARGENTINA:'ARG',CHILE:'CHI',PARAGUAI:'PAR',BRASIL:'BRA'};
 const nome=n=>n==='EUA'?'EUA':tc(n);
 function ctxTime(n,alt){const r=tabela(),i=r.findIndex(x=>x.n===n);if(i<0)return'';const me=r[i],l=r[0],u=r[r.length-1],nm=nome(n),a=alt?1:0,pl=(v,s,p)=>v+' '+(v===1?s:p);
@@ -341,7 +341,8 @@ function ctxTime(n,alt){const r=tabela(),i=r.findIndex(x=>x.n===n);if(i<0)return
  if(d<=3)return[nm+' quer se afastar do fim da tabela: '+pl(d,'ponto','pontos')+' acima do último.','Com '+me.p+' pontos, '+nm+' tem só '+pl(d,'ponto','pontos')+' de folga sobre o último e precisa somar.'][a];
  return[nm+' briga por vaga na semifinal: '+me.p+' pontos, '+(i+1)+'º lugar.','Com '+me.p+' pontos, '+nm+' é o '+(i+1)+'º e busca uma boa posição no playoff.'][a]}
 function resTxt(j){const[a,b]=j.placar,r=tabela(),pt=n=>(r.find(x=>x.n===n)||{p:0}).p;
- if(a===b)return nome(j.casa)+' e '+nome(j.fora)+' empatam por '+a+' a '+b+'.';
+ if(a===b)return j.fase?nome(j.casa)+' e '+nome(j.fora)+' empatam por '+a+' a '+b+' e '+nome(j.casa)+' avança por ser o melhor colocado na tabela.':nome(j.casa)+' e '+nome(j.fora)+' empatam por '+a+' a '+b+'.';
+ if(j.fase)return nome(a>b?j.casa:j.fora)+' vence '+nome(a>b?j.fora:j.casa)+' por '+Math.max(a,b)+' a '+Math.min(a,b)+' e avança à semifinal.';
  const w=a>b?j.casa:j.fora,l=a>b?j.fora:j.casa,g=Math.max(a,b),m=Math.min(a,b);
  return nome(w)+' vence '+nome(l)+' por '+g+' a '+m+' e '+(r[0].n===w?'chega a '+pt(w)+' pontos na liderança.':'vai a '+pt(w)+' pontos.')}
 const path=(x,a,b,w,h,r)=>{x.beginPath();if(x.roundRect)x.roundRect(a,b,w,h,r);else x.rect(a,b,w,h)};
@@ -367,7 +368,7 @@ async function cardJogo(){const p=proximoJogo();const j=p&&p.j;
  T(x,'×',540,470,150,'rgba(255,255,255,.8)','center',FH,700);
  T(x,nome(j.casa).toUpperCase(),275,610,96,'#fff','center',FH,700);T(x,nome(j.fora).toUpperCase(),805,610,96,'#fff','center',FH,700);
  T(x,inf(j.casa),275,665,38,'rgba(255,255,255,.85)','center',FB,400);T(x,inf(j.fora),805,665,38,'rgba(255,255,255,.85)','center',FB,400);
- [j.casa,j.fora].forEach((n,k)=>{const y=760+k*210;rr(x,60,y,960,180,18,'rgba(255,255,255,.09)');rr(x,60,y,12,180,6,'#ffd800');wrap(x,ctxTime(n,k),100,y+70,880,52,40,'#fff')});
+ [j.casa,j.fora].forEach((n,k)=>{const y=760+k*210;rr(x,60,y,960,180,18,'rgba(255,255,255,.09)');rr(x,60,y,12,180,6,'#ffd800');wrap(x,j.fase?ctxFase(j,k):ctxTime(n,k),100,y+70,880,52,40,'#fff')});
  return c}
 async function cardTabela(){const[c,x]=await baseCard('CLASSIFICAÇÃO','ATUALIZADO '+DATA.atualizado.slice(0,5));const r=tabela();
  T(x,'P',780,235,32,'rgba(255,255,255,.6)','center',FB,700);T(x,'J',870,235,32,'rgba(255,255,255,.6)','center',FB,700);T(x,'SG',965,235,32,'rgba(255,255,255,.6)','center',FB,700);
@@ -404,15 +405,27 @@ async function exportar(){const o={versao:1,exportadoEm:new Date().toISOString()
 function importar(f){const rd=new FileReader();rd.onload=()=>{let msg;try{const o=JSON.parse(rd.result);if(!o.dados||!o.dados.jogos)throw 0;Object.assign(DATA,o.dados);Object.keys(o.evidencias||{}).forEach(i=>st.set('ev'+i,o.evidencias[i]));if(o.meuTime){meu=o.meuTime;st.set('meuTime',meu)}msg='Backup restaurado nesta sessão ('+(o.exportadoEm||'').slice(0,10)+'). Para tornar permanente, peça a atualização no chat.'}catch(e){msg='Arquivo inválido.'}render();const m=$('#bkm');if(m)m.textContent=msg};rd.readAsText(f)}
 const SIM={},CALC={team:''};
 const pend=()=>DATA.jogos.filter(j=>!j.placar).sort(ord);
+const FASE=[{n:66,data:'2026-11-07',hora:'11:30',a:3,b:4},{n:67,data:'2026-11-07',hora:'13:10',a:2,b:5},{n:71,data:'2026-11-08',hora:'11:10',a:1,b:6}];
+function materializarFase(){const G=DATA.jogos.filter(j=>!j.fase),pronta=G.length>0&&G.every(j=>j.placar&&!j.vivo);
+ if(!pronta){if(G.length!==DATA.jogos.length)DATA.jogos=G;return}
+ const r=tabela();if(r.length<8)return;
+ FASE.forEach(f=>{const casa=r[f.a].n,fora=r[f.b].n,j=DATA.jogos.find(x=>x.n===f.n);
+  if(!j)DATA.jogos.push({n:f.n,data:f.data,hora:f.hora,casa,fora,fase:true});
+  else if(j.casa!==casa||j.fora!==fora){j.casa=casa;j.fora=fora;delete j.placar;delete j.vivo}})}
+function ctxFase(j,k){const r=tabela(),pos=n=>r.findIndex(x=>x.n===n)+1,pt=n=>(r.find(x=>x.n===n)||{p:0}).p;
+ if(!k)return nome(j.casa)+' ('+pos(j.casa)+'º, '+pt(j.casa)+' pts) e '+nome(j.fora)+' ('+pos(j.fora)+'º, '+pt(j.fora)+' pts) se enfrentam no playoff.';
+ const sem=j.n===66?'o 1º, '+nome(r[0].n):j.n===67?'o vencedor do jogo 71':'o vencedor do jogo 67';
+ return 'Empate: avança '+nome(j.casa)+' (melhor na tabela). Na semifinal, enfrenta '+sem+'.'}
+const pendG=()=>pend().filter(j=>!j.fase);
 function simTabela(){
  const t={};DATA.times.forEach(n=>t[n]={n,j:0,v:0,e:0,d:0,gp:0,gc:0});
- DATA.jogos.forEach(j=>{const pl=j.placar||SIM[j.n];if(!pl)return;const a=pl[0],b=pl[1],c=t[j.casa],f=t[j.fora];if(!c||!f)return;
+ DATA.jogos.filter(j=>!j.fase).forEach(j=>{const pl=j.placar||SIM[j.n];if(!pl)return;const a=pl[0],b=pl[1],c=t[j.casa],f=t[j.fora];if(!c||!f)return;
   c.j++;f.j++;c.gp+=a;c.gc+=b;f.gp+=b;f.gc+=a;if(a>b){c.v++;f.d++}else if(a<b){f.v++;c.d++}else{c.e++;f.e++}});
  return Object.values(t).map(x=>({...x,p:x.v*3+x.e,sg:x.gp-x.gc})).sort((a,b)=>b.p-a.p||b.v-a.v||b.sg-a.sg||b.gp-a.gp||a.n.localeCompare(b.n))}
 function cenarios(team){
  const names=DATA.times,idx={},pts=[],N=names.length;names.forEach((n,i)=>idx[n]=i);
  simTabela().forEach(x=>pts[idx[x.n]]=x.p);
- const me=idx[team],free=pend().filter(j=>!SIM[j.n]),res={};let tot=0;
+ const me=idx[team],free=pendG().filter(j=>!SIM[j.n]),res={};let tot=0;
  const leaf=()=>{let more=0,eq=0;for(let i=0;i<N;i++){if(i===me)continue;if(pts[i]>pts[me])more++;else if(pts[i]===pts[me])eq++}
   const best=1+more,worst=1+more+eq;let c;
   if(worst===1)c='d';else if(best===N)c='e';else if(best>=2&&worst<=N-1)c='p';else c='i';
@@ -433,7 +446,7 @@ function calcOut(){
  const c=cenarios(me),ks=Object.keys(c.res).map(Number).sort((a,b)=>a-b);
  const S={d:0,p:0,e:0,i:0};ks.forEach(k=>{for(const z in S)S[z]+=c.res[k][z]});
  const pc=(v,t)=>(t?Math.round(v*100/t):0)+'%';
- const mine=r.find(x=>x.n===me)||{p:0},livres=pend().filter(j=>!SIM[j.n]&&(j.casa===me||j.fora===me)).length;
+ const mine=r.find(x=>x.n===me)||{p:0},livres=pendG().filter(j=>!SIM[j.n]&&(j.casa===me||j.fora===me)).length;
  const gS=ks.find(k=>c.res[k].s===c.res[k].n),gD=ks.find(k=>c.res[k].d===c.res[k].n);
  return `<div class='card'><h2>Tabela simulada</h2>${tb}</div>
  <div class='card'><h2>Situação · ${me}</h2>
@@ -444,10 +457,10 @@ function calcOut(){
  <p class='mut'>Cada linha mostra, entre os cenários em que o time termina com aquele total de pontos, em quantos ele cai em cada faixa. Não é previsão: todos os resultados possíveis (vitória, empate, derrota) são contados com o mesmo peso.</p></div>`}
 function calcHTML(){
  const T=DATA.times;if(!CALC.team)CALC.team=meu||(tabela()[0]||{}).n||T[0];
- const trav=DATA.jogos.filter(j=>j.placar).length;
+ const trav=DATA.jogos.filter(j=>j.placar&&!j.fase).length;
  return `<div class='card'><h2>Calculadora de classificação</h2><p class='mut'>Digite placares para os jogos que ainda vão acontecer e veja a nova tabela e o que o seu time precisa. Os ${trav} jogos já realizados estão travados e não podem ser alterados. Faixas: 1º vai direto à semifinal, 2º ao 7º disputam playoff, o último é eliminado.</p>
  <div class='row'>Meu time: <select id='csel'>${T.map(n=>`<option ${n===CALC.team?'selected':''}>${n}</option>`).join('')}</select> <button class='btn' id='climp'>Limpar simulação</button></div></div>
- <div class='grid'><div><div class='card'><h2>Próximos jogos</h2>${pend().map(simRow).join('')||`<div class='vazio'>Sem jogos pendentes.</div>`}</div></div><div id='calcOut'>${calcOut()}</div></div>`}
+ <div class='grid'><div><div class='card'><h2>Próximos jogos</h2>${pendG().map(simRow).join('')||`<div class='vazio'>Sem jogos pendentes.</div>`}</div></div><div id='calcOut'>${calcOut()}</div></div>`}
 document.addEventListener('input',e=>{const s=e.target.dataset;if(s&&s.sim!==undefined){const n=+s.sim,a=document.querySelector(`[data-sim="${n}"][data-s="0"]`).value,b=document.querySelector(`[data-sim="${n}"][data-s="1"]`).value;
  if(a!==''&&b!=='')SIM[n]=[+a,+b];else delete SIM[n];$('#calcOut').innerHTML=calcOut()}});
 document.addEventListener('change',e=>{if(e.target.id==='csel'){CALC.team=e.target.value;$('#calcOut').innerHTML=calcOut()}});
@@ -467,11 +480,14 @@ function bracket(r){
  B.S2=[w('Q1'),w('Q2')];ok('S2',B.S2[0],B.S2[1]);
  B.F=[w('S1'),w('S2')];ok('F',B.F[0],B.F[1]);
  return{B,pairs,N,by}}
+const QJ={Q1:71,Q2:67,Q3:66};
 function faseHTML(){
- const r=FF.sim?simTabela():tabela();FFN=r.map(x=>x.n);const o=bracket(r),B=o.B,N=o.N;
+ const r=FF.sim?simTabela():tabela();FFN=r.map(x=>x.n);
+ for(const id in QJ){const g=DATA.jogos.find(x=>x.n===QJ[id]&&x.fase&&x.placar);if(g)WIN[id]=g.placar[0]<g.placar[1]?g.fora:g.casa}
+ const o=bracket(r),B=o.B,N=o.N;
  if(o.pairs.length!==3)return `<div class='card'><p>Fase final não configurada para ${N} times.</p></div>`;
  const sp=o.pairs.map(p=>(p[0]+1)+'º × '+(p[1]+1)+'º');
- const mt=(id,t)=>{const ok=B[id][0]&&B[id][1]?id:'';return `<div class='mt'><div class='mh'>${t}</div>${ffTeam(B[id][0],ok)}${ffTeam(B[id][1],ok)}</div>`};
+ const mt=(id,t)=>{const ok=B[id][0]&&B[id][1]?id:'',g=QJ[id]&&(FASE.find(f=>f.n===QJ[id])),rj=g&&DATA.jogos.find(x=>x.n===g.n&&x.placar),inf=g?`<div class='mut' style='padding:0 8px 4px;font-size:12px'>${dow(g.data)} ${fmt(g.data)} · ${g.hora.replace(':','h')} · jogo ${g.n}${rj?' · resultado: '+rj.placar[0]+' × '+rj.placar[1]:''}<br>Empate: avança o melhor colocado na tabela</div>`:/^[SF]/.test(id)?`<div class='mut' style='padding:0 8px 4px;font-size:12px'>Empate: decisão nos pênaltis</div>`:'';return `<div class='mt'><div class='mh'>${t}</div>${inf}${ffTeam(B[id][0],ok)}${ffTeam(B[id][1],ok)}</div>`};
  const champ=WIN.F?o.by(WIN.F):null,last=r[N-1];
  return `<div class='card'><h2>Fase final · projeção</h2><p class='mut'>O 1º colocado vai direto à semifinal, o último é eliminado e do 2º ao 7º disputam o playoff. Toque em um time para marcá-lo como vencedor e ver o caminho até a final.</p>
  <div class='row'><label><input type='checkbox' id='ffsim' ${FF.sim?'checked':''}> Usar os palpites da calculadora (${Object.keys(SIM).length} jogo(s))</label> <button class='btn' id='ffclr'>Limpar escolhas</button></div></div>
@@ -480,7 +496,7 @@ function faseHTML(){
  <div><h3 class='ch'>Semifinal</h3>${mt('S1','Semifinal 1 · 1º × vencedor do Playoff 3')}${mt('S2','Semifinal 2 · vencedor do Playoff 1 × vencedor do Playoff 2')}</div>
  <div><h3 class='ch'>Final</h3>${mt('F','Final')}<div class='champ'>${champ?`🏆 Campeão projetado: <b>${champ.n}</b>`:''}</div></div>
  </div></div></div>
- <p class='mut'>Eliminado na fase de grupos: <b>${last.n}</b> (${N}º, ${last.p} pts). Cruzamentos assumidos, pois o regulamento não os define: 2º×7º, 3º×6º e 4º×5º; semifinais: 1º × vencedor de 4º×5º e vencedor de 2º×7º × vencedor de 3º×6º.</p>`}
+ <p class='mut'>Eliminado na fase de grupos: <b>${last.n}</b> (${N}º, ${last.p} pts). Playoffs conforme a tabela oficial de jogos: 4º×5º (jogo 66) e 3º×6º (jogo 67) no sábado 07/11, e 2º×7º (jogo 71) no domingo 08/11. Nos playoffs, em caso de empate avança o time melhor colocado na tabela; a partir da semifinal, empate vai para os pênaltis (escolha o vencedor tocando no time). As semifinais seguem assumidas como 1º × vencedor de 4º×5º e vencedor de 2º×7º × vencedor de 3º×6º, pois as datas ainda não foram informadas.</p>`}
 document.addEventListener('click',e=>{const w=e.target.closest('[data-w]');
  if(w){const p=w.dataset.w.split('|');if(WIN[p[0]]===p[1])delete WIN[p[0]];else WIN[p[0]]=p[1];render();return}
  if(e.target.id==='ffclr'){for(const k in WIN)delete WIN[k];render()}});
@@ -568,12 +584,13 @@ function enqueteHTML(j){if(j.placar&&!enqVers(j))return'';
  if(mv||!aberta){const v=enqVers(j);return `<div class='enq'><div class='eh'>${v?enqVH(v):'Torcidômetro'} · ${tot} voto${tot===1?'':'s'}</div>${['casa','empate','fora'].map(bar).join('')}<small>${v?enqVT(j,v):mv?'Você votou em: '+lab[mv]:'Enquete encerrada.'}</small></div>`}
  return `<div class='enq'><div class='eh'>Quem vence? Vote e veja o palpite do pessoal</div><div class='ebt'>${['casa','empate','fora'].map(k=>`<button class='vb' data-eq='${j.n}|${k}'>${lab[k]}</button>`).join('')}</div></div>`}
 async function jogosLoad(){if(!vtem())return;
- try{const r=await fetch(DATA.votacao.url+'?acao=jogos'),j=await r.json();if(!Array.isArray(j.jogos))return;let mud=false;
-  j.jogos.forEach(x=>{const m=DATA.jogos.find(y=>y.n===x.n);if(!m)return;
-   if(x.vivo){const s=JSON.stringify(m.vivo);m.vivo=[x.gc,x.gf];if(s!==JSON.stringify(m.vivo))mud=true;return}
-   if(m.vivo){delete m.vivo;mud=true}
-   if(!m.placar||m.placar[0]!==x.gc||m.placar[1]!==x.gf){m.placar=[x.gc,x.gf];mud=true}});
-  if(mud)render()}catch(e){}}
+ try{const r=await fetch(DATA.votacao.url+'?acao=jogos'),j=await r.json();if(!Array.isArray(j.jogos))return;const s0=JSON.stringify(DATA.jogos);
+  const ap=()=>j.jogos.forEach(x=>{const m=DATA.jogos.find(y=>y.n===x.n);if(!m)return;
+   if(x.vivo){m.vivo=[x.gc,x.gf];return}
+   if(m.vivo)delete m.vivo;
+   if(!m.placar||m.placar[0]!==x.gc||m.placar[1]!==x.gf)m.placar=[x.gc,x.gf]});
+  ap();materializarFase();ap();
+  if(JSON.stringify(DATA.jogos)!==s0)render()}catch(e){}}
 async function noticiasLoad(){if(!vtem())return;
  try{const r=await fetch(DATA.votacao.url+'?acao=noticias'),j=await r.json();if(!Array.isArray(j.noticias)||!j.noticias.length)return;
   const sa=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim();
@@ -711,7 +728,7 @@ if(!window.claude){const bt=document.createElement('button');bt.className='vb';b
 document.addEventListener('click',async e=>{if(e.target.id==='cplink'){const u=location.href,el=e.target;try{await navigator.clipboard.writeText(u);el.textContent='Link copiado!'}catch(x){el.textContent='Copie: '+u}setTimeout(()=>{el.textContent='Copiar link desta página'},3500)}});
 render();
 setInterval(()=>{tickRender();if(aba==="inicio")render()},60000);
-enqLoad();setInterval(enqLoad,60000);jogosLoad();setInterval(jogosLoad,60000);noticiasLoad();setInterval(noticiasLoad,60000);
+enqLoad();setInterval(enqLoad,60000);materializarFase();jogosLoad();setInterval(jogosLoad,60000);noticiasLoad();setInterval(noticiasLoad,60000);
 if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
