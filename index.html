@@ -15,6 +15,8 @@
 <meta property="og:image" content="https://wjmatos.github.io/copa-selecoes/preview.png">
 <meta property="og:url" content="https://wjmatos.github.io/copa-selecoes/">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>Painel · Copa de Seleções · Grupo B</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
@@ -631,6 +633,7 @@ document.addEventListener('click',async e=>{if(e.target.id==='cplink'){const u=l
 render();
 setInterval(()=>{tickRender();if(aba==="inicio")render()},60000);
 enqLoad();setInterval(enqLoad,60000);
+if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
 </html>
