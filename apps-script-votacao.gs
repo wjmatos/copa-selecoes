@@ -234,3 +234,11 @@ function muralLista_() {
   });
   return out.reverse().slice(0, 200);
 }
+
+// Rode esta funcao UMA vez no editor (Executar) para o Google pedir as autorizacoes de Drive e e-mail.
+function autorizarMural() {
+  var pasta = pastaMural_();
+  abaMural_();
+  Logger.log('Pasta do mural: ' + pasta.getUrl());
+  Logger.log('E-mails restantes hoje: ' + MailApp.getRemainingDailyQuota());
+}
