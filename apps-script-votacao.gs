@@ -213,7 +213,7 @@ function fotoPost_(d) {
       'Foto nova esperando aprovação.\n\nTime: ' + time + '\nNome: ' + (nome || '(sem nome)') + '\nLegenda: ' + (leg || '(sem legenda)') +
       '\n\nPara ver e aprovar, abra a aba Mural e escreva ok na coluna Status:\n' + SpreadsheetApp.getActiveSpreadsheet().getUrl() + '#gid=' + sh.getSheetId() +
       '\n\nA foto está aqui: ' + f.getUrl());
-  } catch (err) {}
+  } catch (err) { Logger.log('Falha ao enviar e-mail: ' + err); }
   return json_({ ok: true });
 }
 
@@ -241,4 +241,10 @@ function autorizarMural() {
   abaMural_();
   Logger.log('Pasta do mural: ' + pasta.getUrl());
   Logger.log('E-mails restantes hoje: ' + MailApp.getRemainingDailyQuota());
+}
+
+// Rode no editor para testar o e-mail de aviso (mostra o erro, se houver).
+function testarEmail() {
+  MailApp.sendEmail(EMAIL_AVISO, 'Teste do mural', 'Se você recebeu este e-mail, o aviso de foto nova está funcionando.');
+  Logger.log('E-mail de teste enviado para ' + EMAIL_AVISO);
 }
