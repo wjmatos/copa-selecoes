@@ -708,7 +708,7 @@ function hashToAba(h){h=(h||'').replace('#','').toLowerCase();if(!h)return null;
 function syncHash(){try{const h='#'+abaToHash(aba);if(location.hash!==h)history.replaceState(null,'',h)}catch(e){}}
 window.addEventListener('hashchange',()=>{const a=hashToAba(location.hash);if(a&&a!==aba&&(a.slice(0,2)==='t:'||TABS.some(t=>t[0]===a))){aba=a;render()}});
 function tickRender(){const p=proximoJogo(),L=DATA.jogos.filter(j=>!j.placar).concat(provJogos()).sort(ord).slice(0,6),
- side=(n,pos,arr)=>n?`<div class="r" data-t="${n}">${bdg(n,"sm")} ${SIG[n]}</div>`:`<div class="r"><span class="mut">${pos}º</span> ${arr.map(x=>SIG[x]).join(' / ')}</div>`;
+ side=(n,pos,arr)=>n?`<div class="r" data-t="${n}">${bdg(n,"sm")} ${SIG[n]}</div>`:`<div class="r"><span class="mut">${pos}º</span> ${arr.map(x=>bdg(x,'sm')).join('<span class="mut">/</span>')}</div>`;
  $("#jg").innerHTML=`<div class="ag"><b>Jogos e eventos</b><span class="mut">Grupo B</span><button class="btn" data-a="jogos">Agenda completa</button></div>`+L.map(j=>`<div class="jc ${p&&j.n===p.j.n?"nx1":""}">${p&&j.n===p.j.n?'<b style="color:var(--g)">PRÓXIMO</b>':""}<span class="mut">${dow(j.data)} ${fmt(j.data)} · ${j.hora}</span>${j.prov?side(j.casa,j.pa,j.A)+side(j.fora,j.pb,j.B):`<div class="r" data-t="${j.casa}">${bdg(j.casa,"sm")} ${SIG[j.casa]}</div><div class="r" data-t="${j.fora}">${bdg(j.fora,"sm")} ${SIG[j.fora]}</div>`}<span class="mut">Grupo B · ${j.fase?"playoff · ":""}jogo ${j.n}</span></div>`).join("")}
 function render(){syncHash();
  stripRender();tickRender();enqBarRender();
