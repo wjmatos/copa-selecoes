@@ -258,7 +258,7 @@ function tabHTML(hl=meu){
 }
 function jogoHTML(j){
  const me=j.casa===meu||j.fora===meu;
- return `<div class="jogo ${me?"me":""}"><div class="t ${j.casa===meu?"m":""}">${bdg(j.casa,"sm")} ${j.casa}</div><div class="p">${j.placar?j.placar[0]+" × "+j.placar[1]:"× "}</div><div class="t ${j.fora===meu?"m":""}">${j.fora} ${bdg(j.fora,"sm")}</div><div class="d">${dow(j.data)} ${fmt(j.data)} · ${j.hora} · jogo ${j.n}${!j.placar&&new Date(j.data+"T"+j.hora)<new Date()?" · aguardando resultado":""}</div>${aba==="jogos"?enqueteHTML(j):""}</div>`;
+ return `<div class="jogo ${me?"me":""}"><div class="t ${j.casa===meu?"m":""}">${bdg(j.casa,"sm")} ${j.casa}</div><div class="p">${j.placar?j.placar[0]+" × "+j.placar[1]:j.vivo?`<span style="color:#d00">● ${j.vivo[0]} × ${j.vivo[1]}</span>`:"× "}</div><div class="t ${j.fora===meu?"m":""}">${j.fora} ${bdg(j.fora,"sm")}</div><div class="d">${dow(j.data)} ${fmt(j.data)} · ${j.hora} · jogo ${j.n}${!j.placar&&new Date(j.data+"T"+j.hora)<new Date()?" · aguardando resultado":""}</div>${aba==="jogos"?enqueteHTML(j):""}</div>`;
 }
 const jogosHTML=l=>l.length?l.map(jogoHTML).join(""):`<div class="vazio">Nenhum jogo carregado.</div>`;
 function proximo(){return DATA.jogos.filter(j=>!j.placar).sort(ord)[0]}
@@ -553,6 +553,13 @@ function enqueteHTML(j){if(j.placar)return'';
  const bar=k=>`<div class='eq'><span>${lab[k]}</span><div class='eb'><i style='width:${pc(k)}%'></i></div><b>${pc(k)}%</b></div>`;
  if(mv||!aberta)return `<div class='enq'><div class='eh'>Palpite do pessoal · ${tot} voto${tot===1?'':'s'}</div>${['casa','empate','fora'].map(bar).join('')}${mv?`<small>Você votou em: ${lab[mv]}</small>`:`<small>Enquete encerrada.</small>`}</div>`;
  return `<div class='enq'><div class='eh'>Quem vence? Vote e veja o palpite do pessoal</div><div class='ebt'>${['casa','empate','fora'].map(k=>`<button class='vb' data-eq='${j.n}|${k}'>${lab[k]}</button>`).join('')}</div></div>`}
+async function jogosLoad(){if(!vtem())return;
+ try{const r=await fetch(DATA.votacao.url+'?acao=jogos'),j=await r.json();if(!Array.isArray(j.jogos))return;let mud=false;
+  j.jogos.forEach(x=>{const m=DATA.jogos.find(y=>y.n===x.n);if(!m)return;
+   if(x.vivo){const s=JSON.stringify(m.vivo);m.vivo=[x.gc,x.gf];if(s!==JSON.stringify(m.vivo))mud=true;return}
+   if(m.vivo){delete m.vivo;mud=true}
+   if(!m.placar||m.placar[0]!==x.gc||m.placar[1]!==x.gf){m.placar=[x.gc,x.gf];mud=true}});
+  if(mud)render()}catch(e){}}
 async function enqLoad(){if(!vtem())return;
  try{const r=await fetch(DATA.votacao.url+'?acao=enquete'),j=await r.json();ENQ.res=j.jogos||{};if(aba==='inicio'||aba==='jogos')render()}catch(e){}}
 document.addEventListener('click',async e=>{const t=e.target.closest('[data-eq]');if(!t)return;const p=t.dataset.eq.split('|'),n=p[0],k=p[1];
@@ -632,7 +639,7 @@ if(!window.claude){const bt=document.createElement('button');bt.className='vb';b
 document.addEventListener('click',async e=>{if(e.target.id==='cplink'){const u=location.href,el=e.target;try{await navigator.clipboard.writeText(u);el.textContent='Link copiado!'}catch(x){el.textContent='Copie: '+u}setTimeout(()=>{el.textContent='Copiar link desta página'},3500)}});
 render();
 setInterval(()=>{tickRender();if(aba==="inicio")render()},60000);
-enqLoad();setInterval(enqLoad,60000);
+enqLoad();setInterval(enqLoad,60000);jogosLoad();setInterval(jogosLoad,60000);
 if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
