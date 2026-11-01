@@ -62,6 +62,7 @@ function doPost(e) {
 
 // Devolve o resultado parcial: os mais votados por posição, somando os votos de todos os esquemas
 function doGet(e) {
+  if (e && e.parameter && e.parameter.acao === 'admin') return adminGet_(e);
   if (e && e.parameter && e.parameter.acao === 'mural') return json_({ fotos: muralLista_(), pendentes: muralPendentes_() });
   if (e && e.parameter && e.parameter.acao === 'noticias') return json_({ noticias: noticiasLista_() });
   if (e && e.parameter && e.parameter.acao === 'jogos') return json_({ jogos: jogosLista_(), campeao: campeaoConfig_() });
@@ -262,4 +263,126 @@ function muralPendentes_() {
   var v = sh.getRange(2, 5, sh.getLastRow() - 1, 2).getValues(), n = 0;
   v.forEach(function (r) { if (String(r[1]).trim() && !String(r[0]).trim()) n++; });
   return n;
+}
+
+
+// ===== MODO ORGANIZADOR (painel dentro do app) =====
+// Crie a senha em: Configurações do projeto (engrenagem) > Propriedades do script > ORG_PIN = 6 números.
+function ssAdm_() { return SpreadsheetApp.getActiveSpreadsheet(); }
+
+function adminGet_(e) {
+  var props = PropertiesService.getScriptProperties(), cache = CacheService.getScriptCache();
+  var pin = String(props.getProperty('ORG_PIN') || '').trim();
+  if (!pin) return json_({ ok: false, erro: 'sem_pin' });
+  var falhas = Number(cache.get('org_falhas') || 0);
+  if (falhas >= 5) return json_({ ok: false, erro: 'bloqueado' });
+  if (String(e.parameter.pin || '') !== pin) {
+    cache.put('org_falhas', String(falhas + 1), 3600);
+    return json_({ ok: false, erro: 'pin' });
+  }
+  var op = String(e.parameter.op || ''), d = {};
+  try { d = e.parameter.d ? JSON.parse(e.parameter.d) : {}; } catch (err) { return json_({ ok: false, erro: 'dados' }); }
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(10000); } catch (err) { return json_({ ok: false, erro: 'ocupado' }); }
+  try {
+    cache.remove('org_falhas');
+    var ss = ssAdm_();
+    if (op === 'ping') return json_({ ok: true });
+
+    if (op === 'placar') {
+      var sh = ss.getSheetByName('Jogos'), n = Number(d.n);
+      var gc = Math.max(0, Math.min(99, Math.floor(Number(d.gc)))), gf = Math.max(0, Math.min(99, Math.floor(Number(d.gf))));
+      if (!sh || !n || isNaN(gc) || isNaN(gf)) return json_({ ok: false, erro: 'dados' });
+      var col = sh.getRange(2, 1, Math.max(1, sh.getLastRow() - 1), 1).getValues();
+      for (var i = 0; i < col.length; i++) {
+        if (Number(col[i][0]) === n) {
+          sh.getRange(i + 2, 6, 1, 3).setValues([[gc, gf, d.vivo ? 'x' : '']]);
+          return json_({ ok: true });
+        }
+      }
+      return json_({ ok: false, erro: 'jogo' });
+    }
+
+    if (op === 'noticia') {
+      var sn = ss.getSheetByName('Notícias');
+      if (!sn) return json_({ ok: false, erro: 'dados' });
+      var t = String(d.t || '').trim().slice(0, 140);
+      if (!t) return json_({ ok: false, erro: 'dados' });
+      var pos = Number(d.pos) > 0 ? Number(d.pos) : '';
+      // destaque N: o anterior da mesma posição vira item de lista
+      if (pos) {
+        var last = sn.getLastRow();
+        if (last > 1) {
+          var rg = sn.getRange(2, 1, last - 1, 1), vv = rg.getValues();
+          vv.forEach(function (r) { if (Number(r[0]) === pos) r[0] = ''; });
+          rg.setValues(vv);
+        }
+      }
+      var linha = sn.getLastRow() + 1;
+      sn.getRange(linha, 1, 1, 6).setNumberFormat('@');
+      sn.getRange(linha, 1, 1, 6).setValues([[String(pos), String(d.tag || '').slice(0, 60), t, String(d.x || '').slice(0, 600), String(d.times || '').slice(0, 80), '']]);
+      return json_({ ok: true });
+    }
+
+    if (op === 'noticias') {
+      var sl = ss.getSheetByName('Notícias');
+      if (!sl || sl.getLastRow() < 2) return json_({ ok: true, noticias: [] });
+      var nv = sl.getRange(2, 1, sl.getLastRow() - 1, 6).getValues(), out = [];
+      nv.forEach(function (r, i) {
+        if (!String(r[2]).trim()) return;
+        out.push({ linha: i + 2, pos: Number(r[0]) > 0 ? Number(r[0]) : 0, tag: String(r[1]), t: String(r[2]), hide: String(r[5]).trim() !== '' });
+      });
+      return json_({ ok: true, noticias: out.reverse() });
+    }
+
+    if (op === 'esconder') {
+      var se = ss.getSheetByName('Notícias'), lin = Number(d.linha);
+      if (!se || lin < 2 || lin > se.getLastRow()) return json_({ ok: false, erro: 'dados' });
+      se.getRange(lin, 6).setValue(d.hide ? 'x' : '');
+      return json_({ ok: true });
+    }
+
+    if (op === 'modelos') {
+      var sm = ss.getSheetByName('Modelos');
+      if (!sm || sm.getLastRow() < 2) return json_({ ok: true, modelos: [] });
+      var mv = sm.getRange(2, 1, sm.getLastRow() - 1, 3).getValues(), mo = [];
+      mv.forEach(function (r) { if (String(r[1]).trim() || String(r[2]).trim()) mo.push({ tipo: String(r[0]), t: String(r[1]), x: String(r[2]) }); });
+      return json_({ ok: true, modelos: mo });
+    }
+
+    if (op === 'fotos') {
+      var sf = ss.getSheetByName(ABA_MURAL);
+      if (!sf || sf.getLastRow() < 2) return json_({ ok: true, fotos: [] });
+      var fv = sf.getRange(2, 1, sf.getLastRow() - 1, 6).getValues(), fo = [];
+      for (var k = fv.length - 1; k >= 0 && fo.length < 8; k--) {
+        var r = fv[k];
+        if (String(r[4]).trim() || !String(r[5]).trim()) continue;
+        var thumb = '';
+        try {
+          var b = DriveApp.getFileById(String(r[5]).trim()).getBlob();
+          thumb = 'data:' + b.getContentType() + ';base64,' + Utilities.base64Encode(b.getBytes());
+        } catch (err) {}
+        fo.push({ linha: k + 2, time: String(r[1]), nome: String(r[2]), leg: String(r[3]), data: String(r[0]), thumb: thumb });
+      }
+      return json_({ ok: true, fotos: fo });
+    }
+
+    if (op === 'foto') {
+      var sg = ss.getSheetByName(ABA_MURAL), ln = Number(d.linha);
+      if (!sg || ln < 2 || ln > sg.getLastRow()) return json_({ ok: false, erro: 'dados' });
+      sg.getRange(ln, 5).setValue(d.ok ? 'ok' : 'não');
+      if (d.ok) muralLista_();
+      return json_({ ok: true });
+    }
+
+    if (op === 'campeao') {
+      var sc = ss.getSheetByName('Config') || ss.insertSheet('Config');
+      var tm = String(d.time || '').toUpperCase().trim();
+      if (tm && TIMES_OK.indexOf(tm) < 0) return json_({ ok: false, erro: 'dados' });
+      sc.getRange('A1').setValue('Campeão');
+      sc.getRange('B1').setValue(tm ? tm.charAt(0) + tm.slice(1).toLowerCase() : '');
+      return json_({ ok: true });
+    }
+    return json_({ ok: false, erro: 'op' });
+  } finally { lock.releaseLock(); }
 }
