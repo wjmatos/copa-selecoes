@@ -1,0 +1,31 @@
+{
+  "name": "Copa · Organizador",
+  "short_name": "Organizador",
+  "description": "Painel do organizador da Copa de Seleções · Grupo B.",
+  "lang": "pt-BR",
+  "start_url": "./organizador.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#8e0f1c",
+  "theme_color": "#8e0f1c",
+  "icons": [
+    {
+      "src": "icon-org-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-org-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-org-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "id": "./organizador.html"
+}
