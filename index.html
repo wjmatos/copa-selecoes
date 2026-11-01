@@ -409,7 +409,7 @@ function cartoesHTML(){return `<div class='card'><h2>Cartões para WhatsApp</h2>
 async function cartoesInit(){for(const k of Object.keys(CARD)){try{const c=await CARD[k]();CV[k]=c;const im=document.getElementById('im-'+k);if(im)im.src=c.toDataURL('image/png')}catch(e){}}}
 async function shareImg(k){const c=CV[k];if(!c)return;
  try{const b=await new Promise(r=>c.toBlob(r,'image/png')),f=new File([b],'cartao-'+k+'.png',{type:'image/png'});
-  if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],text:'Copa de Seleções · Grupo B\nhttps://wjmatos.github.io/copa-selecoes/'});return}}
+  if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f]});return}}
  catch(e){if(e&&e.name==='AbortError')return}
  await salvarImg(k)}
 async function salvarImg(k){const c=CV[k];if(!c)return;try{const fn='cartao-'+k+'-'+DATA.atualizado.split('/').join('-')+'.png';const dl=window.claude&&await claude.use('downloads');if(!dl){const a=document.createElement('a');a.href=c.toDataURL('image/png');a.download=fn;document.body.appendChild(a);a.click();a.remove();return}const b=await new Promise(r=>c.toBlob(r,'image/png'));await dl.save({filename:fn,data:b})}catch(e){}}
