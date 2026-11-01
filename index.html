@@ -295,6 +295,24 @@ nav button{font-family:var(--fh);font-size:16px;letter-spacing:.6px;text-transfo
 #orgm h3{margin:0 0 6px;font:700 22px var(--fh);text-transform:uppercase}#orgm input{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font:inherit;background:var(--bg);color:var(--ink);margin:10px 0}
 #orgm .rw{display:flex;gap:8px;justify-content:flex-end}
 @media (prefers-reduced-motion:reduce){.fabi{animation:none}}
+
+/* ===== Painel do organizador ===== */
+.adm-hd{display:flex;align-items:center;justify-content:space-between;background:#01123a;color:#fff;border-radius:14px;padding:12px 14px;margin-bottom:10px;border-bottom:4px solid var(--y)}
+.adm-hd b{font:700 20px var(--fh);text-transform:uppercase;letter-spacing:.6px}.adm-sair{background:rgba(255,255,255,.14);border:0;color:#fff;border-radius:999px;padding:6px 12px;font:600 12px Inter,sans-serif;cursor:pointer}
+.adm-tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:10px;padding-bottom:2px}.adm-tabs button{white-space:nowrap;border:1px solid var(--line);background:var(--card);color:var(--mut);border-radius:999px;padding:8px 13px;font:600 13px Inter,sans-serif;cursor:pointer;text-transform:none;letter-spacing:0}
+.adm-tabs button.on{background:var(--g);color:#fff;border-color:var(--g)}.adm-n{background:#e5484d;color:#fff;border-radius:8px;padding:0 6px;font-size:11px}
+.adm-s{margin:14px 2px 8px;font:700 13px var(--fh);letter-spacing:.9px;text-transform:uppercase;color:var(--g)}
+.adm-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px}
+.adm-row{display:flex;align-items:center;justify-content:space-between;gap:10px}.adm-row b{font-size:14px}
+.adm-g{display:flex;align-items:center;gap:4px;justify-content:space-between;margin-top:8px}.adm-tm{flex:1;min-width:0;display:flex;align-items:center;gap:4px;font:700 15px var(--fh);text-transform:uppercase}.adm-tm.r{justify-content:flex-end}
+.adm-st{display:flex;align-items:center;gap:2px}.adm-st button{width:30px;height:34px;border-radius:9px;border:0;background:var(--hl);color:var(--g);font:700 20px/1 Inter,sans-serif;cursor:pointer}
+.adm-st i{font:700 26px var(--fh);width:22px;text-align:center;font-style:normal;cursor:pointer}
+.adm-swr{margin-top:12px}.adm-sw{display:inline-flex;align-items:center;gap:8px;font-size:13px;cursor:pointer}.adm-sw u{width:38px;height:22px;border-radius:11px;background:#c7ccd6;position:relative;display:inline-block;transition:background .15s}.adm-sw u:after{content:"";position:absolute;left:2px;top:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .15s}.adm-sw.on u{background:#e5484d}.adm-sw.on u:after{left:18px}
+.adm-r{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}.adm-b{flex:1;border:0;border-radius:10px;padding:11px 14px;background:var(--y);color:#01123a;font:700 14px Inter,sans-serif;cursor:pointer;min-width:110px}.adm-b.s{background:var(--hl);color:var(--g)}.adm-b.d{background:#fde8e8;color:#c62828}
+.adm-l{display:block;font:700 11px Inter,sans-serif;color:var(--mut);text-transform:uppercase;letter-spacing:.6px;margin:10px 0 4px}
+.adm-in{width:100%;border:1px solid var(--line);border-radius:9px;padding:10px;font:inherit;background:var(--bg);color:var(--ink)}
+.adm-ch{display:inline-block;padding:7px 11px;border-radius:999px;border:1px solid var(--line);font:600 13px Inter,sans-serif;margin:2px 3px 2px 0;cursor:pointer;background:var(--bg)}.adm-ch.on{background:var(--g);color:#fff;border-color:var(--g)}
+.adm-pic{border-radius:10px;overflow:hidden;background:var(--bg);min-height:120px;display:flex;align-items:center;justify-content:center}.adm-pic img{display:block;width:100%;height:auto;max-height:340px;object-fit:cover}
 </style>
 </head>
 <body>
@@ -815,39 +833,111 @@ function treeHTML(o){const B=o.B,r=FFN;FFN=r;
  <div class="tc camp" style="left:600px;top:${P.F[1]+5}px"><div class="tp">🏆</div>${champ0?`${bdg(champ0.n,'sm')}<b>${champ0.n}</b>`:`<b style="color:var(--mut)">A definir</b>`}</div></div></div>
  <p class="mut">Deslize para o lado para ver o chaveamento inteiro. Toque em um time para marcá-lo como vencedor.</p>`}
 
-/* ===== Botão flutuante (+) e modo organizador ===== */
-const GID={jogos:269042020,noticias:1967418658,mural:452494670,config:90812273};
-const orgGet=()=>{try{return localStorage.getItem('org_sheet')||''}catch(e){return''}};
+/* ===== Botão flutuante (+) e painel do organizador ===== */
+const orgGet=()=>{try{return localStorage.getItem('org_pin')||''}catch(e){return''}};
 const ORG_REQ=/organizador/i.test(location.hash);
+const ORG={tab:'placar',g:{},mod:null,not:null,fo:null,ld:{},f:{pos:'1',tag:'',t:'',x:'',times:[]},camp:'',busy:false};
 let FABO=false;
-const orgUrl=k=>orgGet().split('#')[0].replace(/\?.*$/,'')+'#gid='+GID[k];
-function toast(t){const e=document.getElementById('toast');if(!e)return;e.textContent=t;e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>{e.style.display='none'},2600)}
+function toast(t){const e=document.getElementById('toast');if(!e)return;e.textContent=t;e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>{e.style.display='none'},2800)}
+const ERR={pin:'Senha incorreta.',bloqueado:'Muitas tentativas erradas. Aguarde uma hora e tente de novo.',sem_pin:'A senha ainda não foi criada no Apps Script (ORG_PIN).',rede:'Sem conexão com a planilha. Tente de novo.',jogo:'Jogo não encontrado na planilha.'};
+const errTxt=r=>ERR[(r||{}).erro]||'Não foi possível salvar. Tente de novo.';
+async function adm(op,d,pin){const u=DATA.votacao.url+'?acao=admin&pin='+encodeURIComponent(pin||orgGet())+'&op='+op+(d?'&d='+encodeURIComponent(JSON.stringify(d)):'');
+ try{const r=await fetch(u);return await r.json()}catch(e){return{ok:false,erro:'rede'}}}
 function fabItems(){const org=!!orgGet(),L=[];
  if(org){L.push({h:1,lb:'Modo organizador'});
-  L.push({ic:'✏️',lb:'Lançar placar',href:orgUrl('jogos'),c:'org'},{ic:'📰',lb:'Escrever notícia',href:orgUrl('noticias'),c:'org'},{ic:'📸',lb:'Aprovar fotos'+(MU.pend?' ('+MU.pend+')':''),href:orgUrl('mural'),c:'org'},{ic:'🏆',lb:'Informar campeão',href:orgUrl('config'),c:'org'},{ic:'👥',lb:'Convidar amigos',share:1},{ic:'🚪',lb:'Sair do modo organizador',act:'orgoff',c:'sub'});return L}
+  L.push({ic:'✏️',lb:'Lançar placar',k:'org:placar',c:'org'},{ic:'📰',lb:'Escrever notícia',k:'org:noticias',c:'org'},{ic:'📸',lb:'Aprovar fotos'+(MU.pend?' ('+MU.pend+')':''),k:'org:fotos',c:'org'},{ic:'🏆',lb:'Informar campeão',k:'org:campeao',c:'org'},{ic:'👥',lb:'Convidar amigos',k:'share'});return L}
  const p=proximoJogo(),aberta=p&&p.t>new Date()&&!st.get('enq_'+p.j.n);
- L.push({ic:'📸',lb:'Enviar foto ao mural',go:'mural'},{ic:'🗳️',lb:aberta?'Votar: quem vence?':'Ver próximo jogo',go:'inicio',sc:'.enqc,.nx'},{ic:'📤',lb:'Compartilhar cartões',go:'cartoes'},{ic:'👥',lb:'Convidar amigos',share:1});return L}
+ L.push({ic:'📸',lb:'Enviar foto ao mural',k:'go:mural'},{ic:'🗳️',lb:aberta?'Votar: quem vence?':'Ver próximo jogo',k:'go:inicio|.enqc,.nx'},{ic:'📤',lb:'Compartilhar cartões',k:'go:cartoes'},{ic:'👥',lb:'Convidar amigos',k:'share'});return L}
 function fabRender(){const el=document.getElementById('fab');if(!el)return;const org=!!orgGet(),bd=org&&MU.pend?`<span class="fabbd">${MU.pend}</span>`:'';
  el.className=FABO?'open':'';
- el.innerHTML=(FABO?`<div class="fabd" data-fab="x"></div><div class="fabm">${fabItems().map((x,i)=>x.h?`<div class="fabh">${x.lb}</div>`:x.href?`<a class="fabi ${x.c||''}" style="animation-delay:${i*.03}s" href="${x.href}" target="_blank" rel="noopener"><span>${x.lb}</span><i>${x.ic}</i></a>`:`<button class="fabi ${x.c||''}" style="animation-delay:${i*.03}s" data-fab="${x.go?'go:'+x.go+(x.sc?'|'+x.sc:''):x.share?'share':x.act}"><span>${x.lb}</span><i>${x.ic}</i></button>`).join('')}</div>`:'')+`<button class="fabb" data-fab="t" aria-label="${FABO?'Fechar atalhos':'Abrir atalhos'}">+${bd}</button>`}
+ el.innerHTML=(FABO?`<div class="fabd" data-fab="x"></div><div class="fabm">${fabItems().map((x,i)=>x.h?`<div class="fabh">${x.lb}</div>`:`<button class="fabi ${x.c||''}" style="animation-delay:${i*.03}s" data-fab="${x.k}"><span>${x.lb}</span><i>${x.ic}</i></button>`).join('')}</div>`:'')+`<button class="fabb" data-fab="t" aria-label="${FABO?'Fechar atalhos':'Abrir atalhos'}">+${bd}</button>`}
 function orgModal(){const m=document.getElementById('orgm'),on=!!orgGet();m.className='open';
- m.innerHTML=`<div class="bx"><h3>Modo organizador</h3><p class="mut" style="margin:0">${on?'Este celular já está no modo organizador. Os atalhos do botão + abrem a sua planilha.':'Cole o link da sua planilha do Google. Ele fica guardado só neste celular e libera os atalhos de organizador no botão +.'}</p>${on?'':'<input id="orgi" placeholder="https://docs.google.com/spreadsheets/d/…" autocomplete="off">'}<div class="rw"><button class="btn alt" data-org="x">${on?'Fechar':'Cancelar'}</button>${on?'<button class="btn" data-org="off">Desativar</button>':'<button class="btn" data-org="ok">Ativar</button>'}</div></div>`}
-function orgPend(){if(!orgGet()||!vtem())return;fetch(DATA.votacao.url+'?acao=mural').then(r=>r.json()).then(j=>{const n=j.pendentes||0;if(n!==MU.pend){MU.pend=n;fabRender()}}).catch(()=>{})}
-document.addEventListener('click',async e=>{const o=e.target.closest('[data-org]');
+ m.innerHTML=on?`<div class="bx"><h3>Modo organizador</h3><p class="mut" style="margin:0">Este celular já está no modo organizador.</p><div class="rw" style="margin-top:12px"><button class="btn alt" data-org="x">Fechar</button><button class="btn alt" data-org="off">Desativar</button><button class="btn" data-org="panel">Abrir painel</button></div></div>`
+ :`<div class="bx"><h3>Modo organizador</h3><p class="mut" style="margin:0">Digite a sua senha de organizador. Ela fica guardada só neste celular.</p><input id="orgi" type="password" inputmode="numeric" maxlength="12" autocomplete="off" placeholder="Senha"><p id="orge" style="color:#c62828;min-height:18px;margin:0 0 8px;font-size:13px"></p><div class="rw"><button class="btn alt" data-org="x">Cancelar</button><button class="btn" data-org="ok">Ativar</button></div></div>`}
+function orgPend(){if(!orgGet()||!vtem())return;fetch(DATA.votacao.url+'?acao=mural').then(r=>r.json()).then(j=>{const n=j.pendentes||0;if(n!==MU.pend){MU.pend=n;fabRender();if(aba==='org')render()}}).catch(()=>{})}
+function orgOpen(tab){ORG.tab=tab||ORG.tab;if(ORG.tab==='fotos')ORG.fo=null;aba='org';render();window.scrollTo(0,0)}
+
+/* painel */
+const stp=(n,k,v)=>`<span class="adm-st"><button data-ad="dec|${n}|${k}" aria-label="menos">−</button><i data-ad="zero|${n}|${k}">${v==null?'–':v}</i><button data-ad="inc|${n}|${k}" aria-label="mais">+</button></span>`;
+function gstate(j){return ORG.g[j.n]||(ORG.g[j.n]={gc:j.placar?j.placar[0]:j.vivo?j.vivo[0]:null,gf:j.placar?j.placar[1]:j.vivo?j.vivo[1]:null,vivo:!!j.vivo})}
+function gcard(j){const s=gstate(j);
+ return `<div class="adm-card"><div class="mut">${dow(j.data)} ${fmt(j.data)} · ${j.hora.replace(':','h')}${j.fase?' · playoff':''} · jogo ${j.n}</div>
+ <div class="adm-g"><div class="adm-tm">${bdg(j.casa,'sm')} ${SIG[j.casa]||j.casa}</div>${stp(j.n,'gc',s.gc)}<span class="mut">×</span>${stp(j.n,'gf',s.gf)}<div class="adm-tm r">${SIG[j.fora]||j.fora} ${bdg(j.fora,'sm')}</div></div>
+ <div class="adm-swr"><span class="adm-sw ${s.vivo?'on':''}" data-ad="vivo|${j.n}"><u></u>Ao vivo (não conta na tabela)</span></div>
+ <div class="adm-r"><button class="adm-b" data-ad="save|${j.n}">${j.placar?'Corrigir placar':'Salvar placar'}</button>${s.vivo?`<button class="adm-b s" data-ad="end|${j.n}">Encerrar jogo</button>`:''}</div></div>`}
+function placarHTML(){const L=DATA.jogos.slice().sort(ord),ab=L.filter(j=>!j.placar),fe=L.filter(j=>j.placar).slice(-4).reverse();
+ return (ab.length?`<h4 class="adm-s">A jogar e ao vivo</h4>`+ab.map(gcard).join(''):`<div class="adm-card mut">Nenhum jogo pendente no momento.</div>`)+(fe.length?`<h4 class="adm-s">Encerrados (para corrigir)</h4>`+fe.map(gcard).join(''):'')}
+function noticiasHTML(){const f=ORG.f,P=[['1','Destaque 1'],['2','2'],['3','3'],['','Lista']];
+ return `<div class="adm-card"><label class="adm-l">Começar de um modelo</label><select class="adm-in" data-adi="modelo"><option value="">${ORG.mod?'Escolher um modelo…':'Carregando modelos…'}</option>${(ORG.mod||[]).map((m,i)=>`<option value="${i}">${esc(m.tipo)} · ${esc(m.t).slice(0,40)}</option>`).join('')}</select>
+ <label class="adm-l">Posição</label><div>${P.map(p=>`<span class="adm-ch ${f.pos===p[0]?'on':''}" data-ad="pos|${p[0]}">${p[1]}</span>`).join('')}</div>
+ <label class="adm-l">Etiqueta</label><input class="adm-in" data-adf="tag" placeholder="Ex.: Sábado, 07/11" value="${esc(f.tag)}">
+ <label class="adm-l">Título</label><input class="adm-in" data-adf="t" placeholder="Título da notícia" value="${esc(f.t)}">
+ <label class="adm-l">Texto</label><textarea class="adm-in" data-adf="x" rows="4" placeholder="Texto da notícia">${esc(f.x)}</textarea>
+ <label class="adm-l">Times (o primeiro define a cor)</label><div>${DATA.times.map(n=>`<span class="adm-ch ${f.times.includes(n)?'on':''}" data-ad="tm|${n}">${nome(n)}</span>`).join('')}</div>
+ <div class="adm-r"><button class="adm-b" data-ad="pub">Publicar</button><button class="adm-b s" data-ad="limpa">Limpar</button></div></div>
+ <h4 class="adm-s">Notícias no ar</h4>`+(ORG.not===null?'<div class="adm-card mut">Carregando…</div>':ORG.not.length?ORG.not.slice(0,15).map(n=>`<div class="adm-card adm-row"><div><b>${esc(n.t)}</b><div class="mut">${n.pos?'Destaque '+n.pos:'Lista'} · ${esc(n.tag)}${n.hide?' · escondida':''}</div></div><button class="adm-b ${n.hide?'s':'d'}" data-ad="hide|${n.linha}|${n.hide?0:1}">${n.hide?'Mostrar':'Esconder'}</button></div>`).join(''):'<div class="adm-card mut">Nenhuma notícia na planilha.</div>')}
+function fotosHTML(){if(ORG.fo===null)return '<div class="adm-card mut">Carregando fotos…</div>';
+ if(!ORG.fo.length)return '<div class="adm-card mut">Nenhuma foto esperando aprovação. 👍</div>';
+ return ORG.fo.map(x=>`<div class="adm-card"><div class="adm-pic">${x.thumb?`<img src="${x.thumb}" alt="Foto enviada">`:'<span class="mut">Sem prévia</span>'}</div><div style="margin:6px 0"><b>${nome(x.time)}</b>${x.nome?' · '+esc(x.nome):''}${x.leg?'<br>'+esc(x.leg):''}<div class="mut">enviada ${esc(x.data)}</div></div><div class="adm-r"><button class="adm-b" data-ad="foto|${x.linha}|1">✓ Aprovar</button><button class="adm-b d" data-ad="foto|${x.linha}|0">✕ Recusar</button></div></div>`).join('')}
+function campeaoHTML(){const c=ORG.camp||DATA.campeao||'';
+ return `<div class="adm-card"><p class="mut" style="margin-top:0">Toque no time campeão e confirme. A tela de campeão aparece para todo mundo em até 1 minuto.</p><div>${DATA.times.map(n=>`<span class="adm-ch ${c===n?'on':''}" data-ad="camp|${n}">${nome(n)}</span>`).join('')}</div>
+ <div class="adm-r"><button class="adm-b" data-ad="campok">Confirmar campeão${c?': '+nome(c):''}</button>${DATA.campeao?'<button class="adm-b d" data-ad="campno">Remover</button>':''}</div></div>`}
+function orgHTML(){
+ if(!orgGet()||!vtem())return `<div class="card"><h2>Modo organizador</h2><p class="mut">Ative com a sua senha para lançar placares, escrever notícias e aprovar fotos direto pelo app.</p><button class="btn" data-org="open">Ativar</button></div>`;
+ const T=[['placar','✏️ Placar'],['noticias','📰 Notícias'],['fotos','📸 Fotos'+(MU.pend?` <b class="adm-n">${MU.pend}</b>`:'')],['campeao','🏆 Campeão']];
+ return `<div class="adm-hd"><b>Modo organizador</b><button class="adm-sair" data-org="off">Sair</button></div><div class="adm-tabs">${T.map(t=>`<button class="${ORG.tab===t[0]?'on':''}" data-ad="tab|${t[0]}">${t[1]}</button>`).join('')}</div>`+(ORG.tab==='placar'?placarHTML():ORG.tab==='noticias'?noticiasHTML():ORG.tab==='fotos'?fotosHTML():campeaoHTML())}
+async function orgLoad(){if(aba!=='org'||!orgGet())return;
+ const once=async(k,fn)=>{if(ORG.ld[k])return;ORG.ld[k]=1;try{await fn()}finally{ORG.ld[k]=0}};
+ if(ORG.tab==='noticias'){
+  if(ORG.mod===null)once('mod',async()=>{const r=await adm('modelos');ORG.mod=r.ok?r.modelos:[];if(aba==='org')render()});
+  if(ORG.not===null)once('not',async()=>{const r=await adm('noticias');ORG.not=r.ok?r.noticias:[];if(aba==='org')render()})}
+ if(ORG.tab==='fotos'&&ORG.fo===null)once('fo',async()=>{const r=await adm('fotos');if(!r.ok)toast(errTxt(r));ORG.fo=r.ok?r.fotos:[];MU.pend=ORG.fo.length;fabRender();if(aba==='org')render()})}
+async function orgSavePlacar(n,fim){const j=DATA.jogos.find(x=>x.n===n);if(!j)return;const s=gstate(j);if(fim)s.vivo=false;
+ if(s.gc==null&&s.gf==null){toast('Informe o placar primeiro.');return}
+ const gc=s.gc==null?0:s.gc,gf=s.gf==null?0:s.gf;toast('Salvando…');const r=await adm('placar',{n,gc,gf,vivo:s.vivo});
+ if(!r.ok){toast(errTxt(r));return}
+ if(s.vivo){j.vivo=[gc,gf];delete j.placar}else{j.placar=[gc,gf];delete j.vivo}materializarFase();delete ORG.g[n];toast('Placar salvo na planilha ✓');render();jogosLoad()}
+document.addEventListener('input',e=>{const k=e.target.dataset&&e.target.dataset.adf;if(k)ORG.f[k]=e.target.value});
+document.addEventListener('change',e=>{if(e.target.dataset&&e.target.dataset.adi==='modelo'){const m=(ORG.mod||[])[e.target.value];if(m){ORG.f.t=m.t;ORG.f.x=m.x;render()}}});
+document.addEventListener('click',async e=>{
+ const o=e.target.closest('[data-org]');
  if(o){const k=o.dataset.org,m=document.getElementById('orgm');
-  if(k==='ok'){const v=(document.getElementById('orgi').value||'').trim();if(!/^https:\/\/docs\.google\.com\/spreadsheets\/d\//.test(v)){toast('Cole o link completo da planilha.');return}try{localStorage.setItem('org_sheet',v)}catch(x){}toast('Modo organizador ativado.');orgPend()}
-  if(k==='off'){try{localStorage.removeItem('org_sheet')}catch(x){}MU.pend=0;toast('Modo organizador desativado.')}
-  m.className='';fabRender();return}
+  if(k==='open'){orgModal();return}
+  if(k==='ok'){const v=(document.getElementById('orgi').value||'').trim(),er=document.getElementById('orge');if(!/^\d{4,12}$/.test(v)){er.textContent='Digite só números.';return}er.textContent='Verificando…';
+   const r=await adm('ping',null,v);if(!r.ok){er.textContent=errTxt(r);return}try{localStorage.setItem('org_pin',v)}catch(x){}m.className='';toast('Modo organizador ativado.');orgPend();aba='org';render();return}
+  if(k==='panel'){m.className='';orgOpen('placar');return}
+  if(k==='off'){try{localStorage.removeItem('org_pin')}catch(x){}MU.pend=0;m.className='';if(aba==='org')aba='inicio';toast('Modo organizador desativado.');render();return}
+  m.className='';return}
+ const a=e.target.closest('[data-ad]');
+ if(a){const p=a.dataset.ad.split('|'),k=p[0],j=n=>DATA.jogos.find(x=>x.n===+n);
+  if(k==='tab'){ORG.tab=p[1];if(p[1]==='fotos')ORG.fo=null;render();return}
+  if(k==='inc'||k==='dec'||k==='zero'){const s=gstate(j(p[1]));const v=s[p[2]];s[p[2]]=k==='inc'?(v==null?1:Math.min(99,v+1)):k==='dec'?Math.max(0,v==null?0:v-1):0;render();return}
+  if(k==='vivo'){const s=gstate(j(p[1]));s.vivo=!s.vivo;render();return}
+  if(k==='save'){orgSavePlacar(+p[1],false);return}
+  if(k==='end'){orgSavePlacar(+p[1],true);return}
+  if(k==='pos'){ORG.f.pos=p[1];render();return}
+  if(k==='tm'){const t=ORG.f.times,i=t.indexOf(p[1]);if(i<0)t.push(p[1]);else t.splice(i,1);render();return}
+  if(k==='limpa'){ORG.f={pos:'1',tag:'',t:'',x:'',times:[]};render();return}
+  if(k==='pub'){const f=ORG.f;if(!f.t.trim()){toast('Escreva o título.');return}toast('Publicando…');
+   const r=await adm('noticia',{pos:f.pos,tag:f.tag.trim(),t:f.t.trim(),x:f.x.trim(),times:f.times.join(', ')});
+   if(!r.ok){toast(errTxt(r));return}ORG.f={pos:'1',tag:'',t:'',x:'',times:[]};ORG.not=null;toast('Notícia publicada ✓');render();noticiasLoad();return}
+  if(k==='hide'){const r=await adm('esconder',{linha:+p[1],hide:p[2]==='1'});if(!r.ok){toast(errTxt(r));return}ORG.not=null;toast(p[2]==='1'?'Notícia escondida.':'Notícia visível.');render();noticiasLoad();return}
+  if(k==='foto'){const ok=p[2]==='1',r=await adm('foto',{linha:+p[1],ok});if(!r.ok){toast(errTxt(r));return}
+   ORG.fo=(ORG.fo||[]).filter(x=>x.linha!==+p[1]);MU.pend=ORG.fo.length;fabRender();toast(ok?'Foto aprovada ✓':'Foto recusada.');render();if(ok)fetch(DATA.votacao.url+'?acao=mural').catch(()=>{});return}
+  if(k==='camp'){ORG.camp=p[1];render();return}
+  if(k==='campok'){const c=ORG.camp||DATA.campeao;if(!c){toast('Escolha o time.');return}const r=await adm('campeao',{time:c});if(!r.ok){toast(errTxt(r));return}DATA.campeao=c;toast('Campeão definido 🏆');render();return}
+  if(k==='campno'){const r=await adm('campeao',{time:''});if(!r.ok){toast(errTxt(r));return}DATA.campeao='';ORG.camp='';toast('Campeão removido.');render();return}
+  return}
  const f=e.target.closest('[data-fab]');if(!f)return;const k=f.dataset.fab;
  if(k==='t'){FABO=!FABO;fabRender();return}
  if(k==='x'){FABO=false;fabRender();return}
  FABO=false;
- if(k.slice(0,3)==='go:'){const[a,sc]=k.slice(3).split('|');aba=a;render();window.scrollTo(0,0);if(sc)setTimeout(()=>{const t=document.querySelector(sc);if(t)t.scrollIntoView({behavior:'smooth',block:'center'})},120);return}
+ if(k.slice(0,4)==='org:'){fabRender();orgOpen(k.slice(4));return}
+ if(k.slice(0,3)==='go:'){const[ab,sc]=k.slice(3).split('|');aba=ab;render();window.scrollTo(0,0);if(sc)setTimeout(()=>{const t=document.querySelector(sc);if(t)t.scrollIntoView({behavior:'smooth',block:'center'})},120);return}
  if(k==='share'){fabRender();const d={title:'Copa de Seleções · Grupo B',text:'Acompanhe tabela, jogos e fase final do Grupo B:',url:location.origin+location.pathname};
   try{if(navigator.share){await navigator.share(d)}else{await navigator.clipboard.writeText(d.url);toast('Link copiado.')}}catch(x){if(!x||x.name!=='AbortError'){try{await navigator.clipboard.writeText(d.url);toast('Link copiado.')}catch(y){}}}return}
- if(k==='orgoff'){try{localStorage.removeItem('org_sheet')}catch(x){}MU.pend=0;fabRender();toast('Modo organizador desativado.');return}
  fabRender()});
-setTimeout(()=>{if(ORG_REQ)orgModal();orgPend()},400);setInterval(orgPend,90000);
+setTimeout(()=>{if(ORG_REQ){if(orgGet())orgOpen('placar');else orgModal()}orgPend()},400);setInterval(orgPend,90000);
 async function enqLoad(){if(!vtem())return;
  try{const r=await fetch(DATA.votacao.url+'?acao=enquete'),j=await r.json();ENQ.res=j.jogos||{};if(aba==='inicio'||aba==='jogos')render()}catch(e){}}
 document.addEventListener('click',async e=>{const t=e.target.closest('[data-eq]');if(!t)return;const p=t.dataset.eq.split('|'),n=p[0],k=p[1];
@@ -923,8 +1013,8 @@ function render(){syncHash();
  else if(aba==="jogos")h=`<div class="card"><h2>Jogos do Grupo B</h2>${jogosHTML(DATA.jogos.concat(provJogos()).sort(ord))}</div>`;
  else if(aba==="stats")h=statsHTML();
  else if(aba==="notas")h=`<div class="card"><h2>Notas</h2>${notasHTML()}</div>`;
- else if(aba==="calc")h=calcHTML();else if(aba==="fase")h=faseHTML();else if(aba==="votar")h=votacaoHTML();else if(aba==="mural")h=muralHTML();else if(aba==="cartoes")h=cartoesHTML();else if(aba==="backup")h=backupHTML();else h=brechasHTML();
- $("#app").innerHTML=h;if(aba==="cartoes")cartoesInit();if(aba==="mural"&&!MU.carregou)muralLoad();
+ else if(aba==="calc")h=calcHTML();else if(aba==="fase")h=faseHTML();else if(aba==="votar")h=votacaoHTML();else if(aba==="mural")h=muralHTML();else if(aba==="org")h=orgHTML();else if(aba==="cartoes")h=cartoesHTML();else if(aba==="backup")h=backupHTML();else h=brechasHTML();
+ $("#app").innerHTML=h;if(aba==="cartoes")cartoesInit();if(aba==="mural"&&!MU.carregou)muralLoad();if(aba==="org")orgLoad();
 }
 $("#sub").textContent=DATA.grupo;
 $("#foot").textContent="Painel não oficial, feito por um participante · dados do Grupo B atualizados em "+DATA.atualizado+".";
