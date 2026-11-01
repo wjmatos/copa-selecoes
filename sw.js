@@ -1,6 +1,6 @@
 /* Service worker do painel: abre mesmo sem internet, mas sempre tenta buscar a versão nova primeiro. */
 const V = 'copa-v1';
-const CORE = ['./', 'index.html', 'dados.js', 'manifest.json', 'icon-192.png', 'icon-512.png'];
+const CORE = ['./', 'index.html', 'organizador.html', 'dados.js', 'manifest.json', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(V).then(c => c.addAll(CORE)).then(() => self.skipWaiting()));
