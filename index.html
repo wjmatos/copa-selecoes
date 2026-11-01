@@ -835,7 +835,7 @@ function treeHTML(o){const B=o.B,r=FFN;FFN=r;
 
 /* ===== Botão flutuante (+) e painel do organizador ===== */
 const orgGet=()=>{try{return localStorage.getItem('org_pin')||''}catch(e){return''}};
-const ORG_REQ=/organizador/i.test(location.hash);
+const ORG_REQ=/organizador/i.test(location.hash+location.pathname);
 const ORG={tab:'placar',g:{},mod:null,not:null,fo:null,ld:{},f:{pos:'1',tag:'',t:'',x:'',times:[]},camp:'',busy:false};
 let FABO=false;
 function toast(t){const e=document.getElementById('toast');if(!e)return;e.textContent=t;e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>{e.style.display='none'},2800)}
