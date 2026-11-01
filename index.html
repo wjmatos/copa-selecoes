@@ -238,6 +238,63 @@ nav button{font-family:var(--fh);font-size:16px;letter-spacing:.6px;text-transfo
  #sheet .ts{display:flex;flex-wrap:wrap;gap:8px}
  #sheet .ts button{display:flex;align-items:center;gap:6px;padding:7px 10px;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--ink);font:600 12px Inter,sans-serif;cursor:pointer}
 }
+
+/* ===== Protótipo visual ===== */
+.top{position:relative}.top h1{padding-right:52px}#tema{position:absolute;top:14px;right:14px;width:40px;height:34px;padding:0;font-size:17px}.tbtn{border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.1);color:#fff;border-radius:999px;padding:6px 11px;font:600 12px Inter,sans-serif;cursor:pointer}
+.wrap th:first-child,.wrap td:first-child{white-space:nowrap;width:52px;text-align:left}.wrap td:last-child,.wrap th:last-child{white-space:nowrap}.fm{display:inline-flex;gap:3px;vertical-align:middle}.fm i{width:11px;height:11px;border-radius:50%;display:block;background:var(--line)}
+.fm i.v{background:#1faa59}.fm i.e{background:#9aa3ab}.fm i.d{background:#e5484d}
+.mvt{font-size:10px;margin-left:3px;font-weight:700;white-space:nowrap}.mvt.up{color:#1faa59}.mvt.dn{color:#e5484d}.mvt.ze{color:var(--mut)}.grid>div{min-width:0}
+.mh{border-radius:16px;padding:18px;color:#fff;margin-bottom:16px;position:relative;overflow:hidden}
+.mh .mt0{display:flex;align-items:center;gap:14px}.mh h2{margin:0;font:700 32px var(--fh);text-transform:uppercase;letter-spacing:.5px;line-height:1}
+.mh .kk{font:700 11px Inter,sans-serif;letter-spacing:1.2px;opacity:.8;text-transform:uppercase}
+.mh .st{margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.mh .pill{background:rgba(255,255,255,.16);border-radius:12px;padding:8px 12px;font-size:13px}
+.mh .pill b{font:700 20px var(--fh);display:block;line-height:1.1}
+.mh .fm i{width:14px;height:14px}.mh .fm i{box-shadow:0 0 0 2px rgba(255,255,255,.2)}
+.mh .nx2{margin-top:12px;background:rgba(0,0,0,.28);border-radius:12px;padding:10px 12px;font-size:14px}
+.pick{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.pick button{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:6px 10px;border-radius:999px;font:600 13px Inter,sans-serif;cursor:pointer}
+.tr{position:relative;width:760px;height:372px;margin:0 auto}
+.tr>svg{position:absolute;inset:0;pointer-events:none}.tr>svg path{fill:none;stroke:var(--line);stroke-width:2}
+.tr .cl{position:absolute;top:0;font:700 12px var(--fh);letter-spacing:1px;text-transform:uppercase;color:var(--mut);width:150px;text-align:center}
+.tc{position:absolute;width:150px;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.05)}
+.tc .lb{font-size:10px;color:var(--mut);padding:3px 8px;background:var(--bg);height:18px;white-space:nowrap}
+.tc .r2{display:flex;align-items:center;gap:6px;padding:0 8px;height:28px;font-size:13px;cursor:pointer}
+.tc .r2+.r2{border-top:1px solid var(--line)}.tc .r2 b{font:700 17px var(--fh);flex:1;text-transform:uppercase}
+.tc .r2 small{color:var(--mut);font-size:10px}.tc .r2 em{font-style:normal;font-weight:700;font-size:13px}
+.tc .r2.win{background:var(--y);color:#01123a}.tc .r2.win small{color:#01123a}.tc .r2.mine{box-shadow:inset 3px 0 0 var(--g)}
+.tc .r2.tbd{color:var(--mut);justify-content:center;cursor:default}
+.tc.camp{border:2px solid var(--y);text-align:center;padding:10px 6px;height:auto}
+.tc.camp .tp{font-size:34px;line-height:1}.tc.camp b{font:700 20px var(--fh);text-transform:uppercase;display:block;margin-top:4px}
+.cmp{background:linear-gradient(160deg,var(--cc,#0b3cae),#01123a);color:#fff;border-radius:18px;padding:26px 18px;margin-bottom:16px;text-align:center;position:relative;overflow:hidden}
+.cmp .tp{font-size:54px;line-height:1}.cmp .kk{font:700 12px Inter,sans-serif;letter-spacing:1.5px;opacity:.85;margin-top:6px}
+.cmp h2{font:700 46px var(--fh);text-transform:uppercase;margin:8px 0 4px;line-height:1}.cmp .fl{display:flex;justify-content:center;margin:14px 0}
+.cmp .fl .bdg{transform:scale(2.2)}.cmp .btn{margin-top:14px}
+.cf{position:absolute;top:-14px;width:9px;height:14px;opacity:.9;animation:cff linear infinite}
+@keyframes cff{to{transform:translateY(420px) rotate(540deg);opacity:.2}}
+@media (prefers-reduced-motion:reduce){.cf{display:none}}
+.chart text{font:10px Inter,sans-serif;fill:var(--mut)}
+
+/* ===== Botão flutuante (+) ===== */
+#fab{position:fixed;z-index:55;right:16px;bottom:calc(92px + env(safe-area-inset-bottom,0px))}
+@media(min-width:821px){#fab{bottom:24px;right:24px}}
+.fabb{position:relative;z-index:2;width:58px;height:58px;border-radius:50%;border:0;background:var(--y);color:#01123a;box-shadow:0 6px 18px rgba(0,0,0,.32);font:400 34px/1 Inter,sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .2s;-webkit-tap-highlight-color:transparent}
+#fab.open .fabb{transform:rotate(45deg)}
+.fabbd{position:absolute;top:-3px;right:-3px;min-width:21px;height:21px;border-radius:11px;background:#e5484d;color:#fff;font:700 11px/21px Inter,sans-serif;text-align:center;padding:0 5px;border:2px solid var(--bg)}
+#fab.open .fabbd{display:none}
+.fabd{position:fixed;inset:0;z-index:1;background:rgba(1,18,58,.55)}
+.fabm{position:absolute;z-index:2;right:0;bottom:72px;display:flex;flex-direction:column;align-items:flex-end;gap:12px;min-width:250px}
+.fabi{display:flex;align-items:center;gap:10px;border:0;background:none;padding:0;cursor:pointer;text-decoration:none;animation:fabin .18s ease-out both}
+@keyframes fabin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.fabi span{background:var(--card);color:var(--ink);border-radius:999px;padding:9px 15px;font:600 14px Inter,sans-serif;box-shadow:0 3px 10px rgba(0,0,0,.25);white-space:nowrap}
+.fabi i{position:relative;width:48px;height:48px;border-radius:50%;background:var(--g);color:#fff;font-style:normal;display:flex;align-items:center;justify-content:center;font-size:21px;box-shadow:0 3px 10px rgba(0,0,0,.3)}
+.fabi.org i{background:#1f2937}.fabi.sub i{background:#6b7280}
+.fabh{background:rgba(255,255,255,.14);color:#fff;border-radius:8px;padding:4px 10px;font:700 11px Inter,sans-serif;letter-spacing:1px;text-transform:uppercase}
+#toast{position:fixed;z-index:70;left:50%;bottom:calc(100px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#111827;color:#fff;padding:10px 16px;border-radius:999px;font:600 14px Inter,sans-serif;display:none}
+#orgm{position:fixed;inset:0;z-index:80;background:rgba(1,18,58,.6);display:none;align-items:center;justify-content:center;padding:20px}
+#orgm.open{display:flex}#orgm .bx{background:var(--card);color:var(--ink);border-radius:16px;padding:20px;max-width:420px;width:100%}
+#orgm h3{margin:0 0 6px;font:700 22px var(--fh);text-transform:uppercase}#orgm input{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font:inherit;background:var(--bg);color:var(--ink);margin:10px 0}
+#orgm .rw{display:flex;gap:8px;justify-content:flex-end}
+@media (prefers-reduced-motion:reduce){.fabi{animation:none}}
 </style>
 </head>
 <body>
@@ -247,6 +304,7 @@ nav button{font-family:var(--fh);font-size:16px;letter-spacing:.6px;text-transfo
   <input id="q" class="q" placeholder="Buscar time" autocomplete="off">
   <label class="mut" style="color:#fff">Meu time:
    <select id="meu"></select></label>
+  <button id="tema" class="tbtn" aria-label="Alternar tema: automático, claro ou escuro" title="Tema"></button>
  </div>
  <nav id="nav"></nav>
 </header>
@@ -254,7 +312,7 @@ nav button{font-family:var(--fh);font-size:16px;letter-spacing:.6px;text-transfo
 <div id="enqbar"></div>
 <div class="jg" id="jg"></div>
 <main id="app"></main>
-<nav id="bnav"></nav><div id="sheet"></div>
+<div id="fab"></div><div id="toast"></div><div id="orgm"></div><nav id="bnav"></nav><div id="sheet"></div>
 <footer id="foot"></footer>
 
 <script src="dados.js"></script>
@@ -354,9 +412,9 @@ function tile(n,c=""){if(!n)return"";const t=(n.times||[])[0],cor=COR[t]||"#0b3c
  const bg=n.img?`linear-gradient(transparent 30%,rgba(0,0,0,.78)),url(${n.img})`:`linear-gradient(160deg,${cor},#01123a)`;
  return `<div class="tile ${c}" ${t?`data-t="${t}"`:""} style="background-image:${bg}"><span class="tag">${n.tag}</span><b>${n.t}</b><span class="sm">${n.x}</span></div>`}
 function homeHTML(){const L=todas();
- return enqSection()+proxHTML()+`<div class="fx">${tile(L[0],"big")}${tile(L[1])}${tile(L[2])}</div><div class="grid"><div><div class="card"><h2>Mais notícias</h2>${L.slice(3).map(nw).join("")||`<div class="vazio">Sem mais notícias.</div>`}</div><div class="card"><h2>Próximos jogos</h2>${jogosHTML(DATA.jogos.filter(j=>!j.placar).sort(ord).slice(0,5))}</div></div><div><div class="card"><h2>Classificação</h2>${tabHTML()}</div></div></div>`}
+ return campHTML()+meuHero()+enqSection()+proxHTML()+`<div class="fx">${tile(L[0],"big")}${tile(L[1])}${tile(L[2])}</div><div class="grid"><div><div class="card"><h2>Mais notícias</h2>${L.slice(3).map(nw).join("")||`<div class="vazio">Sem mais notícias.</div>`}</div><div class="card"><h2>Próximos jogos</h2>${jogosHTML(DATA.jogos.filter(j=>!j.placar).sort(ord).slice(0,5))}</div></div><div><div class="card"><h2>Classificação</h2>${tabHTML()}</div></div></div>`}
 function timeHTML(n){const r=tabela(),i=r.findIndex(x=>x.n===n),x=r[i]||{p:0,j:0},ns=todas().filter(m=>(m.times||[]).includes(n)),js=DATA.jogos.filter(j=>j.casa===n||j.fora===n).sort(ord);
- return `<div class="th" style="background:linear-gradient(135deg,${COR[n]||"#0b3cae"},#01123a)">${bdg(n,"lg")}<div><h2>${n}</h2><p>${i+1}º no Grupo B · ${x.p} pts · ${x.j} jogo(s)</p></div></div><div class="grid"><div><div class="card"><h2>Notícias do time</h2>${ns.length?ns.map(nw).join(""):`<div class="vazio">Sem notícias deste time ainda.</div>`}</div><div class="card"><h2>Jogos</h2>${jogosHTML(js)}</div></div><div><div class="card"><h2>Classificação</h2>${tabHTML(n)}</div>${elencoHTML(n)}</div></div>`}
+ return `<div class="th" style="background:linear-gradient(135deg,${COR[n]||"#0b3cae"},#01123a)">${bdg(n,"lg")}<div><h2>${n}</h2><p>${i+1}º no Grupo B · ${x.p} pts · ${x.j} jogo(s)</p></div></div><div class="grid"><div>${chartHTML(n)}<div class="card"><h2>Notícias do time</h2>${ns.length?ns.map(nw).join(""):`<div class="vazio">Sem notícias deste time ainda.</div>`}</div><div class="card"><h2>Jogos</h2>${jogosHTML(js)}</div></div><div><div class="card"><h2>Classificação</h2>${tabHTML(n)}</div>${elencoHTML(n)}</div></div>`}
 const tc=s=>s.toLowerCase().replace(/(^|\s)(\S)/g,(m,a,b)=>a+b.toUpperCase()).replace(/ (De|Da|Do|Dos|Das|E) /g,x=>x.toLowerCase());
 function elencoHTML(n){const E=(DATA.elencos||{})[n];if(!E)return"";
  return `<div class="card"><h2>Elenco · ${E.j.length} atletas</h2><p class="mut">Responsável: ${tc(E.r)} · relação de 09/09</p><ul class="el">${E.j.map(x=>{const g=x.endsWith("|G");return `<li>${tc(g?x.slice(0,-2):x)}${g?` <span class="gk">G</span>`:""}</li>`}).join("")}</ul></div>`}
@@ -432,9 +490,9 @@ async function cardResultados(){const[c,x]=await baseCard('RESULTADOS','Grupo B'
   T(x,(dow(j.data)+' '+fmt(j.data)).toUpperCase(),540,y+190,32,'rgba(255,255,255,.7)','center',FB,400)}
  if(L[0]){rr(x,60,990,960,200,18,'rgba(255,255,255,.09)');rr(x,60,990,12,200,6,'#ffd800');wrap(x,resTxt(L[0]),100,1065,880,52,40,'#fff')}
  return c}
-const CARD={jogo:cardJogo,tabela:cardTabela,res:cardResultados,enq:cardEnq},CV={};
-function cartoesHTML(){return `<div class='card'><h2>Cartões para WhatsApp</h2><p class='mut'>Toque em Salvar imagem e envie no grupo. No celular, também dá para segurar a imagem para salvar.</p></div><div class='cds'>`+[['jogo','Próximo jogo'],['tabela','Tabela'],['res','Resultados'],['enq','Enquete / torcidômetro']].map(k=>`<div class='card'><h2>${k[1]}</h2><img id='im-${k[0]}' alt='${k[1]}' class='cim'><button class='btn' data-sh='${k[0]}'>Compartilhar</button> <button class='btn alt' data-sv='${k[0]}'>Salvar imagem</button></div>`).join('')+`</div>`}
-async function cartoesInit(){for(const k of Object.keys(CARD)){try{const c=await CARD[k]();CV[k]=c;const im=document.getElementById('im-'+k);if(im)im.src=c.toDataURL('image/png')}catch(e){}}}
+const CARD={jogo:cardJogo,tabela:cardTabela,res:cardResultados,enq:cardEnq,camp:cardCampeao},CV={};
+function cartoesHTML(){return `<div class='card'><h2>Cartões para WhatsApp</h2><p class='mut'>Toque em Salvar imagem e envie no grupo. No celular, também dá para segurar a imagem para salvar.</p></div><div class='cds'>`+[['jogo','Próximo jogo'],['tabela','Tabela'],['res','Resultados'],['enq','Enquete / torcidômetro']].concat(champ()?[['camp','Campeão']]:[]).map(k=>`<div class='card'><h2>${k[1]}</h2><img id='im-${k[0]}' alt='${k[1]}' class='cim'><button class='btn' data-sh='${k[0]}'>Compartilhar</button> <button class='btn alt' data-sv='${k[0]}'>Salvar imagem</button></div>`).join('')+`</div>`}
+async function cartoesInit(){for(const k of Object.keys(CARD)){if(k==='camp'&&!champ())continue;try{const c=await CARD[k]();CV[k]=c;const im=document.getElementById('im-'+k);if(im)im.src=c.toDataURL('image/png')}catch(e){}}}
 async function shareImg(k){const c=CV[k];if(!c)return;
  try{const b=await new Promise(r=>c.toBlob(r,'image/png')),f=new File([b],'cartao-'+k+'.png',{type:'image/png'});
   if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f]});return}}
@@ -534,13 +592,9 @@ function faseHTML(){
  const champ=WIN.F?o.by(WIN.F):null,last=r[N-1];
  return `<div class='card'><h2>Fase final · projeção</h2><p class='mut'>O 1º colocado vai direto à semifinal, o último é eliminado e do 2º ao 7º disputam o playoff. Toque em um time para marcá-lo como vencedor e ver o caminho até a final.</p>
  <div class='row'><label><input type='checkbox' id='ffsim' ${FF.sim?'checked':''}> Usar os palpites da calculadora (${Object.keys(SIM).length} jogo(s))</label> <button class='btn' id='ffclr'>Limpar escolhas</button></div></div>
- <div class='card'><div class='wrap'><div class='bk'>
- <div><h3 class='ch'>Playoff (quartas)</h3>${mt('Q1','Playoff 1 · '+sp[0])}${mt('Q2','Playoff 2 · '+sp[1])}${mt('Q3','Playoff 3 · '+sp[2])}</div>
- <div><h3 class='ch'>Semifinal</h3>${mt('S1','Semifinal 1 · 1º × vencedor do 2º×7º (jogo 71)')}${mt('S2','Semifinal 2 · vencedor do 3º×6º (jogo 67) × vencedor do 4º×5º (jogo 66)')}</div>
- <div><h3 class='ch'>Final</h3>${mt('F','Final')}<div class='champ'>${champ?`🏆 Campeão projetado: <b>${champ.n}</b>`:''}</div></div>
- </div></div></div>
+ <div class='card'>${treeHTML(o)}</div>
  <p class='mut'>Eliminado na fase de grupos: <b>${last.n}</b> (${N}º, ${last.p} pts). Playoffs conforme a tabela oficial de jogos: 4º×5º (jogo 66) e 3º×6º (jogo 67) no sábado 07/11, e 2º×7º (jogo 71) no domingo 08/11. Nos playoffs, em caso de empate avança o time melhor colocado na tabela; a partir da semifinal, empate vai para os pênaltis (escolha o vencedor tocando no time). Semifinais conforme o app do clube: 1º × vencedor do 2º×7º; a outra semifinal (que o app ainda mostra como "AABB x AABB") foi assumida como vencedor do 3º×6º × vencedor do 4º×5º. Datas das semifinais ainda não informadas.</p>`}
-document.addEventListener('click',e=>{const w=e.target.closest('[data-w]');
+document.addEventListener('click',e=>{if(e.target.id==='dcamp'){DEMO=DEMO?'':(WIN.F||meu||'MÉXICO');render();return}const w=e.target.closest('[data-w]');
  if(w){const p=w.dataset.w.split('|');if(WIN[p[0]]===p[1])delete WIN[p[0]];else WIN[p[0]]=p[1];render();return}
  if(e.target.id==='ffclr'){for(const k in WIN)delete WIN[k];render()}});
 document.addEventListener('change',e=>{if(e.target.id==='ffsim'){FF.sim=e.target.checked;render()}});
@@ -633,18 +687,19 @@ async function jogosLoad(){if(!vtem())return;
    if(m.vivo)delete m.vivo;
    if(!m.placar||m.placar[0]!==x.gc||m.placar[1]!==x.gf)m.placar=[x.gc,x.gf]});
   ap();materializarFase();ap();
-  if(JSON.stringify(DATA.jogos)!==s0)render()}catch(e){}}
+  const sa=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim(),cn=DATA.times.find(t=>sa(t)===sa(j.campeao))||'',cm=cn!==(DATA.campeao||'');if(cm)DATA.campeao=cn;
+  if(cm||JSON.stringify(DATA.jogos)!==s0)render()}catch(e){}}
 async function noticiasLoad(){if(!vtem())return;
  try{const r=await fetch(DATA.votacao.url+'?acao=noticias'),j=await r.json();if(!Array.isArray(j.noticias)||!j.noticias.length)return;
   const sa=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim();
   const L=j.noticias.sort((a,b)=>(a.pos&&b.pos)?a.pos-b.pos:a.pos?-1:b.pos?1:a.ordem-b.ordem).map(n=>({tag:n.tag,t:n.t,x:n.x,times:n.times.split(',').map(s=>DATA.times.find(t=>sa(t)===sa(s))).filter(Boolean)}));
   if(JSON.stringify(L)!==JSON.stringify(DATA.noticias)){DATA.noticias=L;render()}}catch(e){}}
 
-const MU={fotos:null,carregou:false,fil:'',msg:'',env:false};
+const MU={fotos:null,carregou:false,fil:'',msg:'',env:false,pend:0};
 const muThumb=(id,w)=>'https://drive.google.com/thumbnail?id='+encodeURIComponent(id)+'&sz=w'+w;
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 async function muralLoad(){MU.carregou=true;if(!vtem())return;
- try{const r=await fetch(DATA.votacao.url+'?acao=mural'),j=await r.json();MU.fotos=j.fotos||[]}catch(e){MU.fotos=[];MU.msg='Não foi possível carregar o mural agora.'}
+ try{const r=await fetch(DATA.votacao.url+'?acao=mural'),j=await r.json();MU.fotos=j.fotos||[];if(orgGet()){MU.pend=j.pendentes||0}}catch(e){MU.fotos=[];MU.msg='Não foi possível carregar o mural agora.'}
  if(aba==='mural')render()}
 function muralHTML(){const F=MU.fotos,tm=st.get('mu_time')||meu||'',nm=st.get('mu_nome')||'';
  const form=`<div class='card'><h2>Mural da galera</h2><p class='mut'>Tirou uma foto no jogo? Envie aqui. Ela aparece no mural depois que o organizador aprovar.</p>
@@ -695,6 +750,104 @@ function bnavRender(){const has=k=>TABS.some(t=>t[0]===k),maisAbas=['fase','calc
 document.addEventListener('click',e=>{const b=e.target.closest('[data-bn]');if(!b)return;const k=b.dataset.bn;
  if(k==='mais'){SH=!SH;bnavRender();return}if(k==='fechar'){SH=false;bnavRender();return}
  SH=false;aba=k;render();window.scrollTo(0,0)});
+
+/* ===== Protótipo visual: funções ===== */
+const TEMAS=['auto','light','dark'],TEMAL={auto:'🌓',light:'☀️',dark:'🌙'};
+function temaGet(){try{return localStorage.getItem('tema')||'auto'}catch(e){return'auto'}}
+function temaSet(t){try{localStorage.setItem('tema',t)}catch(e){}const r=document.documentElement;if(t==='auto')r.removeAttribute('data-theme');else r.setAttribute('data-theme',t);const b=document.getElementById('tema');if(b)b.textContent=TEMAL[t]}
+document.addEventListener('click',e=>{if(e.target.id==='tema'){temaSet(TEMAS[(TEMAS.indexOf(temaGet())+1)%3])}});
+setTimeout(()=>temaSet(temaGet()),0);
+
+function rankFilt(fn){const t={};DATA.times.forEach(n=>t[n]={n,j:0,v:0,e:0,d:0,gp:0,gc:0});
+ DATA.jogos.filter(j=>!j.fase&&j.placar&&fn(j)).forEach(j=>{const a=j.placar[0],b=j.placar[1],c=t[j.casa],f=t[j.fora];if(!c||!f)return;c.j++;f.j++;c.gp+=a;c.gc+=b;f.gp+=b;f.gc+=a;if(a>b){c.v++;f.d++}else if(a<b){f.v++;c.d++}else{c.e++;f.e++}});
+ return Object.values(t).map(x=>({...x,p:x.v*3+x.e,sg:x.gp-x.gc})).sort((a,b)=>b.p-a.p||b.v-a.v||b.sg-a.sg||b.gp-a.gp||a.n.localeCompare(b.n))}
+const gJogos=n=>DATA.jogos.filter(j=>!j.fase&&j.placar&&(j.casa===n||j.fora===n)).sort(ord);
+const resDe=(j,n)=>{const a=j.casa===n?j.placar[0]:j.placar[1],b=j.casa===n?j.placar[1]:j.placar[0];return a>b?'v':a<b?'d':'e'};
+const formaHTML=(n,k=5)=>`<span class="fm" title="Últimos jogos">${gJogos(n).slice(-k).map(j=>`<i class="${resDe(j,n)}"></i>`).join('')}</span>`;
+function movs(){const G=DATA.jogos.filter(j=>!j.fase&&j.placar);if(!G.length)return{};const ld=G.map(j=>j.data).sort().pop(),prev=rankFilt(j=>j.data<ld).map(x=>x.n),cur=tabela().map(x=>x.n),o={};
+ if(!G.some(j=>j.data<ld))return o;cur.forEach((n,i)=>{o[n]=prev.indexOf(n)-i});return o}
+function tabHTML(hl=meu){const r=tabela(),M=movs();
+ return `<div class="wrap"><table><tr><th>#</th><th>Time</th><th>P</th><th>J</th><th>V</th><th>E</th><th>D</th><th>GP</th><th>GC</th><th>SG</th><th>Últ. 5</th></tr>`+
+ r.map((x,i)=>{const m=M[x.n]||0,mv=m>0?`<span class="mvt up">▲${m}</span>`:m<0?`<span class="mvt dn">▼${-m}</span>`:`<span class="mvt ze">–</span>`;
+  return `<tr class="${x.n===hl?"me":""}"><td>${i+1}${mv}</td><td>${x.n}</td><td><b>${x.p}</b></td><td>${x.j}</td><td>${x.v}</td><td>${x.e}</td><td>${x.d}</td><td>${x.gp}</td><td>${x.gc}</td><td>${x.sg}</td><td>${formaHTML(x.n)}</td></tr>`}).join("")+
+ `</table></div><p class="mut">▲▼ mostram quantas posições o time subiu ou desceu na última rodada. Bolinhas: verde = vitória, cinza = empate, vermelho = derrota. Pontuação 3-1-0 e desempate (vitórias, depois saldo e gols pró), como informado: não estão no regulamento.</p>`}
+
+function chartHTML(n){const js=gJogos(n);if(!js.length)return'';const pts=[0];js.forEach(j=>pts.push(pts[pts.length-1]+({v:3,e:1,d:0})[resDe(j,n)]));
+ const W=340,H=150,L=26,R=10,T=12,B=22,mx=Math.max(3,Math.ceil(Math.max(...pts)/3)*3),X=i=>L+(W-L-R)*i/Math.max(1,pts.length-1),Y=v=>T+(H-T-B)*(1-v/mx);
+ const cor=(COR||{})[n]||'#0b3cae',tot=tabela().reduce((s,x)=>s+x.p,0)/DATA.times.length,tj=tabela().reduce((s,x)=>s+x.j,0)/DATA.times.length,avg=tj?tot/tj:0;
+ let g='';for(let v=0;v<=mx;v+=3)g+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${L-6}" y="${Y(v)+3}" text-anchor="end">${v}</text>`;
+ const xs=pts.map((v,i)=>`${X(i)},${Y(v)}`).join(' '),dots=pts.map((v,i)=>i?`<circle cx="${X(i)}" cy="${Y(v)}" r="5" fill="${({v:'#1faa59',e:'#9aa3ab',d:'#e5484d'})[resDe(js[i-1],n)]}" stroke="var(--card)" stroke-width="2"/>`:'').join('');
+ const lbl=pts.map((v,i)=>`<text x="${X(i)}" y="${H-6}" text-anchor="middle">${i?'J'+i:''}</text>`).join('');
+ const ay=Y(avg*(pts.length-1)),dash=pts.length>1?`<line x1="${X(0)}" y1="${Y(0)}" x2="${X(pts.length-1)}" y2="${ay}" stroke="var(--mut)" stroke-dasharray="4 4"/>`:'';
+ return `<div class="card"><h2>Evolução de pontos</h2><svg class="chart" viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Pontos acumulados jogo a jogo">${g}${dash}<polyline points="${xs}" fill="none" stroke="${cor}" stroke-width="3" stroke-linejoin="round"/>${dots}${lbl}</svg><p class="mut" style="margin:0;font-size:12px">Linha cheia: pontos acumulados do time. Tracejada: média do grupo. <span style="color:#1faa59">●</span> vitória <span style="color:#9aa3ab">●</span> empate <span style="color:#e5484d">●</span> derrota.</p></div>`}
+
+function meuHero(){if(!meu){return `<div class="card"><h2>Personalize o início</h2><p class="mut" style="margin:0">Escolha o seu time e a tela inicial passa a mostrar o próximo jogo, a posição e a sequência dele.</p><div class="pick">${DATA.times.map(n=>`<button data-meu="${n}">${bdg(n,'sm')} ${nome(n)}</button>`).join('')}</div></div>`}
+ const r=tabela(),i=r.findIndex(x=>x.n===meu),x=r[i]||{p:0,j:0},cor=(COR||{})[meu]||'#0b3cae',mine=DATA.jogos.filter(j=>j.casa===meu||j.fora===meu),
+ nx=mine.filter(j=>!j.placar).sort(ord)[0],ul=mine.filter(j=>j.placar).sort((a,b)=>ord(b,a))[0],pv=provJogos().find(j=>j.casa===meu||j.fora===meu||(j.A||[]).includes(meu)||(j.B||[]).includes(meu));
+ const lin=nx?`Próximo: <b>${nome(nx.casa)} × ${nome(nx.fora)}</b> · ${dow(nx.data)} ${fmt(nx.data)} às ${nx.hora.replace(':','h')}${nx.fase?' · playoff':''}`:pv?`Pode jogar: <b>playoff, jogo ${pv.n}</b> · ${dow(pv.data)} ${fmt(pv.data)} às ${pv.hora.replace(':','h')}`:`Sem jogos pendentes por enquanto.`;
+ const ult=ul?` <br>Último: ${nome(ul.casa)} <b>${ul.placar[0]} × ${ul.placar[1]}</b> ${nome(ul.fora)}`:'';
+ return `<div class="mh" style="background:linear-gradient(135deg,${cor},#01123a)"><div class="mt0">${bdg(meu,'lg')}<div><div class="kk">Seu time</div><h2>${meu}</h2></div></div>
+ <div class="st"><div class="pill">Posição<b>${i+1}º</b></div><div class="pill">Pontos<b>${x.p}</b></div><div class="pill">Jogos<b>${x.j}</b></div><div class="pill">Sequência<br>${formaHTML(meu)}</div></div>
+ <div class="nx2">${lin}${ult}</div><p style="margin:10px 0 0"><button class="btn" data-t="${meu}">Ver página do time</button></p></div>`}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-meu]');if(!b)return;meu=b.dataset.meu;st.set('meuTime',meu);const s=document.getElementById('meu');if(s)s.value=meu;render()});
+
+let DEMO='';const champ=()=>DATA.campeao||DEMO||'';
+function campHTML(){const n=champ();if(!n)return'';const cor=(COR||{})[n]||'#0b3cae',cs=['#ffd800','#fff','#6c9bff','#ff7a59','#1faa59'];
+ const cf=Array.from({length:36},(_,i)=>`<span class="cf" style="left:${(i*97)%100}%;background:${cs[i%5]};animation-duration:${3+(i%5)*.7}s;animation-delay:${(i%9)*.35}s"></span>`).join('');
+ return `<div class="cmp" style="--cc:${cor}">${cf}<div class="tp">🏆</div><div class="kk">CAMPEÃO · COPA DE SELEÇÕES 2º SEMESTRE 2026</div><div class="fl">${bdg(n,'lg')}</div><h2>${n}</h2><div class="kk">${DATA.campeao?'':'DEMONSTRAÇÃO · '}PARABÉNS AO CAMPEÃO DO GRUPO B</div><button class="btn" data-a="cartoes">Gerar cartão do campeão</button></div>`}
+async function cardCampeao(){const n=champ()||'BRASIL',[c,x]=await baseCard('CAMPEÃO','GRUPO B');
+ x.fillStyle='rgba(255,255,255,.06)';x.fillRect(0,0,1080,1350);await drawFlag(x,n,240,330,600);
+ T(x,'🏆',540,300,170,'#ffd800','center',FB,400);T(x,n.toUpperCase(),540,1070,150,'#fff','center',FH,700);
+ T(x,'CAMPEÃO DA COPA DE SELEÇÕES',540,1140,44,'#ffd800','center',FH,700);T(x,'2º SEMESTRE 2026',540,1195,34,'rgba(255,255,255,.8)','center',FB,400);return c}
+
+function treeHTML(o){const B=o.B,r=FFN;FFN=r;
+ const row=(t,id)=>{if(!t)return `<div class="r2 tbd">A definir</div>`;const w=WIN[id]===t.n?' win':'',me=t.n===(CALC.team||meu)?' mine':'',g=QJ[id]&&DATA.jogos.find(x=>x.n===QJ[id]&&x.placar),sc=g?(g.casa===t.n?g.placar[0]:g.placar[1]):'';
+  return `<div class="r2${w}${me}" ${id?`data-w="${id}|${t.n}"`:''}>${bdg(t.n,'sm')}<b>${(SIG||{})[t.n]||t.n}</b>${sc!==''?`<em>${sc}</em>`:`<small>${FFN.indexOf(t.n)+1}º</small>`}</div>`};
+ const lab={Q1:'jogo 71 · dom 08/11 11h10',Q2:'jogo 67 · sáb 07/11 13h10',Q3:'jogo 66 · sáb 07/11 11h30',S1:'Semifinal 1',S2:'Semifinal 2',F:'Final'};
+ const P={Q1:[0,26],Q2:[0,166],Q3:[0,266],S1:[200,26],S2:[200,216],F:[400,121]};
+ const card=id=>{const[x,y]=P[id];const ok=B[id][0]&&B[id][1]?id:'';return `<div class="tc" style="left:${x}px;top:${y}px"><div class="lb">${lab[id]}</div>${row(B[id][0],ok)}${row(B[id][1],ok)}</div>`};
+ const champ0=WIN.F?o.by(WIN.F):null,L=(a,b,c,d)=>`M${a} ${b}H${(a+c)/2}V${d}H${c}`;
+ const cy=id=>P[id][1]+18+14,c2=id=>P[id][1]+18+42,
+ lines=[L(150,cy('Q1'),200,c2('S1')),L(150,cy('Q2'),200,cy('S2')),L(150,cy('Q3'),200,c2('S2')),L(350,cy('S1'),400,cy('F')),L(350,cy('S2'),400,c2('F')),L(550,P.F[1]+37,600,P.F[1]+37)];
+ return `<div class="wrap"><div class="tr"><div class="cl" style="left:0">Quartas</div><div class="cl" style="left:200px">Semifinal</div><div class="cl" style="left:400px">Final</div><div class="cl" style="left:600px">Campeão</div>
+ <svg viewBox="0 0 760 372" width="760" height="372">${lines.map(d=>`<path d="${d}"/>`).join('')}</svg>
+ ${['Q1','Q2','Q3','S1','S2','F'].map(card).join('')}
+ <div class="tc camp" style="left:600px;top:${P.F[1]+5}px"><div class="tp">🏆</div>${champ0?`${bdg(champ0.n,'sm')}<b>${champ0.n}</b>`:`<b style="color:var(--mut)">A definir</b>`}</div></div></div>
+ <p class="mut">Deslize para o lado para ver o chaveamento inteiro. Toque em um time para marcá-lo como vencedor.</p>`}
+
+/* ===== Botão flutuante (+) e modo organizador ===== */
+const GID={jogos:269042020,noticias:1967418658,mural:452494670,config:90812273};
+const orgGet=()=>{try{return localStorage.getItem('org_sheet')||''}catch(e){return''}};
+const ORG_REQ=/organizador/i.test(location.hash);
+let FABO=false;
+const orgUrl=k=>orgGet().split('#')[0].replace(/\?.*$/,'')+'#gid='+GID[k];
+function toast(t){const e=document.getElementById('toast');if(!e)return;e.textContent=t;e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>{e.style.display='none'},2600)}
+function fabItems(){const org=!!orgGet(),L=[];
+ if(org){L.push({h:1,lb:'Modo organizador'});
+  L.push({ic:'✏️',lb:'Lançar placar',href:orgUrl('jogos'),c:'org'},{ic:'📰',lb:'Escrever notícia',href:orgUrl('noticias'),c:'org'},{ic:'📸',lb:'Aprovar fotos'+(MU.pend?' ('+MU.pend+')':''),href:orgUrl('mural'),c:'org'},{ic:'🏆',lb:'Informar campeão',href:orgUrl('config'),c:'org'},{ic:'👥',lb:'Convidar amigos',share:1},{ic:'🚪',lb:'Sair do modo organizador',act:'orgoff',c:'sub'});return L}
+ const p=proximoJogo(),aberta=p&&p.t>new Date()&&!st.get('enq_'+p.j.n);
+ L.push({ic:'📸',lb:'Enviar foto ao mural',go:'mural'},{ic:'🗳️',lb:aberta?'Votar: quem vence?':'Ver próximo jogo',go:'inicio',sc:'.enqc,.nx'},{ic:'📤',lb:'Compartilhar cartões',go:'cartoes'},{ic:'👥',lb:'Convidar amigos',share:1});return L}
+function fabRender(){const el=document.getElementById('fab');if(!el)return;const org=!!orgGet(),bd=org&&MU.pend?`<span class="fabbd">${MU.pend}</span>`:'';
+ el.className=FABO?'open':'';
+ el.innerHTML=(FABO?`<div class="fabd" data-fab="x"></div><div class="fabm">${fabItems().map((x,i)=>x.h?`<div class="fabh">${x.lb}</div>`:x.href?`<a class="fabi ${x.c||''}" style="animation-delay:${i*.03}s" href="${x.href}" target="_blank" rel="noopener"><span>${x.lb}</span><i>${x.ic}</i></a>`:`<button class="fabi ${x.c||''}" style="animation-delay:${i*.03}s" data-fab="${x.go?'go:'+x.go+(x.sc?'|'+x.sc:''):x.share?'share':x.act}"><span>${x.lb}</span><i>${x.ic}</i></button>`).join('')}</div>`:'')+`<button class="fabb" data-fab="t" aria-label="${FABO?'Fechar atalhos':'Abrir atalhos'}">+${bd}</button>`}
+function orgModal(){const m=document.getElementById('orgm'),on=!!orgGet();m.className='open';
+ m.innerHTML=`<div class="bx"><h3>Modo organizador</h3><p class="mut" style="margin:0">${on?'Este celular já está no modo organizador. Os atalhos do botão + abrem a sua planilha.':'Cole o link da sua planilha do Google. Ele fica guardado só neste celular e libera os atalhos de organizador no botão +.'}</p>${on?'':'<input id="orgi" placeholder="https://docs.google.com/spreadsheets/d/…" autocomplete="off">'}<div class="rw"><button class="btn alt" data-org="x">${on?'Fechar':'Cancelar'}</button>${on?'<button class="btn" data-org="off">Desativar</button>':'<button class="btn" data-org="ok">Ativar</button>'}</div></div>`}
+function orgPend(){if(!orgGet()||!vtem())return;fetch(DATA.votacao.url+'?acao=mural').then(r=>r.json()).then(j=>{const n=j.pendentes||0;if(n!==MU.pend){MU.pend=n;fabRender()}}).catch(()=>{})}
+document.addEventListener('click',async e=>{const o=e.target.closest('[data-org]');
+ if(o){const k=o.dataset.org,m=document.getElementById('orgm');
+  if(k==='ok'){const v=(document.getElementById('orgi').value||'').trim();if(!/^https:\/\/docs\.google\.com\/spreadsheets\/d\//.test(v)){toast('Cole o link completo da planilha.');return}try{localStorage.setItem('org_sheet',v)}catch(x){}toast('Modo organizador ativado.');orgPend()}
+  if(k==='off'){try{localStorage.removeItem('org_sheet')}catch(x){}MU.pend=0;toast('Modo organizador desativado.')}
+  m.className='';fabRender();return}
+ const f=e.target.closest('[data-fab]');if(!f)return;const k=f.dataset.fab;
+ if(k==='t'){FABO=!FABO;fabRender();return}
+ if(k==='x'){FABO=false;fabRender();return}
+ FABO=false;
+ if(k.slice(0,3)==='go:'){const[a,sc]=k.slice(3).split('|');aba=a;render();window.scrollTo(0,0);if(sc)setTimeout(()=>{const t=document.querySelector(sc);if(t)t.scrollIntoView({behavior:'smooth',block:'center'})},120);return}
+ if(k==='share'){fabRender();const d={title:'Copa de Seleções · Grupo B',text:'Acompanhe tabela, jogos e fase final do Grupo B:',url:location.origin+location.pathname};
+  try{if(navigator.share){await navigator.share(d)}else{await navigator.clipboard.writeText(d.url);toast('Link copiado.')}}catch(x){if(!x||x.name!=='AbortError'){try{await navigator.clipboard.writeText(d.url);toast('Link copiado.')}catch(y){}}}return}
+ if(k==='orgoff'){try{localStorage.removeItem('org_sheet')}catch(x){}MU.pend=0;fabRender();toast('Modo organizador desativado.');return}
+ fabRender()});
+setTimeout(()=>{if(ORG_REQ)orgModal();orgPend()},400);setInterval(orgPend,90000);
 async function enqLoad(){if(!vtem())return;
  try{const r=await fetch(DATA.votacao.url+'?acao=enquete'),j=await r.json();ENQ.res=j.jogos||{};if(aba==='inicio'||aba==='jogos')render()}catch(e){}}
 document.addEventListener('click',async e=>{const t=e.target.closest('[data-eq]');if(!t)return;const p=t.dataset.eq.split('|'),n=p[0],k=p[1];
@@ -762,7 +915,7 @@ function tickRender(){const p=proximoJogo(),L=DATA.jogos.filter(j=>!j.placar).co
  $("#jg").innerHTML=`<div class="ag"><b>Jogos e eventos</b><span class="mut">Grupo B</span><button class="btn" data-a="jogos">Agenda completa</button></div>`+L.map(j=>`<div class="jc ${p&&j.n===p.j.n?"nx1":""}">${p&&j.n===p.j.n?'<b style="color:var(--g)">PRÓXIMO</b>':""}<span class="mut">${dow(j.data)} ${fmt(j.data)} · ${j.hora}</span>${j.prov?side(j.casa,j.pa,j.A)+side(j.fora,j.pb,j.B):`<div class="r" data-t="${j.casa}">${bdg(j.casa,"sm")} ${SIG[j.casa]}</div><div class="r" data-t="${j.fora}">${bdg(j.fora,"sm")} ${SIG[j.fora]}</div>`}<span class="mut">Grupo B · ${j.fase?"playoff · ":""}jogo ${j.n}</span></div>`).join("")}
 function render(){syncHash();
  stripRender();tickRender();enqBarRender();
- bnavRender();$("#nav").innerHTML=TABS.map(t=>`<button class="${t[0]===aba?"on":""}" data-a="${t[0]}">${t[1]}</button>`).join("");
+ fabRender();bnavRender();$("#nav").innerHTML=TABS.map(t=>`<button class="${t[0]===aba?"on":""}" data-a="${t[0]}">${t[1]}</button>`).join("");
  let h="";
  if(aba==="inicio")h=homeHTML();
  else if(aba.slice(0,2)==="t:")h=timeHTML(aba.slice(2));
