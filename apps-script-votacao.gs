@@ -62,9 +62,9 @@ function doPost(e) {
 
 // Devolve o resultado parcial: os mais votados por posição, somando os votos de todos os esquemas
 function doGet(e) {
-  if (e && e.parameter && e.parameter.acao === 'mural') return json_({ fotos: muralLista_() });
+  if (e && e.parameter && e.parameter.acao === 'mural') return json_({ fotos: muralLista_(), pendentes: muralPendentes_() });
   if (e && e.parameter && e.parameter.acao === 'noticias') return json_({ noticias: noticiasLista_() });
-  if (e && e.parameter && e.parameter.acao === 'jogos') return json_({ jogos: jogosLista_() });
+  if (e && e.parameter && e.parameter.acao === 'jogos') return json_({ jogos: jogosLista_(), campeao: campeaoConfig_() });
   if (e && e.parameter && e.parameter.acao === 'enquete') return json_({ jogos: enqueteResultado_() });
   var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(ABA_VOTOS);
   var n = sh.getLastRow() - 1;
@@ -247,4 +247,19 @@ function autorizarMural() {
 function testarEmail() {
   MailApp.sendEmail(EMAIL_AVISO, 'Teste do mural', 'Se você recebeu este e-mail, o aviso de foto nova está funcionando.');
   Logger.log('E-mail de teste enviado para ' + EMAIL_AVISO);
+}
+
+// Aba "Config": escreva o nome do time campeão na célula B1 (ex.: Brasil) quando a final acabar.
+function campeaoConfig_() {
+  var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Config');
+  return sh ? String(sh.getRange('B1').getValue() || '').trim() : '';
+}
+
+// Quantas fotos estão esperando aprovação (Status vazio).
+function muralPendentes_() {
+  var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(ABA_MURAL);
+  if (!sh || sh.getLastRow() < 2) return 0;
+  var v = sh.getRange(2, 5, sh.getLastRow() - 1, 2).getValues(), n = 0;
+  v.forEach(function (r) { if (String(r[1]).trim() && !String(r[0]).trim()) n++; });
+  return n;
 }
