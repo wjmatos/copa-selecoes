@@ -45,7 +45,7 @@ const DATA={
   {n:25,data:"2026-10-25",hora:"12:40",casa:"EUA",fora:"BRASIL",placar:[1,2]},
   {n:26,data:"2026-10-25",hora:"14:20",casa:"MÉXICO",fora:"ARGENTINA",placar:[3,0]},
   {n:27,data:"2026-10-25",hora:"16:00",casa:"PARAGUAI",fora:"PERU",placar:[3,0]},
-  {n:10,data:"2026-10-31",hora:"09:00",casa:"MÉXICO",fora:"PARAGUAI",placar:null}
+  {n:10,data:"2026-10-31",hora:"09:00",casa:"MÉXICO",fora:"PARAGUAI",placar:[2,0]}
  ],
  artilharia:[],
  cartoes:[],
