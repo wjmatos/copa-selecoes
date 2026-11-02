@@ -863,6 +863,7 @@ function fabItems(){const org=!!orgGet(),L=[];
  if(org){L.push({h:1,lb:'Modo organizador'});
   L.push({ic:'✏️',lb:'Lançar placar',k:'org:placar',c:'org'},{ic:'📰',lb:'Escrever notícia',k:'org:noticias',c:'org'},{ic:'📸',lb:'Aprovar fotos'+(MU.pend?' ('+MU.pend+')':''),k:'org:fotos',c:'org'},{ic:'🎙️',lb:'Craque do jogo',k:'org:craque',c:'org'},{ic:'🏆',lb:'Informar campeão',k:'org:campeao',c:'org'},{ic:'👥',lb:'Convidar amigos',k:'share'});return L}
  const p=proximoJogo(),aberta=p&&p.t>new Date()&&!st.get('enq_'+p.j.n);
+ if(!isApp())L.push({ic:'📲',lb:'Instalar o app',k:'install'});
  L.push({ic:'📸',lb:'Enviar foto ao mural',k:'go:mural'},{ic:'🗳️',lb:aberta?'Votar: quem vence?':'Ver próximo jogo',k:'go:inicio|.enqc,.nx'},{ic:'📤',lb:'Compartilhar cartões',k:'go:cartoes'},{ic:'👥',lb:'Convidar amigos',k:'share'});return L}
 function fabRender(){const el=document.getElementById('fab');if(!el)return;const org=!!orgGet(),bd=org&&MU.pend?`<span class="fabbd">${MU.pend}</span>`:'';
  el.className=FABO?'open':'';
@@ -950,8 +951,9 @@ document.addEventListener('click',async e=>{
  FABO=false;
  if(k.slice(0,4)==='org:'){fabRender();orgOpen(k.slice(4));return}
  if(k.slice(0,3)==='go:'){const[ab,sc]=k.slice(3).split('|');aba=ab;render();window.scrollTo(0,0);if(sc)setTimeout(()=>{const t=document.querySelector(sc);if(t)t.scrollIntoView({behavior:'smooth',block:'center'})},120);return}
- if(k==='share'){fabRender();const d={title:'Copa de Seleções · Grupo B',text:'Acompanhe tabela, jogos e fase final do Grupo B:',url:location.origin+location.pathname};
-  try{if(navigator.share){await navigator.share(d)}else{await navigator.clipboard.writeText(d.url);toast('Link copiado.')}}catch(x){if(!x||x.name!=='AbortError'){try{await navigator.clipboard.writeText(d.url);toast('Link copiado.')}catch(y){}}}return}
+ if(k==='share'){fabRender();const url=siteUrl(),txt=inviteTxt(url);
+  try{if(navigator.share){await navigator.share({title:'Copa de Seleções · Grupo B',text:txt})}else{await navigator.clipboard.writeText(txt);toast('Convite copiado.')}}catch(x){if(!x||x.name!=='AbortError'){try{await navigator.clipboard.writeText(txt);toast('Convite copiado.')}catch(y){}}}return}
+ if(k==='install'){fabRender();instalarModal();return}
  fabRender()});
 
 /* ===== Craque do jogo (foto + entrevista em áudio) ===== */
@@ -1021,6 +1023,23 @@ document.addEventListener('change',async e=>{const t=e.target,k=t.dataset&&t.dat
  if(k==='cqaud'&&t.files[0]){const f=t.files[0];if(f.size>7e6){toast('Áudio grande demais (máx. 7 MB).');return}CQ.audio=await cqRead(f);CQ.dur=0;const a=new Audio(CQ.audio);a.onloadedmetadata=()=>{CQ.dur=Math.round(a.duration)||0};render()}});
 document.addEventListener('click',e=>{const a=e.target.closest('[data-ad]');if(!a)return;const p=a.dataset.ad.split('|'),k=p[0];
  if(k==='cqt'){CQ.time=p[1];render()}else if(k==='grav')cqGrav();else if(k==='cqreg'){CQ.audio=null;CQ.dur=0;render()}else if(k==='cqclr'){cqLimpa();render()}else if(k==='cqpub')cqPub()});
+
+/* ===== Instalar o app / convite ===== */
+const isApp=()=>{try{return matchMedia('(display-mode: standalone)').matches||navigator.standalone===true}catch(e){return false}};
+const siteUrl=()=>location.origin+location.pathname.replace(/organizador\.html$/i,'').replace(/index\.html$/i,'');
+const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+let DIP=null;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();DIP=e});window.addEventListener('appinstalled',()=>{DIP=null});
+const inviteTxt=url=>`⚽ Copa de Seleções · Grupo B\nTabela, jogos, fase final, enquetes e mural de fotos:\n${url}\n\n📲 Para instalar como app:\n• iPhone: abra o link no Safari, toque em Compartilhar (quadrado com seta) e depois em "Adicionar à Tela de Início".\n• Android: abra o link no Chrome, toque nos 3 pontinhos (⋮) e depois em "Instalar app" ou "Adicionar à tela inicial".`;
+function instalarModal(){const m=document.getElementById('orgm'),ios=isIOS();
+ const pas=ios?[['1','Abra este site no <b>Safari</b> (não funciona no Chrome do iPhone).'],['2','Toque em <b>Compartilhar</b> (o quadrado com a seta para cima, na barra de baixo).'],['3','Role e toque em <b>Adicionar à Tela de Início</b>.'],['4','Toque em <b>Adicionar</b>. O ícone aparece junto dos seus apps.']]
+  :[['1','Abra este site no <b>Chrome</b>.'],['2','Toque nos <b>3 pontinhos</b> (⋮) no canto de cima.'],['3','Toque em <b>Instalar app</b> (ou <b>Adicionar à tela inicial</b>).'],['4','Confirme. O ícone aparece junto dos seus apps.']];
+ m.className='open';m.innerHTML=`<div class="bx"><h3>Instalar o app</h3><p class="mut" style="margin:0 0 8px">Abre direto da tela inicial, sem digitar o endereço.${ios?'':''}</p>
+ ${DIP&&!ios?`<button class="btn" data-ins="go" style="width:100%;margin-bottom:10px">Instalar agora</button>`:''}
+ <ol style="padding-left:20px;margin:0 0 12px;line-height:1.5">${pas.map(p=>`<li>${p[1]}</li>`).join('')}</ol>
+ <div class="rw"><button class="btn alt" data-org="x">Fechar</button><button class="btn" data-ins="inv">Enviar convite</button></div></div>`}
+document.addEventListener('click',async e=>{const b=e.target.closest('[data-ins]');if(!b)return;
+ if(b.dataset.ins==='go'&&DIP){DIP.prompt();try{await DIP.userChoice}catch(x){}DIP=null;document.getElementById('orgm').className=''}
+ if(b.dataset.ins==='inv'){document.getElementById('orgm').className='';const t=inviteTxt(siteUrl());try{if(navigator.share)await navigator.share({title:'Copa de Seleções · Grupo B',text:t});else{await navigator.clipboard.writeText(t);toast('Convite copiado.')}}catch(x){}}});
 setTimeout(()=>{if(ORG_REQ){if(orgGet())orgOpen('placar');else orgModal()}orgPend()},400);setInterval(orgPend,90000);
 async function enqLoad(){if(!vtem())return;
  try{const r=await fetch(DATA.votacao.url+'?acao=enquete'),j=await r.json();ENQ.res=j.jogos||{};if(aba==='inicio'||aba==='jogos')render()}catch(e){}}
