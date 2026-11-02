@@ -949,11 +949,12 @@ function enqCard(j){const ini=new Date(j.data+'T'+j.hora),mv=st.get('enq_'+j.n),
  if(aberta&&!mv)return `<div class='enqc pulse'>${head}<div class='ec-b'><button class='ec-btn' data-eq='${j.n}|casa'>${bdg(j.casa,'sm')}<span>Vitória<br><b>${nm.casa}</b></span></button><button class='ec-btn emp' data-eq='${j.n}|empate'><span>Empate</span></button><button class='ec-btn' data-eq='${j.n}|fora'>${bdg(j.fora,'sm')}<span>Vitória<br><b>${nm.fora}</b></span></button></div><small class='ec-s'>Um voto por celular. O resultado aparece depois que você votar.</small></div>`;
  const row=(k,l)=>`<div class='ec-r${mv===k?' me':''}'><span>${l}</span><div class='ec-bar'><i style='width:${pc(k)}%'></i></div><b>${pc(k)}%</b></div>`;
  return `<div class='enqc'>${head}${row('casa','Vitória '+nm.casa)}${row('empate','Empate')}${row('fora','Vitória '+nm.fora)}<small class='ec-s'>${ver?enqVT(j,ver)+' · ':''}${tot} voto${tot===1?'':'s'}${mv?' · você votou em '+(mv==='empate'?'empate':'vitória '+nm[mv]):''}</small></div>`}
+const enqPend=()=>pend().concat(provJogos().filter(j=>j.casa&&j.fora&&!DATA.jogos.some(x=>x.n===j.n))).sort(ord);
 const enqSection=()=>{const now=new Date(),T0=j=>new Date(j.data+'T'+j.hora);
- const A=pend().filter(j=>T0(j)>now).slice(0,2),L=DATA.jogos.filter(j=>T0(j)<=now&&now-T0(j)<864e5&&(ENQ.res||{})[j.n]).sort(ord);
+ const A=enqPend().filter(j=>T0(j)>now).slice(0,3),L=DATA.jogos.filter(j=>T0(j)<=now&&now-T0(j)<864e5&&(ENQ.res||{})[j.n]).sort(ord);
  return A.concat(L).map(enqCard).join('')};
 async function cardEnq(){const now=new Date(),T0=j=>new Date(j.data+'T'+j.hora);
- const j=pend().find(x=>T0(x)>now)||DATA.jogos.filter(x=>(ENQ.res||{})[x.n]).sort((a,b)=>ord(b,a))[0];
+ const j=enqPend().find(x=>T0(x)>now)||DATA.jogos.filter(x=>(ENQ.res||{})[x.n]).sort((a,b)=>ord(b,a))[0];
  const aberta=j&&T0(j)>now,[c,x]=await baseCard(aberta?'ENQUETE':'TORCIDÔMETRO',j?(dow(j.data)+' '+fmt(j.data)+' · '+j.hora.replace(':','H')).toUpperCase():'');
  if(!j){T(x,'Sem enquete no momento',540,700,60,'#fff','center',FH,700);return c}
  const r=(ENQ.res||{})[j.n]||{casa:0,empate:0,fora:0},tot=r.casa+r.empate+r.fora,pc=k=>tot?Math.round(r[k]*100/tot):0,ver=enqVers(j);
@@ -969,7 +970,7 @@ async function cardEnq(){const now=new Date(),T0=j=>new Date(j.data+'T'+j.hora);
  T(x,ver?enqVT(j,ver):tot+' voto'+(tot===1?'':'s')+(aberta?' · vote no site':''),540,1170,36,'rgba(255,255,255,.85)','center',FB,400);
  return c}
 function enqBarRender(){const el=document.getElementById('enqbar');if(!el)return;
- const j=aba==='inicio'?null:pend().find(x=>new Date(x.data+'T'+x.hora)>new Date()&&!st.get('enq_'+x.n));
+ const j=aba==='inicio'?null:enqPend().find(x=>new Date(x.data+'T'+x.hora)>new Date()&&!st.get('enq_'+x.n));
  el.innerHTML=j?`<button class='enqbar' data-enqgo='1'><span class='ec-tag'>ENQUETE</span>Quem vence: ${nome(j.casa)} × ${nome(j.fora)}? Vote agora →</button>`:''}
 document.addEventListener('click',e=>{if(e.target.closest('[data-enqgo]')){aba='inicio';render();window.scrollTo(0,0)}});
 async function vCarregar(){VT.res=null;if(!vtem()){VT.res={erro:'sem url'};return}
