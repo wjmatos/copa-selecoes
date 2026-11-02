@@ -22,6 +22,7 @@ function doPost(e) {
     var d = JSON.parse(e.postData.contents);
     if (d.tipo === 'enquete') return enquetePost_(d);
     if (d.tipo === 'foto') return fotoPost_(d);
+    if (d.tipo === 'craque') return craquePost_(d);
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var esperado = ESQUEMAS[d.esquema];
     if (!esperado || !d.id || String(d.id).length > 80 || !d.voto || d.voto.length !== 11) return json_({ ok: false, erro: 'voto invalido' });
@@ -63,6 +64,8 @@ function doPost(e) {
 // Devolve o resultado parcial: os mais votados por posição, somando os votos de todos os esquemas
 function doGet(e) {
   if (e && e.parameter && e.parameter.acao === 'admin') return adminGet_(e);
+  if (e && e.parameter && e.parameter.acao === 'craques') return json_({ craques: craquesLista_() });
+  if (e && e.parameter && e.parameter.acao === 'audio') return json_(craqueAudio_(e.parameter.id));
   if (e && e.parameter && e.parameter.acao === 'mural') return json_({ fotos: muralLista_(), pendentes: muralPendentes_() });
   if (e && e.parameter && e.parameter.acao === 'noticias') return json_({ noticias: noticiasLista_() });
   if (e && e.parameter && e.parameter.acao === 'jogos') return json_({ jogos: jogosLista_(), campeao: campeaoConfig_() });
@@ -385,4 +388,83 @@ function adminGet_(e) {
     }
     return json_({ ok: false, erro: 'op' });
   } finally { lock.releaseLock(); }
+}
+
+
+// ===== CRAQUE DO JOGO (foto + entrevista em áudio) =====
+// Aba "Craques": Data/hora | Jogo | Time | Jogador | ID da foto | ID do áudio | Duração (s)
+function pinOk_(pin) {
+  var props = PropertiesService.getScriptProperties(), cache = CacheService.getScriptCache();
+  var real = String(props.getProperty('ORG_PIN') || '').trim();
+  if (!real) return 'sem_pin';
+  var f = Number(cache.get('org_falhas') || 0);
+  if (f >= 5) return 'bloqueado';
+  if (String(pin || '') !== real) { cache.put('org_falhas', String(f + 1), 3600); return 'pin'; }
+  cache.remove('org_falhas');
+  return '';
+}
+
+function abaCraques_() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet(), sh = ss.getSheetByName('Craques');
+  if (!sh) {
+    sh = ss.insertSheet('Craques');
+    sh.appendRow(['Data/hora', 'Jogo', 'Time', 'Jogador', 'ID da foto', 'ID do áudio', 'Duração (s)', 'ID de envio']);
+    sh.setFrozenRows(1);
+    sh.getRange('A:H').setNumberFormat('@');
+    sh.getRange('A1:H1').setFontWeight('bold');
+  }
+  return sh;
+}
+
+// { tipo:'craque', pin, uid, jogo, time, nome, foto:'data:image/jpeg;base64,...', audio:'data:audio/...;base64,...', dur }
+function craquePost_(d) {
+  var er = pinOk_(d.pin); if (er) return json_({ ok: false, erro: er });
+  var time = String(d.time || '').toUpperCase().trim(), jogo = parseInt(d.jogo, 10);
+  var nome = String(d.nome || '').replace(/[\r\n]+/g, ' ').slice(0, 60).trim();
+  if (TIMES_OK.indexOf(time) < 0 || !(jogo >= 1 && jogo <= 500) || !nome || !d.uid) return json_({ ok: false, erro: 'dados' });
+  var sh = abaCraques_();
+  if (sh.getLastRow() > 1) {
+    var ids = sh.getRange(2, 8, sh.getLastRow() - 1, 1).getValues();
+    for (var i = 0; i < ids.length; i++) if (String(ids[i][0]) === String(d.uid)) return json_({ ok: true, repetido: true });
+  }
+  var pasta = pastaMural_(), fotoId = '', audId = '';
+  var mf = /^data:image\/jpeg;base64,([A-Za-z0-9+\/=]+)$/.exec(String(d.foto || ''));
+  if (mf && mf[1].length < 3000000) {
+    var f = pasta.createFile(Utilities.newBlob(Utilities.base64Decode(mf[1]), 'image/jpeg', 'craque_' + jogo + '_' + Date.now() + '.jpg'));
+    f.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    fotoId = f.getId();
+  }
+  var ma = /^data:(audio\/[a-z0-9.+-]+)(?:;[a-z0-9=.+-]+)*;base64,([A-Za-z0-9+\/=]+)$/i.exec(String(d.audio || ''));
+  if (ma && ma[2].length < 9000000) {
+    var ext = /mp4|aac|m4a/.test(ma[1]) ? 'm4a' : /ogg/.test(ma[1]) ? 'ogg' : /mpeg|mp3/.test(ma[1]) ? 'mp3' : 'webm';
+    var af = pasta.createFile(Utilities.newBlob(Utilities.base64Decode(ma[2]), ma[1], 'craque_' + jogo + '_' + Date.now() + '.' + ext));
+    audId = af.getId();
+  }
+  var agora = Utilities.formatDate(new Date(), 'America/Sao_Paulo', 'dd/MM/yyyy HH:mm');
+  var lin = sh.getLastRow() + 1;
+  sh.getRange(lin, 1, 1, 8).setNumberFormat('@').setValues([[agora, String(jogo), time, nome, fotoId, audId, String(Math.round(Number(d.dur) || 0)), String(d.uid)]]);
+  return json_({ ok: true });
+}
+
+function craquesLista_() {
+  var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Craques');
+  if (!sh || sh.getLastRow() < 2) return [];
+  var v = sh.getRange(2, 1, sh.getLastRow() - 1, 7).getValues(), out = [];
+  v.forEach(function (r, i) {
+    if (!String(r[3]).trim()) return;
+    out.push({ linha: i + 2, jogo: Number(r[1]), time: String(r[2]), nome: String(r[3]), foto: String(r[4]), audio: String(r[5]) !== '', dur: Number(r[6]) || 0 });
+  });
+  return out.slice(-40);
+}
+
+// Entrega o áudio (que fica privado no Drive) já pronto para tocar. Só serve arquivos listados na aba Craques.
+function craqueAudio_(linha) {
+  var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Craques'), ln = Number(linha);
+  if (!sh || !(ln >= 2) || ln > sh.getLastRow()) return { ok: false };
+  var id = String(sh.getRange(ln, 6).getValue() || '').trim();
+  if (!id) return { ok: false };
+  try {
+    var b = DriveApp.getFileById(id).getBlob();
+    return { ok: true, data: 'data:' + b.getContentType() + ';base64,' + Utilities.base64Encode(b.getBytes()) };
+  } catch (e) { return { ok: false }; }
 }
