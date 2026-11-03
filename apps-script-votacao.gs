@@ -64,6 +64,7 @@ function doPost(e) {
 // Devolve o resultado parcial: os mais votados por posição, somando os votos de todos os esquemas
 function doGet(e) {
   if (e && e.parameter && e.parameter.acao === 'admin') return adminGet_(e);
+  if (e && e.parameter && e.parameter.acao === 'avisos') return json_({ avisos: avisosLista_() });
   if (e && e.parameter && e.parameter.acao === 'craques') return json_({ craques: craquesLista_() });
   if (e && e.parameter && e.parameter.acao === 'audio') return json_(craqueAudio_(e.parameter.id));
   if (e && e.parameter && e.parameter.acao === 'mural') return json_({ fotos: muralLista_(), pendentes: muralPendentes_() });
@@ -299,7 +300,10 @@ function adminGet_(e) {
       var col = sh.getRange(2, 1, Math.max(1, sh.getLastRow() - 1), 1).getValues();
       for (var i = 0; i < col.length; i++) {
         if (Number(col[i][0]) === n) {
+          var ant = sh.getRange(i + 2, 4, 1, 5).getValues()[0];
+          var jaFinal = String(ant[4]).trim() === '' && ant[2] !== '' && ant[3] !== '' && Number(ant[2]) === gc && Number(ant[3]) === gf;
           sh.getRange(i + 2, 6, 1, 3).setValues([[gc, gf, d.vivo ? 'x' : '']]);
+          if (!d.vivo && !jaFinal) avisoAdd_('placar', 'Final: ' + ant[0] + ' ' + gc + ' × ' + gf + ' ' + ant[1], 'Veja a tabela e os próximos jogos.', 'tabela', true);
           return json_({ ok: true });
         }
       }
@@ -324,6 +328,7 @@ function adminGet_(e) {
       var linha = sn.getLastRow() + 1;
       sn.getRange(linha, 1, 1, 6).setNumberFormat('@');
       sn.getRange(linha, 1, 1, 6).setValues([[String(pos), String(d.tag || '').slice(0, 60), t, String(d.x || '').slice(0, 600), String(d.times || '').slice(0, 80), '']]);
+      avisoAdd_('noticia', t, 'Nova notícia publicada.', 'inicio', false);
       return json_({ ok: true });
     }
 
@@ -374,7 +379,7 @@ function adminGet_(e) {
       var sg = ss.getSheetByName(ABA_MURAL), ln = Number(d.linha);
       if (!sg || ln < 2 || ln > sg.getLastRow()) return json_({ ok: false, erro: 'dados' });
       sg.getRange(ln, 5).setValue(d.ok ? 'ok' : 'não');
-      if (d.ok) muralLista_();
+      if (d.ok) { muralLista_(); avisoAdd_('foto', 'Foto nova no mural', 'Veja os cliques do pessoal.', 'mural', false, 600); }
       return json_({ ok: true });
     }
 
@@ -384,6 +389,20 @@ function adminGet_(e) {
       if (tm && TIMES_OK.indexOf(tm) < 0) return json_({ ok: false, erro: 'dados' });
       sc.getRange('A1').setValue('Campeão');
       sc.getRange('B1').setValue(tm ? tm.charAt(0) + tm.slice(1).toLowerCase() : '');
+      if (tm) avisoAdd_('campeao', 'Campeão: ' + tm.charAt(0) + tm.slice(1).toLowerCase() + ' 🏆', 'Parabéns ao campeão do Grupo B!', 'inicio', true);
+      return json_({ ok: true });
+    }
+    if (op === 'aviso') {
+      var tt = String(d.t || '').replace(/[\r\n]+/g, ' ').trim().slice(0, 100);
+      if (!tt) return json_({ ok: false, erro: 'dados' });
+      var dest = ['inicio', 'jogos', 'tabela', 'mural'].indexOf(d.dest) >= 0 ? d.dest : 'inicio';
+      avisoAdd_('aviso', tt, String(d.x || '').trim().slice(0, 240), dest, !!d.faixa);
+      return json_({ ok: true });
+    }
+    if (op === 'avisoapaga') {
+      var sa = ss.getSheetByName('Avisos'), la = Number(d.linha);
+      if (!sa || la < 2 || la > sa.getLastRow()) return json_({ ok: false, erro: 'dados' });
+      sa.getRange(la, 3).setValue('');
       return json_({ ok: true });
     }
     return json_({ ok: false, erro: 'op' });
@@ -443,6 +462,7 @@ function craquePost_(d) {
   var agora = Utilities.formatDate(new Date(), 'America/Sao_Paulo', 'dd/MM/yyyy HH:mm');
   var lin = sh.getLastRow() + 1;
   sh.getRange(lin, 1, 1, 8).setNumberFormat('@').setValues([[agora, String(jogo), time, nome, fotoId, audId, String(Math.round(Number(d.dur) || 0)), String(d.uid)]]);
+  avisoAdd_('craque', 'Craque do jogo: ' + nome, audId ? 'Ouça a entrevista com o melhor em campo.' : 'Veja quem foi o melhor em campo.', 'inicio', false);
   return json_({ ok: true });
 }
 
@@ -467,4 +487,43 @@ function craqueAudio_(linha) {
     var b = DriveApp.getFileById(id).getBlob();
     return { ok: true, data: 'data:' + b.getContentType() + ';base64,' + Utilities.base64Encode(b.getBytes()) };
   } catch (e) { return { ok: false }; }
+}
+
+
+// ===== AVISOS (sininho dentro do app) =====
+// Aba "Avisos": Data/hora (ISO) | Tipo | Título | Texto | Destino | Faixa? | ID
+function abaAvisos_() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet(), sh = ss.getSheetByName('Avisos');
+  if (!sh) {
+    sh = ss.insertSheet('Avisos');
+    sh.appendRow(['Data/hora', 'Tipo', 'Título', 'Texto', 'Destino', 'Faixa?', 'ID']);
+    sh.setFrozenRows(1);
+    sh.getRange('A:G').setNumberFormat('@');
+    sh.getRange('A1:G1').setFontWeight('bold');
+  }
+  return sh;
+}
+
+// Chamada de dentro de operações que já seguram o lock. Não pode derrubar a operação principal.
+function avisoAdd_(tipo, titulo, texto, destino, faixa, dedupSeg) {
+  try {
+    var sh = abaAvisos_(), ult = sh.getLastRow(), agora = new Date();
+    if (dedupSeg && ult > 1) {
+      var u = sh.getRange(ult, 1, 1, 3).getValues()[0];
+      if (String(u[1]) === tipo && (agora - new Date(u[0])) < dedupSeg * 1000) return;
+    }
+    sh.getRange(ult + 1, 1, 1, 7).setNumberFormat('@').setValues([[agora.toISOString(), tipo, titulo, texto, destino, faixa ? 'sim' : '', String(ult + 1)]]);
+  } catch (err) { Logger.log('aviso: ' + err); }
+}
+
+function avisosLista_() {
+  var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Avisos');
+  if (!sh || sh.getLastRow() < 2) return [];
+  var n = sh.getLastRow() - 1, ini = Math.max(2, sh.getLastRow() - 39);
+  var v = sh.getRange(ini, 1, sh.getLastRow() - ini + 1, 6).getValues(), out = [];
+  v.forEach(function (r, i) {
+    if (!String(r[2]).trim()) return;
+    out.push({ id: ini + i, t: String(r[0]), tipo: String(r[1]), tit: String(r[2]), x: String(r[3]), dest: String(r[4]), faixa: String(r[5]).trim() === 'sim' });
+  });
+  return out;
 }
