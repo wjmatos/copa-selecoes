@@ -240,7 +240,7 @@ nav button{font-family:var(--fh);font-size:16px;letter-spacing:.6px;text-transfo
 }
 
 /* ===== Protótipo visual ===== */
-.top{position:relative}.top h1{padding-right:52px}#tema{position:absolute;top:14px;right:14px;width:40px;height:34px;padding:0;font-size:17px}.tbtn{border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.1);color:#fff;border-radius:999px;padding:6px 11px;font:600 12px Inter,sans-serif;cursor:pointer}
+.top{position:relative}.top h1{padding-right:100px}@media(max-width:600px){.top h1{flex:1 1 100%}}@media(max-width:430px){.top h1{font-size:21px;letter-spacing:.2px}}#tema{position:absolute;top:14px;right:14px;width:40px;height:34px;padding:0;font-size:17px}.tbtn{border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.1);color:#fff;border-radius:999px;padding:6px 11px;font:600 12px Inter,sans-serif;cursor:pointer}
 .wrap th:first-child,.wrap td:first-child{white-space:nowrap;width:52px;text-align:left}.wrap td:last-child,.wrap th:last-child{white-space:nowrap}.fm{display:inline-flex;gap:3px;vertical-align:middle}.fm i{width:11px;height:11px;border-radius:50%;display:block;background:var(--line)}
 .fm i.v{background:#1faa59}.fm i.e{background:#9aa3ab}.fm i.d{background:#e5484d}
 .mvt{font-size:10px;margin-left:3px;font-weight:700;white-space:nowrap}.mvt.up{color:#1faa59}.mvt.dn{color:#e5484d}.mvt.ze{color:var(--mut)}.grid>div{min-width:0}
@@ -329,6 +329,20 @@ nav button{font-family:var(--fh);font-size:16px;letter-spacing:.6px;text-transfo
 .adm-up{display:flex;align-items:center;justify-content:center;border:2px dashed var(--line);border-radius:12px;min-height:90px;color:var(--mut);font:600 13px Inter,sans-serif;cursor:pointer;overflow:hidden;text-align:center;padding:6px}.adm-up img{max-width:100%;max-height:220px;display:block;border-radius:8px}
 .adm-rec{display:block;margin:10px auto 4px;width:84px;height:84px;border-radius:50%;border:0;background:#b3121f;color:#fff;font-size:30px;cursor:pointer;box-shadow:0 0 0 10px rgba(179,18,31,.18)}.adm-rec.on{box-shadow:0 0 0 12px rgba(179,18,31,.3)}
 .adm-tm2{text-align:center;font:700 20px var(--fh);color:#b3121f;min-height:26px}
+
+/* ===== Sininho / avisos ===== */
+#sino{position:absolute;top:14px;right:62px;width:40px;height:34px;padding:0;font-size:17px}
+.sbd{position:absolute;top:-5px;right:-4px;min-width:19px;height:19px;border-radius:10px;background:#e5484d;color:#fff;font:800 11px/19px Inter,sans-serif;text-align:center;padding:0 4px;border:2px solid #01123a}
+#avban{position:fixed;z-index:90;left:10px;right:10px;top:calc(10px + env(safe-area-inset-top,0px));max-width:520px;margin:0 auto;pointer-events:none}
+#avban .b{pointer-events:auto;background:var(--card);color:var(--ink);border-radius:16px;box-shadow:0 10px 30px rgba(1,18,58,.35);padding:12px 14px;display:flex;gap:10px;align-items:center;border-left:6px solid var(--y);cursor:pointer;animation:avin .3s ease}
+#avban .ic{font-size:26px}#avban b{display:block;font:700 15px Inter,sans-serif}#avban span{font-size:12px;color:var(--mut)}#avban .x{margin-left:auto;color:var(--mut);font-size:18px;padding:4px 6px;background:none;border:0;cursor:pointer}
+@keyframes avin{from{transform:translateY(-30px);opacity:0}to{transform:none;opacity:1}}
+.av-h{display:flex;align-items:center;justify-content:space-between;margin:4px 2px 4px}.av-h b{font:700 22px var(--fh);text-transform:uppercase}.av-h button{background:none;border:0;color:var(--g);font:600 13px Inter,sans-serif;cursor:pointer}
+.av-s{font:700 12px var(--fh);letter-spacing:1px;text-transform:uppercase;color:var(--g);margin:12px 2px 6px}
+.av-i{display:flex;gap:11px;align-items:flex-start;width:100%;text-align:left;padding:11px 12px;margin-bottom:8px;background:var(--card);border:1px solid var(--line);border-radius:14px;position:relative;cursor:pointer;color:var(--ink);font:inherit}
+.av-i.nw{background:#fffbea;border-color:#f3dd7a}.av-i.nw:after{content:"";position:absolute;right:12px;top:14px;width:9px;height:9px;border-radius:50%;background:#e5484d}
+.av-ic{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;flex:none}
+.av-i b{display:block;font:700 14px Inter,sans-serif;padding-right:16px;color:#01123a}.av-i p{margin:2px 0 0;font-size:12.5px;line-height:1.35;color:#4a5164}.av-i small{display:block;margin-top:4px;font-size:11px;color:#8a90a0}
 </style>
 </head>
 <body>
@@ -338,6 +352,7 @@ nav button{font-family:var(--fh);font-size:16px;letter-spacing:.6px;text-transfo
   <input id="q" class="q" placeholder="Buscar time" autocomplete="off">
   <label class="mut" style="color:#fff">Meu time:
    <select id="meu"></select></label>
+  <button id="sino" class="tbtn" data-sino="1" aria-label="Novidades" title="Novidades">🔔</button>
   <button id="tema" class="tbtn" aria-label="Alternar tema: automático, claro ou escuro" title="Tema"></button>
  </div>
  <nav id="nav"></nav>
@@ -346,7 +361,7 @@ nav button{font-family:var(--fh);font-size:16px;letter-spacing:.6px;text-transfo
 <div id="enqbar"></div>
 <div class="jg" id="jg"></div>
 <main id="app"></main>
-<div id="fab"></div><div id="toast"></div><div id="orgm"></div><nav id="bnav"></nav><div id="sheet"></div>
+<div id="avban"></div><div id="fab"></div><div id="toast"></div><div id="orgm"></div><nav id="bnav"></nav><div id="sheet"></div>
 <footer id="foot"></footer>
 
 <script src="dados.js"></script>
@@ -861,7 +876,7 @@ async function adm(op,d,pin){const u=DATA.votacao.url+'?acao=admin&pin='+encodeU
  try{const r=await fetch(u);return await r.json()}catch(e){return{ok:false,erro:'rede'}}}
 function fabItems(){const org=!!orgGet(),L=[];
  if(org){L.push({h:1,lb:'Modo organizador'});
-  L.push({ic:'✏️',lb:'Lançar placar',k:'org:placar',c:'org'},{ic:'📰',lb:'Escrever notícia',k:'org:noticias',c:'org'},{ic:'📸',lb:'Aprovar fotos'+(MU.pend?' ('+MU.pend+')':''),k:'org:fotos',c:'org'},{ic:'🎙️',lb:'Craque do jogo',k:'org:craque',c:'org'},{ic:'🏆',lb:'Informar campeão',k:'org:campeao',c:'org'},{ic:'👥',lb:'Convidar amigos',k:'share'});return L}
+  L.push({ic:'✏️',lb:'Lançar placar',k:'org:placar',c:'org'},{ic:'📰',lb:'Escrever notícia',k:'org:noticias',c:'org'},{ic:'📸',lb:'Aprovar fotos'+(MU.pend?' ('+MU.pend+')':''),k:'org:fotos',c:'org'},{ic:'🎙️',lb:'Craque do jogo',k:'org:craque',c:'org'},{ic:'📢',lb:'Enviar aviso',k:'org:aviso',c:'org'},{ic:'🏆',lb:'Informar campeão',k:'org:campeao',c:'org'},{ic:'👥',lb:'Convidar amigos',k:'share'});return L}
  const p=proximoJogo(),aberta=p&&p.t>new Date()&&!st.get('enq_'+p.j.n);
  if(!isApp())L.push({ic:'📲',lb:'Instalar o app',k:'install'});
  L.push({ic:'📸',lb:'Enviar foto ao mural',k:'go:mural'},{ic:'🗳️',lb:aberta?'Votar: quem vence?':'Ver próximo jogo',k:'go:inicio|.enqc,.nx'},{ic:'📤',lb:'Compartilhar cartões',k:'go:cartoes'},{ic:'👥',lb:'Convidar amigos',k:'share'});return L}
@@ -901,8 +916,8 @@ function campeaoHTML(){const c=ORG.camp||DATA.campeao||'';
  <div class="adm-r"><button class="adm-b" data-ad="campok">Confirmar campeão${c?': '+nome(c):''}</button>${DATA.campeao?'<button class="adm-b d" data-ad="campno">Remover</button>':''}</div></div>`}
 function orgHTML(){
  if(!orgGet()||!vtem())return `<div class="card"><h2>Modo organizador</h2><p class="mut">Ative com a sua senha para lançar placares, escrever notícias e aprovar fotos direto pelo app.</p><button class="btn" data-org="open">Ativar</button></div>`;
- const T=[['placar','✏️ Placar'],['noticias','📰 Notícias'],['fotos','📸 Fotos'+(MU.pend?` <b class="adm-n">${MU.pend}</b>`:'')],['craque','🎙️ Craque'],['campeao','🏆 Campeão']];
- return `<div class="adm-hd"><b>Modo organizador</b><button class="adm-sair" data-org="off">Sair</button></div><div class="adm-tabs">${T.map(t=>`<button class="${ORG.tab===t[0]?'on':''}" data-ad="tab|${t[0]}">${t[1]}</button>`).join('')}</div>`+(ORG.tab==='placar'?placarHTML():ORG.tab==='noticias'?noticiasHTML():ORG.tab==='fotos'?fotosHTML():ORG.tab==='craque'?craqueAdmHTML():campeaoHTML())}
+ const T=[['placar','✏️ Placar'],['noticias','📰 Notícias'],['fotos','📸 Fotos'+(MU.pend?` <b class="adm-n">${MU.pend}</b>`:'')],['craque','🎙️ Craque'],['aviso','📢 Aviso'],['campeao','🏆 Campeão']];
+ return `<div class="adm-hd"><b>Modo organizador</b><button class="adm-sair" data-org="off">Sair</button></div><div class="adm-tabs">${T.map(t=>`<button class="${ORG.tab===t[0]?'on':''}" data-ad="tab|${t[0]}">${t[1]}</button>`).join('')}</div>`+(ORG.tab==='placar'?placarHTML():ORG.tab==='noticias'?noticiasHTML():ORG.tab==='fotos'?fotosHTML():ORG.tab==='craque'?craqueAdmHTML():ORG.tab==='aviso'?avisoAdmHTML():campeaoHTML())}
 async function orgLoad(){if(aba!=='org'||!orgGet())return;
  const once=async(k,fn)=>{if(ORG.ld[k])return;ORG.ld[k]=1;try{await fn()}finally{ORG.ld[k]=0}};
  if(ORG.tab==='noticias'){
@@ -1040,6 +1055,59 @@ function instalarModal(){const m=document.getElementById('orgm'),ios=isIOS();
 document.addEventListener('click',async e=>{const b=e.target.closest('[data-ins]');if(!b)return;
  if(b.dataset.ins==='go'&&DIP){DIP.prompt();try{await DIP.userChoice}catch(x){}DIP=null;document.getElementById('orgm').className=''}
  if(b.dataset.ins==='inv'){document.getElementById('orgm').className='';const t=inviteTxt(siteUrl());try{if(navigator.share)await navigator.share({title:'Copa de Seleções · Grupo B',text:t});else{await navigator.clipboard.writeText(t);toast('Convite copiado.')}}catch(x){}}});
+
+/* ===== Sininho: avisos dentro do app ===== */
+const AV={lista:null,lido:0,hl:0,ban:0,pronto:false,aberto:false,t:0};
+const avGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}},avSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+AV.lido=+avGet('av_lido')||0;AV.ban=+avGet('av_ban')||0;
+const AVI={placar:['⚽','#e3f6e8'],craque:['🎙️','#fff3c4'],aviso:['📢','#fde0e0'],noticia:['📰','#e8eefc'],enquete:['🗳️','#e8eefc'],foto:['📸','#f0e6fb'],campeao:['🏆','#fff3c4']};
+const avMax=()=>(AV.lista||[]).reduce((m,a)=>Math.max(m,a.id),0);
+const avNovos=()=>(AV.lista||[]).filter(a=>a.id>AV.lido).length;
+function sinoRender(){const b=document.getElementById('sino');if(!b)return;const n=avNovos();b.innerHTML='🔔'+(n?`<span class="sbd">${n>9?'9+':n}</span>`:'');b.setAttribute('aria-label',n?n+' novidade'+(n>1?'s':''):'Novidades')}
+function avMarca(){const m=avMax();if(m>AV.lido){AV.lido=m;avSet('av_lido',String(m))}sinoRender()}
+const avQuando=iso=>{const d=new Date(iso),m=Math.round((Date.now()-d)/6e4);if(isNaN(m))return'';if(m<1)return'agora';if(m<60)return'há '+m+' min';const h=Math.floor(m/60);if(h<12)return'há '+h+' h';
+ const dd=new Date(),ont=new Date(Date.now()-864e5),hm=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+ return d.toDateString()===dd.toDateString()?'hoje '+hm:d.toDateString()===ont.toDateString()?'ontem '+hm:String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+' '+hm};
+function avFaixa(a){const el=document.getElementById('avban');if(!el)return;const i=AVI[a.tipo]||AVI.aviso;
+ el.innerHTML=`<div class="b" data-avgo="${esc(a.dest||'inicio')}"><div class="ic">${i[0]}</div><div><b>${esc(a.tit)}</b><span>agora · toque para ver</span></div><button class="x" data-avx="1" aria-label="Fechar">✕</button></div>`;
+ clearTimeout(AV.t);AV.t=setTimeout(()=>{el.innerHTML=''},7000)}
+async function avLoad(){if(!vtem())return;try{const r=await fetch(DATA.votacao.url+'?acao=avisos'),j=await r.json(),L=j.avisos||[];
+ const primeira=avGet('av_lido')===null&&!AV.pronto;AV.lista=L;const mx=avMax();
+ if(primeira){AV.lido=mx;avSet('av_lido',String(mx));AV.ban=mx;avSet('av_ban',String(mx))}
+ const nb=L.filter(a=>a.id>AV.ban&&a.faixa);if(nb.length&&aba!=='avisos'&&!document.hidden)avFaixa(nb[nb.length-1]);
+ if(mx>AV.ban&&!document.hidden){AV.ban=mx;avSet('av_ban',String(mx))}
+ AV.pronto=true;if(aba==='avisos'){avMarca();render()}else sinoRender();if(aba==='org'&&ORG.tab==='aviso')render()}catch(e){}}
+function avHTML(){if(!AV.aberto){AV.hl=AV.lido;AV.aberto=true;setTimeout(avMarca,0)}
+ const L=(AV.lista||[]).slice().reverse(),hoje=new Date().toDateString(),ont=new Date(Date.now()-864e5).toDateString(),G={Hoje:[],Ontem:[],Antes:[]};
+ L.forEach(a=>{const d=new Date(a.t).toDateString();(d===hoje?G.Hoje:d===ont?G.Ontem:G.Antes).push(a)});
+ const it=a=>{const i=AVI[a.tipo]||AVI.aviso;return `<button class="av-i ${a.id>AV.hl?'nw':''}" data-avgo="${esc(a.dest||'inicio')}"><div class="av-ic" style="background:${i[1]}">${i[0]}</div><div><b>${esc(a.tit)}</b>${a.x?`<p>${esc(a.x)}</p>`:''}<small>${avQuando(a.t)}</small></div></button>`};
+ return `<div class="av-h"><b>🔔 Novidades</b><button data-avlidas="1">Marcar como lidas</button></div>`+(!L.length?`<div class="card mut">${AV.lista===null?'Carregando…':'Nenhuma novidade ainda. Placares, notícias e avisos aparecem aqui.'}</div>`:Object.keys(G).filter(k=>G[k].length).map(k=>`<div class="av-s">${k==='Antes'?'Anteriores':k}</div>`+G[k].map(it).join('')).join(''))}
+document.addEventListener('click',e=>{
+ if(e.target.closest('[data-avx]')){document.getElementById('avban').innerHTML='';e.stopPropagation();return}
+ if(e.target.closest('[data-sino]')){aba='avisos';SH=false;render();window.scrollTo(0,0);return}
+ const g=e.target.closest('[data-avgo]');if(g){document.getElementById('avban').innerHTML='';const d=g.dataset.avgo;aba=['inicio','jogos','tabela','mural'].includes(d)?d:'inicio';SH=false;render();window.scrollTo(0,0);return}
+ if(e.target.closest('[data-avlidas]')){AV.hl=avMax();avMarca();render()}});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)avLoad()});
+
+/* painel: aba Aviso */
+const AVF={t:'',x:'',dest:'inicio',faixa:true,busy:false};
+function avisoAdmHTML(){const D=[['inicio','Início'],['jogos','Jogos'],['tabela','Tabela'],['mural','Mural']],rec=(AV.lista||[]).slice(-5).reverse();
+ const aut=[['⚽','Placar lançado',1],['🏆','Campeão definido',1],['🎙️','Craque do jogo',0],['📰','Notícia nova',0],['📸','Foto aprovada no mural',0]];
+ return `<div class="adm-card"><label class="adm-l" style="margin-top:0">Mensagem para todos</label><input class="adm-in" data-adv="t" maxlength="100" placeholder="Ex.: Jogo de domingo adiado para as 14h" value="${esc(AVF.t)}">
+ <label class="adm-l">Texto (opcional)</label><textarea class="adm-in" data-adv="x" rows="3" maxlength="240" placeholder="Mais detalhes">${esc(AVF.x)}</textarea>
+ <label class="adm-l">Abrir ao tocar</label><div>${D.map(d=>`<span class="adm-ch ${AVF.dest===d[0]?'on':''}" data-ad="avd|${d[0]}">${d[1]}</span>`).join('')}</div>
+ <div class="adm-swr"><span class="adm-sw ${AVF.faixa?'on':''}" data-ad="avf"><u></u>Mostrar faixa para quem está com o app aberto</span></div>
+ <div class="adm-r"><button class="adm-b" data-ad="avsend">${AVF.busy?'Enviando…':'📢 Enviar aviso'}</button></div></div>
+ <h4 class="adm-s">Avisos automáticos (ligados)</h4><div class="adm-card" style="padding:4px 12px">${aut.map(a=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px"><span>${a[0]} ${a[1]}</span><b style="font-size:11px;color:${a[2]?'#1b7a3a':'var(--g)'}">${a[2]?'FAIXA + LISTA':'SÓ LISTA'}</b></div>`).join('')}</div>
+ <h4 class="adm-s">Últimos avisos</h4>${rec.length?rec.map(a=>`<div class="adm-card adm-row"><div><b>${esc(a.tit)}</b><div class="mut">${avQuando(a.t)}</div></div><button class="adm-b d" data-ad="avdel|${a.id}">Apagar</button></div>`).join(''):'<div class="adm-card mut">Nenhum aviso ainda.</div>'}`}
+document.addEventListener('input',e=>{const k=e.target.dataset&&e.target.dataset.adv;if(k)AVF[k]=e.target.value});
+document.addEventListener('click',async e=>{const a=e.target.closest('[data-ad]');if(!a)return;const p=a.dataset.ad.split('|'),k=p[0];
+ if(k==='avd'){AVF.dest=p[1];render()}
+ else if(k==='avf'){AVF.faixa=!AVF.faixa;render()}
+ else if(k==='avsend'){if(AVF.busy)return;if(!AVF.t.trim()){toast('Escreva a mensagem.');return}AVF.busy=true;render();
+  const r=await adm('aviso',{t:AVF.t.trim(),x:AVF.x.trim(),dest:AVF.dest,faixa:AVF.faixa});AVF.busy=false;if(!r.ok){toast(errTxt(r));render();return}
+  AVF.t='';AVF.x='';toast('Aviso enviado ✓');render();avLoad()}
+ else if(k==='avdel'){const r=await adm('avisoapaga',{linha:+p[1]});if(!r.ok){toast(errTxt(r));return}toast('Aviso apagado.');avLoad()}});
 setTimeout(()=>{if(ORG_REQ){if(orgGet())orgOpen('placar');else orgModal()}orgPend()},400);setInterval(orgPend,90000);
 async function enqLoad(){if(!vtem())return;
  try{const r=await fetch(DATA.votacao.url+'?acao=enquete'),j=await r.json();ENQ.res=j.jogos||{};if(aba==='inicio'||aba==='jogos')render()}catch(e){}}
@@ -1109,7 +1177,7 @@ window.addEventListener('hashchange',()=>{const a=hashToAba(location.hash);if(a&
 function tickRender(){const p=proximoJogo(),L=DATA.jogos.filter(j=>!j.placar).concat(provJogos()).sort(ord).slice(0,6),
  side=(n,pos,arr)=>n?`<div class="r" data-t="${n}">${bdg(n,"sm")} ${SIG[n]}</div>`:`<div class="r"><span class="mut">${pos}º</span> ${arr.map(x=>bdg(x,'sm')).join('<span class="mut">/</span>')}</div>`;
  $("#jg").innerHTML=`<div class="ag"><b>Jogos e eventos</b><span class="mut">Grupo B</span><button class="btn" data-a="jogos">Agenda completa</button></div>`+L.map(j=>`<div class="jc ${p&&j.n===p.j.n?"nx1":""}">${p&&j.n===p.j.n?'<b style="color:var(--g)">PRÓXIMO</b>':""}<span class="mut">${dow(j.data)} ${fmt(j.data)} · ${j.hora}</span>${j.prov?side(j.casa,j.pa,j.A)+side(j.fora,j.pb,j.B):`<div class="r" data-t="${j.casa}">${bdg(j.casa,"sm")} ${SIG[j.casa]}</div><div class="r" data-t="${j.fora}">${bdg(j.fora,"sm")} ${SIG[j.fora]}</div>`}<span class="mut">Grupo B · ${j.fase?"playoff · ":""}jogo ${j.n}</span></div>`).join("")}
-function render(){syncHash();
+function render(){syncHash();if(aba!=='avisos')AV.aberto=false;
  stripRender();tickRender();enqBarRender();
  fabRender();bnavRender();$("#nav").innerHTML=TABS.map(t=>`<button class="${t[0]===aba?"on":""}" data-a="${t[0]}">${t[1]}</button>`).join("");
  let h="";
@@ -1119,7 +1187,7 @@ function render(){syncHash();
  else if(aba==="jogos")h=`<div class="card"><h2>Jogos do Grupo B</h2>${jogosHTML(DATA.jogos.concat(provJogos()).sort(ord))}</div>`;
  else if(aba==="stats")h=statsHTML();
  else if(aba==="notas")h=`<div class="card"><h2>Notas</h2>${notasHTML()}</div>`;
- else if(aba==="calc")h=calcHTML();else if(aba==="fase")h=faseHTML();else if(aba==="votar")h=votacaoHTML();else if(aba==="mural")h=muralHTML();else if(aba==="org")h=orgHTML();else if(aba==="cartoes")h=cartoesHTML();else if(aba==="backup")h=backupHTML();else h=brechasHTML();
+ else if(aba==="calc")h=calcHTML();else if(aba==="fase")h=faseHTML();else if(aba==="votar")h=votacaoHTML();else if(aba==="mural")h=muralHTML();else if(aba==="org")h=orgHTML();else if(aba==="avisos")h=avHTML();else if(aba==="cartoes")h=cartoesHTML();else if(aba==="backup")h=backupHTML();else h=brechasHTML();
  $("#app").innerHTML=h;if(aba==="cartoes")cartoesInit();if(aba==="mural"&&!MU.carregou)muralLoad();if(aba==="org")orgLoad();
 }
 $("#sub").textContent=DATA.grupo;
@@ -1143,7 +1211,7 @@ if(!window.claude){const bt=document.createElement('button');bt.className='vb';b
 document.addEventListener('click',async e=>{if(e.target.id==='cplink'){const u=location.href,el=e.target;try{await navigator.clipboard.writeText(u);el.textContent='Link copiado!'}catch(x){el.textContent='Copie: '+u}setTimeout(()=>{el.textContent='Copiar link desta página'},3500)}});
 render();
 setInterval(()=>{tickRender();if(aba==="inicio")render()},60000);
-enqLoad();setInterval(enqLoad,60000);craqueLoad();setInterval(craqueLoad,120000);materializarFase();jogosLoad();setInterval(jogosLoad,60000);noticiasLoad();setInterval(noticiasLoad,60000);
+enqLoad();setInterval(enqLoad,60000);craqueLoad();setInterval(craqueLoad,120000);avLoad();setInterval(avLoad,60000);materializarFase();jogosLoad();setInterval(jogosLoad,60000);noticiasLoad();setInterval(noticiasLoad,60000);
 if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
