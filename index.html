@@ -524,9 +524,9 @@ async function cardResultados(){const[c,x]=await baseCard('RESULTADOS','Grupo B'
   T(x,(dow(j.data)+' '+fmt(j.data)).toUpperCase(),540,y+190,32,'rgba(255,255,255,.7)','center',FB,400)}
  if(L[0]){rr(x,60,990,960,200,18,'rgba(255,255,255,.09)');rr(x,60,990,12,200,6,'#ffd800');wrap(x,resTxt(L[0]),100,1065,880,52,40,'#fff')}
  return c}
-const CARD={jogo:cardJogo,tabela:cardTabela,res:cardResultados,enq:cardEnq,camp:cardCampeao},CV={};
-function cartoesHTML(){return `<div class='card'><h2>Cartões para WhatsApp</h2><p class='mut'>Toque em Salvar imagem e envie no grupo. No celular, também dá para segurar a imagem para salvar.</p></div><div class='cds'>`+[['jogo','Próximo jogo'],['tabela','Tabela'],['res','Resultados'],['enq','Enquete / torcidômetro']].concat(champ()?[['camp','Campeão']]:[]).map(k=>`<div class='card'><h2>${k[1]}</h2><img id='im-${k[0]}' alt='${k[1]}' class='cim'><button class='btn' data-sh='${k[0]}'>Compartilhar</button> <button class='btn alt' data-sv='${k[0]}'>Salvar imagem</button></div>`).join('')+`</div>`}
-async function cartoesInit(){for(const k of Object.keys(CARD)){if(k==='camp'&&!champ())continue;try{const c=await CARD[k]();CV[k]=c;const im=document.getElementById('im-'+k);if(im)im.src=c.toDataURL('image/png')}catch(e){}}}
+const CARD={jogo:cardJogo,tabela:cardTabela,res:cardResultados,enq:()=>cardEnq(0),enq1:()=>cardEnq(1),enq2:()=>cardEnq(2),camp:cardCampeao},CV={};
+function cartoesHTML(){return `<div class='card'><h2>Cartões para WhatsApp</h2><p class='mut'>Toque em Salvar imagem e envie no grupo. No celular, também dá para segurar a imagem para salvar.</p></div><div class='cds'>`+[['jogo','Próximo jogo'],['tabela','Tabela'],['res','Resultados'],['enq','Enquete / torcidômetro']].filter(k=>k[0]!=='enq').concat(enqLista().map((j,i)=>['enq'+(i?i:''),'Enquete · '+SIG[j.casa]+' × '+SIG[j.fora]])).concat(champ()?[['camp','Campeão']]:[]).map(k=>`<div class='card'><h2>${k[1]}</h2><img id='im-${k[0]}' alt='${k[1]}' class='cim'><button class='btn' data-sh='${k[0]}'>Compartilhar</button> <button class='btn alt' data-sv='${k[0]}'>Salvar imagem</button></div>`).join('')+`</div>`}
+async function cartoesInit(){for(const k of Object.keys(CARD)){if(k==='camp'&&!champ())continue;if(/^enq\d$/.test(k)&&!enqLista()[+k.slice(3)])continue;try{const c=await CARD[k]();CV[k]=c;const im=document.getElementById('im-'+k);if(im)im.src=c.toDataURL('image/png')}catch(e){}}}
 async function shareImg(k){const c=CV[k];if(!c)return;
  try{const b=await new Promise(r=>c.toBlob(r,'image/png')),f=new File([b],'cartao-'+k+'.png',{type:'image/png'});
   if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f]});return}}
@@ -1056,8 +1056,10 @@ const enqPend=()=>pend().concat(provJogos().filter(j=>j.casa&&j.fora&&!DATA.jogo
 const enqSection=()=>{const now=new Date(),T0=j=>new Date(j.data+'T'+j.hora);
  const A=enqPend().filter(j=>T0(j)>now).slice(0,3),L=DATA.jogos.filter(j=>T0(j)<=now&&now-T0(j)<864e5&&(ENQ.res||{})[j.n]).sort(ord);
  return A.concat(L).map(enqCard).join('')};
-async function cardEnq(){const now=new Date(),T0=j=>new Date(j.data+'T'+j.hora);
- const j=enqPend().find(x=>T0(x)>now)||DATA.jogos.filter(x=>(ENQ.res||{})[x.n]).sort((a,b)=>ord(b,a))[0];
+const enqLista=()=>{const now=new Date(),T0=j=>new Date(j.data+'T'+j.hora),A=enqPend().filter(x=>T0(x)>now).slice(0,3);
+ return A.length?A:DATA.jogos.filter(x=>(ENQ.res||{})[x.n]).sort((a,b)=>ord(b,a)).slice(0,1)};
+const cardEnq=(i)=>cardEnqJ(enqLista()[i||0]);
+async function cardEnqJ(j){const now=new Date(),T0=j=>new Date(j.data+'T'+j.hora);
  const aberta=j&&T0(j)>now,[c,x]=await baseCard(aberta?'ENQUETE':'TORCIDÔMETRO',j?(dow(j.data)+' '+fmt(j.data)+' · '+j.hora.replace(':','H')).toUpperCase():'');
  if(!j){T(x,'Sem enquete no momento',540,700,60,'#fff','center',FH,700);return c}
  const r=(ENQ.res||{})[j.n]||{casa:0,empate:0,fora:0},tot=r.casa+r.empate+r.fora,pc=k=>tot?Math.round(r[k]*100/tot):0,ver=enqVers(j);
