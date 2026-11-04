@@ -78,6 +78,10 @@ section.panel{background:var(--surface);border:1px solid var(--line);border-radi
 .card-name{padding:10px 10px 4px;text-align:center;min-height:62px}
 .card-name b{display:block;font-family:var(--display);font-size:19px;line-height:1.05;text-transform:uppercase}
 .card-name small{display:block;color:var(--muted);font-size:11px;line-height:1.3;margin-top:4px}
+.pos{padding:2px 8px 0}
+.pos select{width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:600 12px var(--body)}
+.pos select.vazio{color:var(--muted);font-weight:500}
+.pos select:focus-visible{outline:3px solid var(--yellow);outline-offset:1px}
 .lvls{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:8px}
 .lvl{border:1px solid var(--line);background:var(--bg);color:var(--muted);border-radius:8px;padding:6px 2px 5px;display:flex;flex-direction:column;align-items:center;gap:2px;font:600 10px/1.15 var(--body);cursor:pointer}
 .lvl svg{width:16px;height:16px}
@@ -167,6 +171,7 @@ const ICONS={
 document.querySelectorAll('[data-ico]').forEach(e=>e.innerHTML=ICONS[e.dataset.ico]);
 const LV={3:{n:'Estrela',i:'star'},2:{n:'Joga muito',i:'bolt'},1:{n:'Agrega valor',i:'plus'}};
 const NOME={'Estrela':3,'Joga muito':2,'Agrega valor':1};
+const POS=['Goleiro','Zagueiro','Lateral direito','Lateral esquerdo','Volante','Meia armador','Ponta direita','Ponta esquerda','Centroavante'];
 const LOW=new Set(['de','da','das','do','dos','e']);
 const cap=s=>s.toLowerCase().split(' ').map((w,i)=>i&&LOW.has(w)?w:w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
 
@@ -179,13 +184,14 @@ const T=DATA.times.map(k=>{
   })};
 });
 
-let cur=null, codigo='', servidor={}, niveis={};
+let cur=null, codigo='', servidor={}, servPos={}, niveis={}, pos={};
 const $=id=>document.getElementById(id);
 const crest=(t,size)=>`<span class="crest" style="background:${t.c}${size?';width:'+size+'px;height:'+size+'px':''}">${t.s}</span>`;
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 
 /* niveis[time] = array de 0..3 (0 = sem nível); servidor = o que está gravado na planilha */
 function doServidor(t){const s=servidor[t.s]||{};return t.p.map(p=>NOME[s[p.nome]]||0)}
+function posServidor(t){const s=servPos[t.s]||{};return t.p.map(p=>s[p.nome]||(p.g?'Goleiro':''))}
 function resumo(arr){const c={3:0,2:0,1:0};arr.forEach(v=>{if(v)c[v]++});return{c,pts:c[3]*3+c[2]*2+c[1],done:arr.filter(Boolean).length}}
 const MAX=Math.max(...T.map(t=>t.p.length))*3;
 const segs=(c,max)=>`<span class="seg s3" style="width:${c[3]*3/max*100}%"></span><span class="seg s2" style="width:${c[2]*2/max*100}%"></span><span class="seg s1" style="width:${c[1]/max*100}%"></span>`;
@@ -209,16 +215,17 @@ function renderTeam(){
    <article class="card ${arr[i]?'r'+arr[i]:''}">
      <div class="card-top" style="background:${t.c}">${p.g?'<span class="badge">Goleiro</span>':''}${p.pat?'<span class="badge right">Patrono</span>':''}<span class="mono">${p.ini}</span></div>
      <div class="card-name"><b>${p.short}</b><small>${p.full}</small></div>
+     <div class="pos"><select data-i="${i}" class="${pos[t.s][i]?'':'vazio'}" aria-label="Posição de ${p.full}"><option value="">Posição…</option>${POS.map(o=>`<option${pos[t.s][i]===o?' selected':''}>${o}</option>`).join('')}</select></div>
      <div class="lvls">${[3,2,1].map(v=>`<button class="lvl v${v}" type="button" data-i="${i}" data-v="${v}" aria-pressed="${arr[i]===v}" aria-label="${p.full}: ${LV[v].n}">${ICONS[LV[v].i]}${LV[v].n}</button>`).join('')}</div>
    </article>`).join('');
   const falta=t.p.length-done;
   $('sendInfo').textContent=falta?`Faltam ${falta} de ${t.p.length} atletas.`:`Elenco completo: ${c[3]} estrelas, ${c[2]} jogam muito, ${c[1]} agregam valor.`;
-  const mudou=arr.join('')!==doServidor(t).join('');
+  const mudou=arr.join('')!==doServidor(t).join('')||pos[t.s].join('|')!==posServidor(t).join('|');
   $('sendStatus').className='status';$('sendStatus').textContent=mudou?'Alterações ainda não enviadas.':'';
 }
 function renderAll(){renderBars();renderChips();renderTeam()}
 function pick(t){
-  cur=t;if(!niveis[t.s])niveis[t.s]=doServidor(t);
+  cur=t;if(!niveis[t.s])niveis[t.s]=doServidor(t);if(!pos[t.s])pos[t.s]=posServidor(t);
   try{history.replaceState(null,'','#'+t.s.toLowerCase())}catch(e){}
   renderAll();
 }
@@ -231,9 +238,12 @@ async function chamar(dados){
 async function carregar(){
   const res=await chamar({acao:'carregar',codigo});
   if(!res.ok) throw new Error(res.erro||'Código incorreto.');
-  servidor=res.notas||{};
+  servidor=res.notas||{};servPos=res.posicoes||{};
   /* mantém o que a pessoa estava editando e não enviou */
-  T.forEach(t=>{if(!niveis[t.s]||niveis[t.s].join('')===(niveis[t.s+'_base']||[]).join(''))niveis[t.s]=doServidor(t);niveis[t.s+'_base']=doServidor(t)});
+  T.forEach(t=>{
+    if(!niveis[t.s]||niveis[t.s].join('')===(niveis[t.s+'_base']||[]).join(''))niveis[t.s]=doServidor(t);niveis[t.s+'_base']=doServidor(t);
+    if(!pos[t.s]||pos[t.s].join('|')===(pos[t.s+'_base']||[]).join('|'))pos[t.s]=posServidor(t);pos[t.s+'_base']=posServidor(t);
+  });
 }
 
 $('loginForm').addEventListener('submit',async e=>{
@@ -262,14 +272,20 @@ $('album').addEventListener('click',e=>{
   const y=window.scrollY;renderTeam();window.scrollTo(0,y);
   const nb=document.querySelector(`.lvl[data-i="${i}"][data-v="${v}"]`);if(nb)nb.focus({preventScroll:true});
 });
+$('album').addEventListener('change',e=>{
+  const sel=e.target.closest('select');if(!sel)return;
+  pos[cur.s][+sel.dataset.i]=sel.value;sel.classList.toggle('vazio',!sel.value);
+  $('sendStatus').className='status';$('sendStatus').textContent='Alterações ainda não enviadas.';
+});
 $('enviarBtn').addEventListener('click',async()=>{
   const st=$('sendStatus'),btn=$('enviarBtn'),t=cur,arr=niveis[t.s];
-  const notas=t.p.map((p,i)=>({n:i+1,atleta:p.nome,nivel:arr[i]?LV[arr[i]].n:''}));
+  const notas=t.p.map((p,i)=>({n:i+1,atleta:p.nome,nivel:arr[i]?LV[arr[i]].n:'',posicao:pos[t.s][i]||''}));
   st.className='status';st.textContent='Enviando…';btn.disabled=true;
   try{
     const res=await chamar({acao:'enviar',time:t.s,codigo,notas});
     if(res.ok){
       const s={};t.p.forEach((p,i)=>{if(arr[i])s[p.nome]=LV[arr[i]].n});servidor[t.s]=s;niveis[t.s+'_base']=arr.slice();
+      const sp={};t.p.forEach((p,i)=>{if(pos[t.s][i])sp[p.nome]=pos[t.s][i]});servPos[t.s]=sp;pos[t.s+'_base']=pos[t.s].slice();
       renderBars();renderChips();st.className='status ok';st.textContent=`Avaliação do ${t.k} enviada: ${res.avaliados} atletas, ${res.pontos} pontos.`;
     }else{st.className='status err';st.textContent=res.erro||'Não foi possível enviar.'}
   }catch(err){st.className='status err';st.textContent=err.message||'Não foi possível conectar. Tente de novo.'}
