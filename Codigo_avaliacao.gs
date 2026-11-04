@@ -14,6 +14,9 @@ const ABA_HIST = 'Historico';
 const ABA_RES = 'Resumo';
 const TIMES = ['EUA', 'PER', 'URU', 'MEX', 'ARG', 'CHI', 'PAR', 'BRA'];
 const PONTOS = { 'Estrela': 3, 'Joga muito': 2, 'Agrega valor': 1 };
+const POSICOES = ['Goleiro', 'Zagueiro', 'Lateral direito', 'Lateral esquerdo', 'Volante', 'Meia armador', 'Ponta direita', 'Ponta esquerda', 'Centroavante'];
+const CAB_NOTAS = ['Time', 'Nº', 'Atleta', 'Nível', 'Pontos', 'Atualizado em', 'Posição'];
+const CAB_HIST = ['Enviado em', 'Time', 'Atleta', 'Nível', 'Posição'];
 
 /** Rode UMA vez pelo editor (botão Executar) para montar a planilha. */
 function setup() {
@@ -28,10 +31,12 @@ function setup() {
   }
 
   const notas = ss.getSheetByName(ABA_NOTAS) || ss.insertSheet(ABA_NOTAS);
-  if (notas.getLastRow() < 1) notas.appendRow(['Time', 'Nº', 'Atleta', 'Nível', 'Pontos', 'Atualizado em']);
+  if (notas.getLastRow() < 1) notas.appendRow(CAB_NOTAS);
+  else notas.getRange(1, 1, 1, CAB_NOTAS.length).setValues([CAB_NOTAS]);
 
   const hist = ss.getSheetByName(ABA_HIST) || ss.insertSheet(ABA_HIST);
-  if (hist.getLastRow() < 1) hist.appendRow(['Enviado em', 'Time', 'Atleta', 'Nível']);
+  if (hist.getLastRow() < 1) hist.appendRow(CAB_HIST);
+  else hist.getRange(1, 1, 1, CAB_HIST.length).setValues([CAB_HIST]);
 
   if (!ss.getSheetByName(ABA_RES)) ss.insertSheet(ABA_RES);
   atualizarResumo();
@@ -61,7 +66,7 @@ function doPost(e) {
     const dados = JSON.parse(e.postData.contents);
     if (!codigoValido(dados.codigo)) return resposta({ ok: false, erro: 'Código incorreto.' });
 
-    if (dados.acao === 'carregar') return resposta({ ok: true, notas: todasAsNotas() });
+    if (dados.acao === 'carregar') return resposta(Object.assign({ ok: true }, todasAsNotas()));
     if (dados.acao === 'enviar') {
       const time = String(dados.time || '').toUpperCase();
       if (TIMES.indexOf(time) < 0) return resposta({ ok: false, erro: 'Time não encontrado.' });
@@ -82,13 +87,17 @@ function codigoValido(codigo) {
   return certo !== '' && certo === String(codigo || '').trim();
 }
 
-/** Devolve as avaliações de todos os times: { BRA: { 'NOME DO ATLETA': 'Estrela', ... }, ... } */
+/** Devolve níveis e posições de todos os times: { notas: { BRA: { 'NOME': 'Estrela' } }, posicoes: { BRA: { 'NOME': 'Volante' } } } */
 function todasAsNotas() {
   const linhas = SpreadsheetApp.getActive().getSheetByName(ABA_NOTAS).getDataRange().getValues().slice(1);
-  const notas = {};
-  TIMES.forEach(t => notas[t] = {});
-  linhas.forEach(l => { if (notas[l[0]] && l[3]) notas[l[0]][l[2]] = l[3]; });
-  return notas;
+  const notas = {}, posicoes = {};
+  TIMES.forEach(t => { notas[t] = {}; posicoes[t] = {}; });
+  linhas.forEach(l => {
+    if (!notas[l[0]]) return;
+    if (l[3]) notas[l[0]][l[2]] = l[3];
+    if (l[6]) posicoes[l[0]][l[2]] = l[6];
+  });
+  return { notas: notas, posicoes: posicoes };
 }
 
 function gravar(time, notas) {
@@ -99,22 +108,25 @@ function gravar(time, notas) {
     const sh = ss.getSheetByName(ABA_NOTAS);
     const agora = new Date();
     const todas = sh.getDataRange().getValues();
-    const cabecalho = todas[0];
-    const outras = todas.slice(1).filter(l => l[0] !== time);
+    const largura = CAB_NOTAS.length;
+    const ajusta = l => { const r = l.slice(0, largura); while (r.length < largura) r.push(''); return r; };
+    const outras = todas.slice(1).filter(l => l[0] !== time).map(ajusta);
     const novas = notas
-      .filter(x => PONTOS[x.nivel])
-      .map(x => [time, x.n, x.atleta, x.nivel, PONTOS[x.nivel], agora]);
-    const final = [cabecalho].concat(outras, novas);
+      .map(x => ({ n: x.n, atleta: x.atleta, nivel: PONTOS[x.nivel] ? x.nivel : '', pos: POSICOES.indexOf(x.posicao) >= 0 ? x.posicao : '' }))
+      .filter(x => x.nivel || x.pos)
+      .map(x => [time, x.n, x.atleta, x.nivel, x.nivel ? PONTOS[x.nivel] : '', agora, x.pos]);
+    const final = [CAB_NOTAS].concat(outras, novas);
     sh.clearContents();
-    sh.getRange(1, 1, final.length, 6).setValues(final);
-    sh.getRange(1, 1, 1, 6).setFontWeight('bold');
+    sh.getRange(1, 1, final.length, largura).setValues(final);
+    sh.getRange(1, 1, 1, largura).setFontWeight('bold');
 
     const hist = ss.getSheetByName(ABA_HIST);
-    if (novas.length) hist.getRange(hist.getLastRow() + 1, 1, novas.length, 4).setValues(novas.map(l => [agora, time, l[2], l[3]]));
+    if (novas.length) hist.getRange(hist.getLastRow() + 1, 1, novas.length, CAB_HIST.length).setValues(novas.map(l => [agora, time, l[2], l[3], l[6]]));
 
     atualizarResumo();
-    const pontos = novas.reduce((s, l) => s + l[4], 0);
-    return { ok: true, avaliados: novas.length, pontos: pontos };
+    const avaliados = novas.filter(l => l[3]).length;
+    const pontos = novas.reduce((s, l) => s + (Number(l[4]) || 0), 0);
+    return { ok: true, avaliados: avaliados, pontos: pontos };
   } finally {
     lock.releaseLock();
   }
