@@ -1191,7 +1191,7 @@ function render(){syncHash();if(aba!=='avisos')AV.aberto=false;
  $("#app").innerHTML=h;if(aba==="cartoes")cartoesInit();if(aba==="mural"&&!MU.carregou)muralLoad();if(aba==="org")orgLoad();
 }
 $("#sub").textContent=DATA.grupo;
-$("#foot").textContent="Painel não oficial, feito por um participante · dados do Grupo B atualizados em "+DATA.atualizado+".";
+$("#foot").textContent="Painel não oficial, feito por um participante · dados do Grupo B atualizados em "+DATA.atualizado+". Versão 03/11 · 🔔 avisos.";
 $("#meu").innerHTML=`<option value="">— escolher —</option>`+DATA.times.map(n=>`<option ${n===meu?"selected":""}>${n}</option>`).join("");
 $("#q").oninput=e=>{const v=e.target.value.trim().toUpperCase();if(!v)return;const t=DATA.times.find(n=>n.startsWith(v))||DATA.times.find(n=>n.includes(v));if(t){aba="t:"+t;render()}};
 $("#meu").onchange=e=>{meu=e.target.value;st.set("meuTime",meu);render()};
