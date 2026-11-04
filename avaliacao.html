@@ -72,6 +72,23 @@ section.panel{background:var(--surface);border:1px solid var(--line);border-radi
 .send{display:flex;flex-direction:column;gap:12px;border-top:1px solid var(--line);padding-top:16px}
 .send-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 [hidden]{display:none!important}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line);padding:9px 14px;font-size:14px}
+.bars{display:flex;flex-direction:column;gap:6px}
+.bar-row{display:grid;grid-template-columns:40px minmax(0,120px) 1fr 76px;align-items:center;gap:12px;padding:6px 8px;border-radius:10px;border:1px solid transparent;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer;width:100%}
+.bar-row:hover{background:var(--bg)}
+.bar-row[aria-current="true"]{border-color:var(--line);background:var(--bg)}
+.bar-row:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
+.bar-row .crest{width:36px;height:36px;font-size:13px}
+.tname{font-family:var(--display);font-weight:700;font-size:20px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pts{text-align:right;font-variant-numeric:tabular-nums;line-height:1.1}
+.pts b{font-family:var(--display);font-size:24px}
+.pts span{display:block;font-size:11px;color:var(--muted)}
+@media (max-width:560px){
+  .bar-row{grid-template-columns:34px 1fr 64px;row-gap:4px}
+  .bar-row .track{grid-column:2 / 3;grid-row:2}
+  .bar-row .pts{grid-row:1 / 3;grid-column:3}
+  .bar-row .crest{grid-row:1 / 3}
+}
 footer .wrap{padding-block:0 32px;color:var(--muted);font-size:12px}
 @media (max-width:560px){.album{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
@@ -80,7 +97,7 @@ footer .wrap{padding-block:0 32px;color:var(--muted);font-size:12px}
 <header class="top"><div class="wrap">
   <span class="eyebrow">Copa de Seleções · Grupo B · 2º semestre 2026</span>
   <h1>Avaliador de elencos</h1>
-  <p class="lead">Cada patrono classifica os atletas do seu time. A avaliação é sigilosa: vai direto para a organização.</p>
+  <p class="lead">Cada patrono classifica os atletas do seu time. Os patronos acompanham juntos o equilíbrio dos elencos para o próximo draft.</p>
 </div></header>
 
 <main><div class="wrap">
@@ -91,16 +108,24 @@ footer .wrap{padding-block:0 32px;color:var(--muted);font-size:12px}
   </div>
 
   <section class="panel" id="acesso" aria-labelledby="acesso-t">
-    <div><h2 id="acesso-t">Acesso do patrono</h2><p class="sub">Escolha o seu time e digite o código que você recebeu da organização.</p></div>
-    <div class="chips" id="chips" role="group" aria-label="Escolher time"></div>
+    <div><h2 id="acesso-t">Acesso dos patronos</h2><p class="sub">Digite o código que você recebeu da organização.</p></div>
     <form class="login" id="loginForm">
-      <label for="codigo">Código do patrono<input id="codigo" inputmode="numeric" autocomplete="off" maxlength="8" required></label>
+      <label for="codigo">Código<input id="codigo" inputmode="numeric" autocomplete="off" maxlength="8" required></label>
       <button class="btn" id="entrarBtn" type="submit">Entrar</button>
       <span class="status" id="loginStatus" role="status"></span>
     </form>
   </section>
 
+  <section class="panel" id="equilibrio" hidden aria-labelledby="eq-t">
+    <div class="send-row" style="justify-content:space-between">
+      <div><h2 id="eq-t">Equilíbrio dos elencos</h2><p class="sub">Pontuação enviada por cada time, em ordem. Toque num time para ver o elenco.</p></div>
+      <button class="btn ghost" id="atualizarBtn" type="button">Atualizar</button>
+    </div>
+    <div class="bars" id="bars"></div>
+  </section>
+
   <section class="panel" id="avaliacao" hidden aria-labelledby="team-t">
+    <div class="chips" id="chips" role="group" aria-label="Escolher time"></div>
     <div class="team-head" id="teamHead"></div>
     <div class="track" id="teamBar" aria-hidden="true"></div>
     <div class="album" id="album"></div>
@@ -118,7 +143,7 @@ footer .wrap{padding-block:0 32px;color:var(--muted);font-size:12px}
 <script src="dados.js"></script>
 <script>
 /* Cole aqui a URL do app da Web do Apps Script (termina em /exec) */
-const URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbxIHi9GsmXs6Vn6VizHu90i6Pw8AhoRy5xWvwGnB8D-oRGg2AAyuzMteqJ4X0Mu4vndaQ/exec';
+const URL_SCRIPT = 'COLE_AQUI_A_URL_DO_APPS_SCRIPT';
 
 const ICONS={
  star:'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6L2.5 9.4l6.6-.8z"/></svg>',
@@ -140,82 +165,104 @@ const T=DATA.times.map(k=>{
   })};
 });
 
-let cur=null, codigo='', niveis=[];
+let cur=null, codigo='', servidor={}, niveis={};
 const $=id=>document.getElementById(id);
 const crest=(t,size)=>`<span class="crest" style="background:${t.c}${size?';width:'+size+'px;height:'+size+'px':''}">${t.s}</span>`;
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 
+/* niveis[time] = array de 0..3 (0 = sem nível); servidor = o que está gravado na planilha */
+function doServidor(t){const s=servidor[t.s]||{};return t.p.map(p=>NOME[s[p.nome]]||0)}
+function resumo(arr){const c={3:0,2:0,1:0};arr.forEach(v=>{if(v)c[v]++});return{c,pts:c[3]*3+c[2]*2+c[1],done:arr.filter(Boolean).length}}
+const MAX=Math.max(...T.map(t=>t.p.length))*3;
+const segs=(c,max)=>`<span class="seg s3" style="width:${c[3]*3/max*100}%"></span><span class="seg s2" style="width:${c[2]*2/max*100}%"></span><span class="seg s1" style="width:${c[1]/max*100}%"></span>`;
+
+function renderBars(){
+  const rows=T.map(t=>({t,...resumo(doServidor(t))})).sort((a,b)=>b.pts-a.pts||a.t.k.localeCompare(b.t.k));
+  $('bars').innerHTML=rows.map(({t,c,pts,done})=>`
+   <button class="bar-row" type="button" data-s="${t.s}" aria-current="${cur&&cur.s===t.s}" aria-label="${t.k}: ${pts} pontos, ${done} de ${t.p.length} avaliados">
+     ${crest(t)}<span class="tname">${t.k}</span><span class="track">${segs(c,MAX)}</span>
+     <span class="pts"><b>${pts}</b><span>${done}/${t.p.length} avaliados</span></span>
+   </button>`).join('');
+}
 function renderChips(){
   $('chips').innerHTML=T.map(t=>`<button class="team-chip" type="button" data-s="${t.s}" aria-pressed="${cur&&cur.s===t.s}">${crest(t)}${t.k}</button>`).join('');
 }
-function pick(t){
-  cur=t;renderChips();$('avaliacao').hidden=true;$('loginStatus').textContent='';
-  $('codigo').value=store.get('aval-cod-'+t.s)||'';
-  try{history.replaceState(null,'','#'+t.s.toLowerCase())}catch(e){}
-}
-function resumo(){const c={3:0,2:0,1:0};niveis.forEach(v=>{if(v)c[v]++});return{c,pts:c[3]*3+c[2]*2+c[1],done:niveis.filter(Boolean).length}}
 function renderTeam(){
-  const t=cur,{c,pts,done}=resumo(),max=t.p.length*3;
+  const t=cur,arr=niveis[t.s],{c,pts,done}=resumo(arr);
   $('teamHead').innerHTML=`${crest(t,52)}<div><h2 id="team-t">${t.k}</h2><div class="meta">Patrono: ${cap(t.r)} · ${t.p.length} atletas · ${pts} pontos</div></div>`;
-  $('teamBar').innerHTML=`<span class="seg s3" style="width:${c[3]*3/max*100}%"></span><span class="seg s2" style="width:${c[2]*2/max*100}%"></span><span class="seg s1" style="width:${c[1]/max*100}%"></span>`;
+  $('teamBar').innerHTML=segs(c,t.p.length*3);
   $('album').innerHTML=t.p.map((p,i)=>`
-   <article class="card ${niveis[i]?'r'+niveis[i]:''}">
+   <article class="card ${arr[i]?'r'+arr[i]:''}">
      <div class="card-top" style="background:${t.c}">${p.g?'<span class="badge">Goleiro</span>':''}${p.pat?'<span class="badge right">Patrono</span>':''}<span class="mono">${p.ini}</span></div>
      <div class="card-name"><b>${p.short}</b><small>${p.full}</small></div>
-     <div class="lvls">${[3,2,1].map(v=>`<button class="lvl v${v}" type="button" data-i="${i}" data-v="${v}" aria-pressed="${niveis[i]===v}" aria-label="${p.full}: ${LV[v].n}">${ICONS[LV[v].i]}${LV[v].n}</button>`).join('')}</div>
+     <div class="lvls">${[3,2,1].map(v=>`<button class="lvl v${v}" type="button" data-i="${i}" data-v="${v}" aria-pressed="${arr[i]===v}" aria-label="${p.full}: ${LV[v].n}">${ICONS[LV[v].i]}${LV[v].n}</button>`).join('')}</div>
    </article>`).join('');
   const falta=t.p.length-done;
   $('sendInfo').textContent=falta?`Faltam ${falta} de ${t.p.length} atletas.`:`Elenco completo: ${c[3]} estrelas, ${c[2]} jogam muito, ${c[1]} agregam valor.`;
+  const mudou=arr.join('')!==doServidor(t).join('');
+  $('sendStatus').className='status';$('sendStatus').textContent=mudou?'Alterações ainda não enviadas.':'';
 }
-function saveDraft(){store.set('aval-rasc-'+cur.s,niveis.join(''))}
+function renderAll(){renderBars();renderChips();renderTeam()}
+function pick(t){
+  cur=t;if(!niveis[t.s])niveis[t.s]=doServidor(t);
+  try{history.replaceState(null,'','#'+t.s.toLowerCase())}catch(e){}
+  renderAll();
+}
 
 async function chamar(dados){
   if(!URL_SCRIPT.startsWith('https://')) throw new Error('A página ainda não foi ligada à planilha.');
   const r=await fetch(URL_SCRIPT,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(dados)});
   return r.json();
 }
+async function carregar(){
+  const res=await chamar({acao:'carregar',codigo});
+  if(!res.ok) throw new Error(res.erro||'Código incorreto.');
+  servidor=res.notas||{};
+  /* mantém o que a pessoa estava editando e não enviou */
+  T.forEach(t=>{if(!niveis[t.s]||niveis[t.s].join('')===(niveis[t.s+'_base']||[]).join(''))niveis[t.s]=doServidor(t);niveis[t.s+'_base']=doServidor(t)});
+}
 
-$('chips').addEventListener('click',e=>{const b=e.target.closest('[data-s]');if(b)pick(T.find(t=>t.s===b.dataset.s))});
 $('loginForm').addEventListener('submit',async e=>{
-  e.preventDefault();if(!cur){$('loginStatus').textContent='Escolha o seu time primeiro.';return}
+  e.preventDefault();
   const st=$('loginStatus'),btn=$('entrarBtn');codigo=$('codigo').value.trim();
   st.className='status';st.textContent='Conferindo…';btn.disabled=true;
   try{
-    const res=await chamar({acao:'carregar',time:cur.s,codigo});
-    if(!res.ok){st.className='status err';st.textContent=res.erro||'Código incorreto para este time.';return}
-    store.set('aval-cod-'+cur.s,codigo);
-    const salvo=res.notas||{};
-    niveis=cur.p.map(p=>NOME[salvo[p.nome]]||0);
-    const rasc=store.get('aval-rasc-'+cur.s);
-    if(!Object.keys(salvo).length&&rasc&&rasc.length===cur.p.length) niveis=rasc.split('').map(Number);
-    st.className='status ok';st.textContent=Object.keys(salvo).length?'Avaliação anterior carregada.':'Tudo certo. Pode avaliar.';
-    $('avaliacao').hidden=false;$('sendStatus').textContent='';renderTeam();
-    $('avaliacao').scrollIntoView({behavior:'smooth',block:'start'});
+    await carregar();store.set('aval-cod',codigo);
+    st.className='status ok';st.textContent='Tudo certo.';
+    $('equilibrio').hidden=false;$('avaliacao').hidden=false;
+    const h=(location.hash||'').slice(1).toLowerCase();
+    pick(T.find(t=>t.s.toLowerCase()===h)||cur||T.find(t=>t.s==='BRA'));
   }catch(err){st.className='status err';st.textContent=err.message||'Não foi possível conectar. Tente de novo.'}
   finally{btn.disabled=false}
 });
+$('atualizarBtn').addEventListener('click',async()=>{
+  const b=$('atualizarBtn');b.disabled=true;b.textContent='Atualizando…';
+  try{await carregar();renderAll()}catch(err){$('sendStatus').className='status err';$('sendStatus').textContent=err.message}
+  finally{b.disabled=false;b.textContent='Atualizar'}
+});
+$('bars').addEventListener('click',e=>{const b=e.target.closest('[data-s]');if(b){pick(T.find(t=>t.s===b.dataset.s));$('avaliacao').scrollIntoView({behavior:'smooth',block:'start'})}});
+$('chips').addEventListener('click',e=>{const b=e.target.closest('[data-s]');if(b)pick(T.find(t=>t.s===b.dataset.s))});
 $('album').addEventListener('click',e=>{
   const b=e.target.closest('.lvl');if(!b)return;
-  const i=+b.dataset.i,v=+b.dataset.v;niveis[i]=niveis[i]===v?0:v;saveDraft();
+  const i=+b.dataset.i,v=+b.dataset.v,arr=niveis[cur.s];arr[i]=arr[i]===v?0:v;
   const y=window.scrollY;renderTeam();window.scrollTo(0,y);
   const nb=document.querySelector(`.lvl[data-i="${i}"][data-v="${v}"]`);if(nb)nb.focus({preventScroll:true});
-  $('sendStatus').className='status';$('sendStatus').textContent='Alterações ainda não enviadas.';
 });
 $('enviarBtn').addEventListener('click',async()=>{
-  const st=$('sendStatus'),btn=$('enviarBtn');
-  const notas=cur.p.map((p,i)=>({n:i+1,atleta:p.nome,nivel:niveis[i]?LV[niveis[i]].n:''}));
+  const st=$('sendStatus'),btn=$('enviarBtn'),t=cur,arr=niveis[t.s];
+  const notas=t.p.map((p,i)=>({n:i+1,atleta:p.nome,nivel:arr[i]?LV[arr[i]].n:''}));
   st.className='status';st.textContent='Enviando…';btn.disabled=true;
   try{
-    const res=await chamar({acao:'enviar',time:cur.s,codigo,notas});
-    if(res.ok){st.className='status ok';st.textContent=`Avaliação enviada: ${res.avaliados} atletas, ${res.pontos} pontos.`}
-    else{st.className='status err';st.textContent=res.erro||'Não foi possível enviar.'}
+    const res=await chamar({acao:'enviar',time:t.s,codigo,notas});
+    if(res.ok){
+      const s={};t.p.forEach((p,i)=>{if(arr[i])s[p.nome]=LV[arr[i]].n});servidor[t.s]=s;niveis[t.s+'_base']=arr.slice();
+      renderBars();renderChips();st.className='status ok';st.textContent=`Avaliação do ${t.k} enviada: ${res.avaliados} atletas, ${res.pontos} pontos.`;
+    }else{st.className='status err';st.textContent=res.erro||'Não foi possível enviar.'}
   }catch(err){st.className='status err';st.textContent=err.message||'Não foi possível conectar. Tente de novo.'}
   finally{btn.disabled=false}
 });
 
-const h=(location.hash||'').slice(1).toLowerCase();
-renderChips();
-const t0=T.find(t=>t.s.toLowerCase()===h);if(t0)pick(t0);
+$('codigo').value=store.get('aval-cod')||'';
 </script>
 </body>
 </html>
