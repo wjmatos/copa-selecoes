@@ -3,7 +3,7 @@
  * Recebe as avaliações da página avaliacao.html e grava nesta planilha.
  *
  * Abas criadas pelo setup():
- *  - Codigos    : o código de cada patrono (só a organização vê)
+ *  - Codigos    : o código único dos patronos, na célula B2 (pode ser trocado à mão)
  *  - Avaliacoes : a avaliação atual de cada atleta (o último envio vale)
  *  - Historico  : todos os envios, com data e hora
  *  - Resumo     : pontos e níveis por time, recalculados a cada envio
@@ -20,11 +20,11 @@ function setup() {
   const ss = SpreadsheetApp.getActive();
 
   let cod = ss.getSheetByName(ABA_COD) || ss.insertSheet(ABA_COD);
-  if (cod.getLastRow() < 2) {
+  if (String(cod.getRange('A2').getValue()) !== 'TODOS') {
     cod.clear();
-    cod.appendRow(['Time', 'Código do patrono']);
-    TIMES.forEach(t => cod.appendRow([t, String(Math.floor(1000 + Math.random() * 9000))]));
     cod.getRange('B:B').setNumberFormat('@');
+    cod.appendRow(['Quem usa', 'Código dos patronos']);
+    cod.appendRow(['TODOS', String(Math.floor(1000 + Math.random() * 9000))]);
   }
 
   const notas = ss.getSheetByName(ABA_NOTAS) || ss.insertSheet(ABA_NOTAS);
@@ -59,12 +59,14 @@ function atualizarResumo() {
 function doPost(e) {
   try {
     const dados = JSON.parse(e.postData.contents);
-    const time = String(dados.time || '').toUpperCase();
-    if (TIMES.indexOf(time) < 0) return resposta({ ok: false, erro: 'Time não encontrado.' });
-    if (!codigoValido(time, dados.codigo)) return resposta({ ok: false, erro: 'Código incorreto para este time.' });
+    if (!codigoValido(dados.codigo)) return resposta({ ok: false, erro: 'Código incorreto.' });
 
-    if (dados.acao === 'carregar') return resposta({ ok: true, notas: notasDoTime(time) });
-    if (dados.acao === 'enviar') return resposta(gravar(time, dados.notas || []));
+    if (dados.acao === 'carregar') return resposta({ ok: true, notas: todasAsNotas() });
+    if (dados.acao === 'enviar') {
+      const time = String(dados.time || '').toUpperCase();
+      if (TIMES.indexOf(time) < 0) return resposta({ ok: false, erro: 'Time não encontrado.' });
+      return resposta(gravar(time, dados.notas || []));
+    }
     return resposta({ ok: false, erro: 'Ação desconhecida.' });
   } catch (err) {
     return resposta({ ok: false, erro: 'Erro no servidor: ' + err.message });
@@ -75,15 +77,17 @@ function doGet() {
   return resposta({ ok: true, mensagem: 'Avaliador de elencos no ar.' });
 }
 
-function codigoValido(time, codigo) {
-  const linhas = SpreadsheetApp.getActive().getSheetByName(ABA_COD).getDataRange().getValues();
-  return linhas.some(l => String(l[0]).toUpperCase() === time && String(l[1]).trim() === String(codigo || '').trim());
+function codigoValido(codigo) {
+  const certo = String(SpreadsheetApp.getActive().getSheetByName(ABA_COD).getRange('B2').getValue()).trim();
+  return certo !== '' && certo === String(codigo || '').trim();
 }
 
-function notasDoTime(time) {
+/** Devolve as avaliações de todos os times: { BRA: { 'NOME DO ATLETA': 'Estrela', ... }, ... } */
+function todasAsNotas() {
   const linhas = SpreadsheetApp.getActive().getSheetByName(ABA_NOTAS).getDataRange().getValues().slice(1);
   const notas = {};
-  linhas.forEach(l => { if (l[0] === time && l[3]) notas[l[2]] = l[3]; });
+  TIMES.forEach(t => notas[t] = {});
+  linhas.forEach(l => { if (notas[l[0]] && l[3]) notas[l[0]][l[2]] = l[3]; });
   return notas;
 }
 
