@@ -1,6 +1,6 @@
 /* Dados do painel. Edite pelo admin.html ou direto aqui. */
 const DATA={
- atualizado:"26/10/2026",
+ atualizado:"07/11/2026",
 
  grupo:"Grupo B · 39 a 46 anos · Masculino",
  votacao:{url:"https://script.google.com/macros/s/AKfycby3vGDqatfrlgN2jDc6wuk1lTaHubjCL_nSNQRfS6bvC9Hhf2Eb0bUYZVr0XnEN72oBMg/exec",ativa:true,oculta:false},
@@ -50,9 +50,12 @@ const DATA={
  artilharia:[],
  cartoes:[],
  noticias:[
+  {tag:"Sábado, 07/11",t:"Brasil e Paraguai avançam às semifinais com empates",x:"Brasil 2 × 2 Argentina e Paraguai 1 × 1 Peru. Nas quartas, o empate classifica o time melhor colocado na tabela: Brasil (4º) e Paraguai (3º) seguem e se enfrentam na semifinal.",times:["BRASIL","PARAGUAI"]},
+  {tag:"Domingo, 08/11",t:"EUA e Chile decidem quem pega o México na semifinal",x:"Às 11h10, o 2º colocado (EUA, 12 pontos) encara o 7º (Chile, 8). O vencedor enfrenta o México, que já espera na semifinal. Em caso de empate, os EUA avançam por serem melhor colocados.",times:["EUA","CHILE"]},
+  {tag:"Sábado, 31/10",t:"México vence o Paraguai por 2 a 0 e termina em 1º lugar",x:"O México chega a 13 pontos, assume a liderança e vai direto à semifinal. O Paraguai fica com 11 pontos e termina em 3º.",times:["MÉXICO","PARAGUAI"]},
+  {tag:"Sábado, 07/11",t:"Argentina e Peru estão eliminados",x:"Argentina (5ª) e Peru (6º) deixam a Copa nas quartas de final. Os dois terminaram a fase de grupos com 9 pontos e perderam no critério de desempate.",times:["ARGENTINA","PERU"]},
   {tag:"Domingo, 25/10",t:"Brasil vence os EUA por 2 a 1 e chega a 10 pontos",x:"O Brasil sobe para o 4º lugar e já encerrou seus jogos na fase de grupos. Os EUA seguem com 12 pontos e também terminaram suas partidas.",times:["BRASIL","EUA"]},
   {tag:"Domingo, 25/10",t:"Paraguai goleia o Peru por 3 a 0 e assume o 2º lugar",x:"Com 11 pontos e um jogo a menos, o Paraguai fica a 1 ponto dos EUA. O Peru, que perdeu duas seguidas, cai para o 6º lugar com 9 pontos.",times:["PARAGUAI","PERU"]},
-  {tag:"Último jogo",t:"México x Paraguai, em 31/10, define o 1º lugar",x:"É a única partida que falta na fase de grupos. Quem vencer pode terminar na ponta: o Paraguai (11 pontos) chega a 14 e o México (10) a 13. Em caso de empate, os EUA (12) ficam à frente pelo número de vitórias.",times:["MÉXICO","PARAGUAI"]},
   {tag:"Domingo, 25/10",t:"México goleia a Argentina por 3 a 0",x:"O México chega a 10 pontos e fica em 3º, com um jogo a menos. A Argentina cai para 9 pontos e para o 5º lugar.",times:["MÉXICO","ARGENTINA"]},
   {tag:"Domingo, 25/10",t:"Chile vence o Uruguai por 3 a 0 e deixa a lanterna",x:"O Chile chega a 8 pontos e sobe para o 7º lugar. O Uruguai termina com 7 pontos, é o último colocado e, pelo formato informado, está eliminado.",times:["CHILE","URUGUAI"]},
   {tag:"Quinta, 22/10",t:"Paraguai e Brasil empatam em 1 a 1",x:"O Paraguai chega a 8 pontos e o Brasil soma 7.",times:["PARAGUAI","BRASIL"]},
