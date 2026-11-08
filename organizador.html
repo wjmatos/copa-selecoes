@@ -461,7 +461,7 @@ function tile(n,c=""){if(!n)return"";const t=(n.times||[])[0],cor=COR[t]||"#0b3c
  const bg=n.img?`linear-gradient(transparent 30%,rgba(0,0,0,.78)),url(${n.img})`:`linear-gradient(160deg,${cor},#01123a)`;
  return `<div class="tile ${c}" ${t?`data-t="${t}"`:""} style="background-image:${bg}"><span class="tag">${n.tag}</span><b>${n.t}</b><span class="sm">${n.x}</span></div>`}
 function homeHTML(){const L=todas();
- return campHTML()+meuHero()+enqSection()+craqueSection()+proxHTML()+`<div class="fx">${tile(L[0],"big")}${tile(L[1])}${tile(L[2])}</div><div class="grid"><div><div class="card"><h2>Mais notícias</h2>${L.slice(3).map(nw).join("")||`<div class="vazio">Sem mais notícias.</div>`}</div><div class="card"><h2>Próximos jogos</h2>${jogosHTML(DATA.jogos.filter(j=>!j.placar).sort(ord).slice(0,5))}</div></div><div><div class="card"><h2>Classificação</h2>${tabHTML()}</div></div></div>`}
+ return campHTML()+`<div class="fx">${tile(L[0],"big")}${tile(L[1])}${tile(L[2])}</div>`+meuHero()+enqSection()+craqueSection()+proxHTML()+`<div class="grid"><div><div class="card"><h2>Mais notícias</h2>${L.slice(3).map(nw).join("")||`<div class="vazio">Sem mais notícias.</div>`}</div><div class="card"><h2>Próximos jogos</h2>${jogosHTML(DATA.jogos.filter(j=>!j.placar).sort(ord).slice(0,5))}</div></div><div><div class="card"><h2>Classificação</h2>${tabHTML()}</div></div></div>`}
 function timeHTML(n){const r=tabela(),i=r.findIndex(x=>x.n===n),x=r[i]||{p:0,j:0},ns=todas().filter(m=>(m.times||[]).includes(n)),js=DATA.jogos.filter(j=>j.casa===n||j.fora===n).sort(ord);
  return `<div class="th" style="background:linear-gradient(135deg,${COR[n]||"#0b3cae"},#01123a)">${bdg(n,"lg")}<div><h2>${n}</h2><p>${i+1}º no Grupo B · ${x.p} pts · ${x.j} jogo(s)</p></div></div><div class="grid"><div>${chartHTML(n)}<div class="card"><h2>Notícias do time</h2>${ns.length?ns.map(nw).join(""):`<div class="vazio">Sem notícias deste time ainda.</div>`}</div><div class="card"><h2>Jogos</h2>${jogosHTML(js)}</div></div><div><div class="card"><h2>Classificação</h2>${tabHTML(n)}</div>${elencoHTML(n)}</div></div>`}
 const tc=s=>s.toLowerCase().replace(/(^|\s)(\S)/g,(m,a,b)=>a+b.toUpperCase()).replace(/ (De|Da|Do|Dos|Das|E) /g,x=>x.toLowerCase());
@@ -1123,8 +1123,8 @@ function enqCard(j){const ini=new Date(j.data+'T'+j.hora),mv=st.get('enq_'+j.n),
  return `<div class='enqc'>${head}${row('casa','Vitória '+nm.casa)}${row('empate','Empate')}${row('fora','Vitória '+nm.fora)}<small class='ec-s'>${ver?enqVT(j,ver)+' · ':''}${tot} voto${tot===1?'':'s'}${mv?' · você votou em '+(mv==='empate'?'empate':'vitória '+nm[mv]):''}</small></div>`}
 const enqPend=()=>pend().concat(provJogos().filter(j=>j.casa&&j.fora&&!DATA.jogos.some(x=>x.n===j.n))).sort(ord);
 const enqSection=()=>{const now=new Date(),T0=j=>new Date(j.data+'T'+j.hora);
- const A=enqPend().filter(j=>T0(j)>now).slice(0,3),L=DATA.jogos.filter(j=>T0(j)<=now&&now-T0(j)<864e5&&(ENQ.res||{})[j.n]).sort(ord);
- return A.concat(L).map(enqCard).join('')};
+ const A=enqPend().filter(j=>T0(j)>now).slice(0,3);
+ return A.filter(j=>!j.placar).map(enqCard).join('')};
 const enqLista=()=>{const now=new Date(),T0=j=>new Date(j.data+'T'+j.hora),A=enqPend().filter(x=>T0(x)>now).slice(0,3);
  return A.length?A:DATA.jogos.filter(x=>(ENQ.res||{})[x.n]).sort((a,b)=>ord(b,a)).slice(0,1)};
 const cardEnq=(i)=>cardEnqJ(enqLista()[i||0]);
