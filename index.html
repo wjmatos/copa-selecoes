@@ -983,7 +983,8 @@ function crCard(c,big,j){const pl=CR.cur===c.linha&&!CR.au.paused;
  ${c.audio?`<div class="cr-pb"><button class="cr-pl" data-cr="${c.linha}" aria-label="Ouvir entrevista">${pl?'❚❚':'▶'}</button><div class="cr-w" data-crw="${c.linha}">${crWave(c.linha,CR.cur===c.linha&&CR.au.duration?Math.floor(CR.au.currentTime/CR.au.duration*26):0)}</div></div><small>Entrevista${c.dur?' · '+mmss(c.dur):''}</small>`:''}</div></div>`}
 function craqueSection(){const L=CR.lista;if(!L||!L.length)return'';
  const by={};L.forEach(c=>{(by[c.jogo]=by[c.jogo]||[]).push(c)});
- const js=Object.keys(by).map(n=>DATA.jogos.find(j=>j.n===+n)).filter(j=>j&&j.placar).sort((a,b)=>ord(b,a)).slice(0,2);
+ const js=Object.keys(by).map(n=>DATA.jogos.find(j=>j.n===+n)).filter(j=>j&&j.placar).sort((a,b)=>ord(b,a));
+ const ult=js[0]&&js[0].data;js.splice(0,js.length,...js.filter(j=>j.data===ult));
  return js.map(j=>{const cs=by[j.n],t=new Set(cs.map(c=>c.time)),duo=t.size>1;const pick=duo?[j.casa,j.fora].map(x=>cs.filter(c=>c.time===x).pop()).filter(Boolean):[cs[cs.length-1]];
   return duo&&pick.length>1?`<div class="cr-box"><div class="cr-h"><span class="cr-tag">CRAQUE DO JOGO</span><b>${nome(j.casa)} ${j.placar[0]} × ${j.placar[1]} ${nome(j.fora)}</b></div><div class="cr-r">${pick.map(c=>crCard(c,false,j)).join('')}</div></div>`:crCard(pick[0],true,j)}).join('')}
 CR.au.addEventListener('timeupdate',()=>{const d=CR.au.duration||0,on=d?Math.floor(CR.au.currentTime/d*26):0;document.querySelectorAll('[data-crw="'+CR.cur+'"] i').forEach((e,i)=>e.classList.toggle('d',i>=on))});
