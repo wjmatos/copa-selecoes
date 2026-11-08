@@ -325,7 +325,8 @@ function adminGet_(e) {
           rg.setValues(vv);
         }
       }
-      var linha = sn.getLastRow() + 1;
+      sn.insertRowBefore(2); // a notícia nova entra no topo da lista
+      var linha = 2;
       sn.getRange(linha, 1, 1, 6).setNumberFormat('@');
       sn.getRange(linha, 1, 1, 6).setValues([[String(pos), String(d.tag || '').slice(0, 60), t, String(d.x || '').slice(0, 600), String(d.times || '').slice(0, 80), '']]);
       avisoAdd_('noticia', t, 'Nova notícia publicada.', 'inicio', false);
@@ -340,7 +341,7 @@ function adminGet_(e) {
         if (!String(r[2]).trim()) return;
         out.push({ linha: i + 2, pos: Number(r[0]) > 0 ? Number(r[0]) : 0, tag: String(r[1]), t: String(r[2]), hide: String(r[5]).trim() !== '' });
       });
-      return json_({ ok: true, noticias: out.reverse() });
+      return json_({ ok: true, noticias: out });
     }
 
     if (op === 'esconder') {
