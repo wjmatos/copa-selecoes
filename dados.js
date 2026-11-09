@@ -1,6 +1,6 @@
 /* Dados do painel. Edite pelo admin.html ou direto aqui. */
 const DATA={
- atualizado:"07/11/2026",
+ atualizado:"08/11/2026",
 
  grupo:"Grupo B · 39 a 46 anos · Masculino",
  votacao:{url:"https://script.google.com/macros/s/AKfycby3vGDqatfrlgN2jDc6wuk1lTaHubjCL_nSNQRfS6bvC9Hhf2Eb0bUYZVr0XnEN72oBMg/exec",ativa:true,oculta:false},
@@ -50,8 +50,8 @@ const DATA={
  artilharia:[],
  cartoes:[],
  noticias:[
-  {tag:"Sábado, 07/11",t:"Brasil e Paraguai avançam às semifinais com empates",x:"Brasil 2 × 2 Argentina e Paraguai 1 × 1 Peru. Nas quartas, o empate classifica o time melhor colocado na tabela: Brasil (4º) e Paraguai (3º) seguem e se enfrentam na semifinal.",times:["BRASIL","PARAGUAI"]},
-  {tag:"Domingo, 08/11",t:"EUA e Chile decidem quem pega o México na semifinal",x:"Às 11h10, o 2º colocado (EUA, 12 pontos) encara o 7º (Chile, 8). O vencedor enfrenta o México, que já espera na semifinal. Em caso de empate, os EUA avançam por serem melhor colocados.",times:["EUA","CHILE"]},
+  {tag:"Domingo, 15/11",t:"Semifinais no dia 15: México × Brasil às 11h30 e EUA × Paraguai às 14h10",x:"Nas quartas, o empate classificou o time melhor colocado: Brasil (2 × 2 Argentina), Paraguai (1 × 1 Peru) e EUA (0 × 0 Chile) avançam. Argentina, Peru e Chile estão eliminados. Na semifinal, o empate vai para os pênaltis.",times:["BRASIL","MÉXICO"]},
+  {tag:"Domingo, 08/11",t:"EUA e Chile empatam sem gols e os EUA vão à semifinal",x:"0 × 0 no jogo desta manhã. Pelo critério das quartas, avança o time melhor colocado: os EUA (2º) enfrentam o Paraguai na semifinal. O Chile (7º) está eliminado.",times:["EUA","CHILE"]},
   {tag:"Sábado, 31/10",t:"México vence o Paraguai por 2 a 0 e termina em 1º lugar",x:"O México chega a 13 pontos, assume a liderança e vai direto à semifinal. O Paraguai fica com 11 pontos e termina em 3º.",times:["MÉXICO","PARAGUAI"]},
   {tag:"Sábado, 07/11",t:"Argentina e Peru estão eliminados",x:"Argentina (5ª) e Peru (6º) deixam a Copa nas quartas de final. Os dois terminaram a fase de grupos com 9 pontos e perderam no critério de desempate.",times:["ARGENTINA","PERU"]},
   {tag:"Domingo, 25/10",t:"Brasil vence os EUA por 2 a 1 e chega a 10 pontos",x:"O Brasil sobe para o 4º lugar e já encerrou seus jogos na fase de grupos. Os EUA seguem com 12 pontos e também terminaram suas partidas.",times:["BRASIL","EUA"]},
