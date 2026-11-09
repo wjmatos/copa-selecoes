@@ -555,14 +555,21 @@ async function exportar(){const o={versao:1,exportadoEm:new Date().toISOString()
 function importar(f){const rd=new FileReader();rd.onload=()=>{let msg;try{const o=JSON.parse(rd.result);if(!o.dados||!o.dados.jogos)throw 0;Object.assign(DATA,o.dados);Object.keys(o.evidencias||{}).forEach(i=>st.set('ev'+i,o.evidencias[i]));if(o.meuTime){meu=o.meuTime;st.set('meuTime',meu)}msg='Backup restaurado nesta sessão ('+(o.exportadoEm||'').slice(0,10)+'). Para tornar permanente, peça a atualização no chat.'}catch(e){msg='Arquivo inválido.'}render();const m=$('#bkm');if(m)m.textContent=msg};rd.readAsText(f)}
 const SIM={},CALC={team:''};
 const pend=()=>DATA.jogos.filter(j=>!j.placar).sort(ord);
+const SEMI=[{n:72,id:'S1',data:'2026-11-15',hora:'11:30'},{n:73,id:'S2',data:'2026-11-15',hora:'14:10'}];
 const FASE=[{n:66,data:'2026-11-07',hora:'11:30',a:3,b:4},{n:67,data:'2026-11-07',hora:'13:10',a:2,b:5},{n:71,data:'2026-11-08',hora:'11:10',a:1,b:6}];
 function materializarFase(){const G=DATA.jogos.filter(j=>!j.fase),pronta=G.length>0&&G.every(j=>j.placar&&!j.vivo);
  if(!pronta){if(G.length!==DATA.jogos.length)DATA.jogos=G;return}
  const r=tabela();if(r.length<8)return;
  FASE.forEach(f=>{const casa=r[f.a].n,fora=r[f.b].n,j=DATA.jogos.find(x=>x.n===f.n);
   if(!j)DATA.jogos.push({n:f.n,data:f.data,hora:f.hora,casa,fora,fase:true});
+  else if(j.casa!==casa||j.fora!==fora){j.casa=casa;j.fora=fora;delete j.placar;delete j.vivo}});
+ const gq=n=>DATA.jogos.find(x=>x.n===n&&x.fase&&x.placar&&!x.vivo),vq=g=>g?(g.placar[0]<g.placar[1]?g.fora:g.casa):null;
+ const par={72:[r[0].n,vq(gq(66))],73:[vq(gq(71)),vq(gq(67))]};
+ SEMI.forEach(s=>{const[casa,fora]=par[s.n];if(!casa||!fora)return;const j=DATA.jogos.find(x=>x.n===s.n);
+  if(!j)DATA.jogos.push({n:s.n,data:s.data,hora:s.hora,casa,fora,fase:true});
   else if(j.casa!==casa||j.fora!==fora){j.casa=casa;j.fora=fora;delete j.placar;delete j.vivo}})}
-function ctxFase(j,k){const r=tabela(),pos=n=>r.findIndex(x=>x.n===n)+1,pt=n=>(r.find(x=>x.n===n)||{p:0}).p;
+function ctxFase(j,k){if(j.n===72||j.n===73)return 'Semifinal: em caso de empate, a decisão é nos pênaltis.';
+ const r=tabela(),pos=n=>r.findIndex(x=>x.n===n)+1,pt=n=>(r.find(x=>x.n===n)||{p:0}).p;
  if(!k)return nome(j.casa)+' ('+pos(j.casa)+'º, '+pt(j.casa)+' pts) e '+nome(j.fora)+' ('+pos(j.fora)+'º, '+pt(j.fora)+' pts) se enfrentam no playoff.';
  const sem=j.n===71?'o 1º, '+nome(r[0].n):j.n===66?'o vencedor do jogo 67':'o vencedor do jogo 66';
  return 'Empate: avança '+nome(j.casa)+' (melhor na tabela). Na semifinal, enfrenta '+sem+'.'}
@@ -626,23 +633,23 @@ function bracket(r){
  const ok=(id,a,b)=>{if(WIN[id]&&!(a&&b&&(a.n===WIN[id]||b.n===WIN[id])))delete WIN[id]};
  const w=id=>WIN[id]?by(WIN[id]):null;
  pairs.forEach((p,k)=>{const id='Q'+(k+1);B[id]=[r[p[0]],r[p[1]]];ok(id,B[id][0],B[id][1])});
- B.S1=[r[0],w('Q1')];ok('S1',B.S1[0],B.S1[1]);
- B.S2=[w('Q2'),w('Q3')];ok('S2',B.S2[0],B.S2[1]);
+ B.S1=[r[0],w('Q3')];ok('S1',B.S1[0],B.S1[1]);
+ B.S2=[w('Q1'),w('Q2')];ok('S2',B.S2[0],B.S2[1]);
  B.F=[w('S1'),w('S2')];ok('F',B.F[0],B.F[1]);
  return{B,pairs,N,by}}
-const QJ={Q1:71,Q2:67,Q3:66};
+const QJ={Q1:71,Q2:67,Q3:66,S1:72,S2:73};
 function faseHTML(){
  const r=FF.sim?simTabela():tabela();FFN=r.map(x=>x.n);
- for(const id in QJ){const g=DATA.jogos.find(x=>x.n===QJ[id]&&x.fase&&x.placar);if(g)WIN[id]=g.placar[0]<g.placar[1]?g.fora:g.casa}
+ for(const id in QJ){const g=DATA.jogos.find(x=>x.n===QJ[id]&&x.fase&&x.placar&&!x.vivo);if(g&&!(id[0]==='S'&&g.placar[0]===g.placar[1]))WIN[id]=g.placar[0]<g.placar[1]?g.fora:g.casa}
  const o=bracket(r),B=o.B,N=o.N;
  if(o.pairs.length!==3)return `<div class='card'><p>Fase final não configurada para ${N} times.</p></div>`;
  const sp=o.pairs.map(p=>(p[0]+1)+'º × '+(p[1]+1)+'º');
- const mt=(id,t)=>{const ok=B[id][0]&&B[id][1]?id:'',g=QJ[id]&&(FASE.find(f=>f.n===QJ[id])),rj=g&&DATA.jogos.find(x=>x.n===g.n&&x.placar),inf=g?`<div class='mut' style='padding:0 8px 4px;font-size:12px'>${dow(g.data)} ${fmt(g.data)} · ${g.hora.replace(':','h')} · jogo ${g.n}${rj?' · resultado: '+rj.placar[0]+' × '+rj.placar[1]:''}<br>Empate: avança o melhor colocado na tabela</div>`:/^[SF]/.test(id)?`<div class='mut' style='padding:0 8px 4px;font-size:12px'>Empate: decisão nos pênaltis</div>`:'';return `<div class='mt'><div class='mh'>${t}</div>${inf}${ffTeam(B[id][0],ok)}${ffTeam(B[id][1],ok)}</div>`};
+ const mt=(id,t)=>{const ok=B[id][0]&&B[id][1]?id:'',g=QJ[id]&&(FASE.concat(SEMI).find(f=>f.n===QJ[id])),rj=g&&DATA.jogos.find(x=>x.n===g.n&&x.placar),inf=g?`<div class='mut' style='padding:0 8px 4px;font-size:12px'>${dow(g.data)} ${fmt(g.data)} · ${g.hora.replace(':','h')} · jogo ${g.n}${rj?' · resultado: '+rj.placar[0]+' × '+rj.placar[1]:''}<br>${/^S/.test(id)?'Empate: decisão nos pênaltis':'Empate: avança o melhor colocado na tabela'}</div>`:/^[SF]/.test(id)?`<div class='mut' style='padding:0 8px 4px;font-size:12px'>Empate: decisão nos pênaltis</div>`:'';return `<div class='mt'><div class='mh'>${t}</div>${inf}${ffTeam(B[id][0],ok)}${ffTeam(B[id][1],ok)}</div>`};
  const champ=WIN.F?o.by(WIN.F):null,last=r[N-1];
  return `<div class='card'><h2>Fase final · projeção</h2><p class='mut'>O 1º colocado vai direto à semifinal, o último é eliminado e do 2º ao 7º disputam o playoff. Toque em um time para marcá-lo como vencedor e ver o caminho até a final.</p>
  <div class='row'><label><input type='checkbox' id='ffsim' ${FF.sim?'checked':''}> Usar os palpites da calculadora (${Object.keys(SIM).length} jogo(s))</label> <button class='btn' id='ffclr'>Limpar escolhas</button></div></div>
  <div class='card'>${treeHTML(o)}</div>
- <p class='mut'>Eliminado na fase de grupos: <b>${last.n}</b> (${N}º, ${last.p} pts). Playoffs conforme a tabela oficial de jogos: 4º×5º (jogo 66) e 3º×6º (jogo 67) no sábado 07/11, e 2º×7º (jogo 71) no domingo 08/11. Nos playoffs, em caso de empate avança o time melhor colocado na tabela; a partir da semifinal, empate vai para os pênaltis (escolha o vencedor tocando no time). Semifinais conforme o app do clube: 1º × vencedor do 2º×7º; a outra semifinal (que o app ainda mostra como "AABB x AABB") foi assumida como vencedor do 3º×6º × vencedor do 4º×5º. Datas das semifinais ainda não informadas.</p>`}
+ <p class='mut'>Eliminado na fase de grupos: <b>${last.n}</b> (${N}º, ${last.p} pts). Playoffs conforme a tabela oficial de jogos: 4º×5º (jogo 66) e 3º×6º (jogo 67) no sábado 07/11, e 2º×7º (jogo 71) no domingo 08/11. Nos playoffs, em caso de empate avança o time melhor colocado na tabela; a partir da semifinal, empate vai para os pênaltis (escolha o vencedor tocando no time). Semifinais: 1º colocado × vencedor do 4º×5º (jogo 66) e vencedor do 2º×7º (jogo 71) × vencedor do 3º×6º (jogo 67). Semifinais no domingo, 15/11 (jogo 72 às 11h30 e jogo 73 às 14h10). Data da final ainda não informada.</p>`}
 document.addEventListener('click',e=>{if(e.target.id==='dcamp'){DEMO=DEMO?'':(WIN.F||meu||'MÉXICO');render();return}const w=e.target.closest('[data-w]');
  if(w){const p=w.dataset.w.split('|');if(WIN[p[0]]===p[1])delete WIN[p[0]];else WIN[p[0]]=p[1];render();return}
  if(e.target.id==='ffclr'){for(const k in WIN)delete WIN[k];render()}});
@@ -852,12 +859,12 @@ async function cardCampeao(){const n=champ()||'BRASIL',[c,x]=await baseCard('CAM
 function treeHTML(o){const B=o.B,r=FFN;FFN=r;
  const row=(t,id)=>{if(!t)return `<div class="r2 tbd">A definir</div>`;const w=WIN[id]===t.n?' win':'',me=t.n===(CALC.team||meu)?' mine':'',g=QJ[id]&&DATA.jogos.find(x=>x.n===QJ[id]&&x.placar),sc=g?(g.casa===t.n?g.placar[0]:g.placar[1]):'';
   return `<div class="r2${w}${me}" ${id?`data-w="${id}|${t.n}"`:''}>${bdg(t.n,'sm')}<b>${(SIG||{})[t.n]||t.n}</b>${sc!==''?`<em>${sc}</em>`:`<small>${FFN.indexOf(t.n)+1}º</small>`}</div>`};
- const lab={Q1:'jogo 71 · dom 08/11 11h10',Q2:'jogo 67 · sáb 07/11 13h10',Q3:'jogo 66 · sáb 07/11 11h30',S1:'Semifinal 1',S2:'Semifinal 2',F:'Final'};
- const P={Q1:[0,26],Q2:[0,166],Q3:[0,266],S1:[200,26],S2:[200,216],F:[400,121]};
+ const lab={Q1:'jogo 71 · dom 08/11 11h10',Q2:'jogo 67 · sáb 07/11 13h10',Q3:'jogo 66 · sáb 07/11 11h30',S1:'jogo 72 · dom 15/11 11h30',S2:'jogo 73 · dom 15/11 14h10',F:'Final'};
+ const P={Q3:[0,26],Q1:[0,166],Q2:[0,266],S1:[200,26],S2:[200,216],F:[400,121]};
  const card=id=>{const[x,y]=P[id];const ok=B[id][0]&&B[id][1]?id:'';return `<div class="tc" style="left:${x}px;top:${y}px"><div class="lb">${lab[id]}</div>${row(B[id][0],ok)}${row(B[id][1],ok)}</div>`};
  const champ0=WIN.F?o.by(WIN.F):null,L=(a,b,c,d)=>`M${a} ${b}H${(a+c)/2}V${d}H${c}`;
  const cy=id=>P[id][1]+18+14,c2=id=>P[id][1]+18+42,
- lines=[L(150,cy('Q1'),200,c2('S1')),L(150,cy('Q2'),200,cy('S2')),L(150,cy('Q3'),200,c2('S2')),L(350,cy('S1'),400,cy('F')),L(350,cy('S2'),400,c2('F')),L(550,P.F[1]+37,600,P.F[1]+37)];
+ lines=[L(150,cy('Q3'),200,c2('S1')),L(150,cy('Q1'),200,cy('S2')),L(150,cy('Q2'),200,c2('S2')),L(350,cy('S1'),400,cy('F')),L(350,cy('S2'),400,c2('F')),L(550,P.F[1]+37,600,P.F[1]+37)];
  return `<div class="wrap"><div class="tr"><div class="cl" style="left:0">Quartas</div><div class="cl" style="left:200px">Semifinal</div><div class="cl" style="left:400px">Final</div><div class="cl" style="left:600px">Campeão</div>
  <svg viewBox="0 0 760 372" width="760" height="372">${lines.map(d=>`<path d="${d}"/>`).join('')}</svg>
  ${['Q1','Q2','Q3','S1','S2','F'].map(card).join('')}
