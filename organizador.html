@@ -368,6 +368,7 @@ nav button{font-family:var(--fh);font-size:16px;letter-spacing:.6px;text-transfo
 .top h1>span{min-width:0;display:block;max-width:100%}.top #sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11.5px}
 @media(max-width:430px){.top h1{font-size:19px;padding-right:152px}}
 .fx .tile.big .sm{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.cr-z{cursor:zoom-in}#zoomo{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.92);display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:16px}#zoomo img{max-width:100%;max-height:78vh;border-radius:12px;object-fit:contain}#zoomo b{color:#fff;font-size:18px}#zoomo span{color:#ffffffaa;font-size:12px}
 </style>
 </head>
 <body>
@@ -1026,7 +1027,7 @@ function crCard(c,big,j){const pl=CR.cur===c.linha&&!CR.au.paused;
  return `<div class="cr-c ${big?'big':''}">${crFoto(c,big)}<div class="cr-i">${big?`<span class="cr-tag">CRAQUE DO JOGO</span>`:''}<b>${esc(c.nome)}</b><span>${bdg(c.time,'sm')} ${big&&j?nome(j.casa)+' '+j.placar[0]+' × '+j.placar[1]+' '+nome(j.fora):nome(c.time)+' · melhor do time'}</span>
  ${c.audio?`<div class="cr-pb"><button class="cr-pl" data-cr="${c.linha}" aria-label="Ouvir entrevista">${pl?'❚❚':'▶'}</button><div class="cr-w" data-crw="${c.linha}">${crWave(c.linha,CR.cur===c.linha&&CR.au.duration?Math.floor(CR.au.currentTime/CR.au.duration*26):0)}</div></div><small>Entrevista${c.dur?' · '+mmss(c.dur):''}</small>`:''}</div></div>`}
 function crRow(c,j){const pl=CR.cur===c.linha&&!CR.au.paused,cor=(DATA.cor||COR||{})[c.time]||'#0a3ea8';
- const ph=c.foto?`<div class="cr-th" style="background-image:url('${muThumb(c.foto,200)}')"></div>`:`<div class="cr-th cr-in" style="background:linear-gradient(135deg,${cor},#01123a)">${esc(crIni(c.nome))}</div>`;
+ const ph=c.foto?`<div class="cr-th cr-z" data-zoom="${esc(c.foto)}" data-zn="${esc(c.nome)}" role="button" aria-label="Ver foto grande" style="background-image:url('${muThumb(c.foto,200)}')"></div>`:`<div class="cr-th cr-in" style="background:linear-gradient(135deg,${cor},#01123a)">${esc(crIni(c.nome))}</div>`;
  return `<div class="cr-row">${ph}<div class="cr-tx"><b>${esc(c.nome)}</b><span>${bdg(c.time,'sm')} ${j?nome(j.casa)+' '+j.placar[0]+' × '+j.placar[1]+' '+nome(j.fora):nome(c.time)}</span></div>${c.audio?`<button class="cr-pl" data-cr="${c.linha}" aria-label="Ouvir entrevista">${pl?'❚❚':'▶'}</button>`:''}</div>`}
 function craqueSection(){const L=CR.lista;if(!L||!L.length)return'';
  const by={};L.forEach(c=>{(by[c.jogo]=by[c.jogo]||[]).push(c)});
@@ -1041,6 +1042,10 @@ async function crPlay(ln,b){if(CR.cur===ln&&CR.au.src){if(CR.au.paused){if(CR.au
  b.textContent='…';let d=CR.aud[ln];if(!d){try{const r=await fetch(DATA.votacao.url+'?acao=audio&id='+ln),j=await r.json();if(!j.ok)throw 0;d=CR.aud[ln]=j.data}catch(e){b.textContent='▶';toast('Não consegui carregar o áudio.');return}}
  CR.au.pause();CR.cur=ln;CR.au.src=d;CR.au.currentTime=0;document.querySelectorAll('[data-crw] i').forEach(e=>e.classList.add('d'));CR.au.play().catch(()=>{toast('Toque de novo para ouvir.');crBtns()})}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-cr]');if(b)crPlay(+b.dataset.cr,b)});
+function zoomFoto(id,n){let o=document.getElementById('zoomo');if(!o){o=document.createElement('div');o.id='zoomo';o.onclick=()=>{o.style.display='none';o.innerHTML=''};document.body.appendChild(o)}
+ o.innerHTML='<img src="'+muThumb(id,1600)+'" alt="Foto de '+n+'"><b>'+n+'</b><span>Toque para fechar</span>';o.style.display='flex'}
+document.addEventListener('click',e=>{const z=e.target.closest('[data-zoom]');if(z)zoomFoto(z.dataset.zoom,z.dataset.zn)});
+
 
 /* painel: aba Craque */
 const CQ={jogo:'',time:'',nome:'',foto:null,audio:null,dur:0,rec:false,t:0,busy:false};let CQR=null;
