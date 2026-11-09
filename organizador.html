@@ -343,15 +343,41 @@ nav button{font-family:var(--fh);font-size:16px;letter-spacing:.6px;text-transfo
 .av-i.nw{background:#fffbea;border-color:#f3dd7a}.av-i.nw:after{content:"";position:absolute;right:12px;top:14px;width:9px;height:9px;border-radius:50%;background:#e5484d}
 .av-ic{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;flex:none}
 .av-i b{display:block;font:700 14px Inter,sans-serif;padding-right:16px;color:#01123a}.av-i p{margin:2px 0 0;font-size:12.5px;line-height:1.35;color:#4a5164}.av-i small{display:block;margin-top:4px;font-size:11px;color:#8a90a0}
+
+/* ===== Layout v4: início compacto ===== */
+.top{position:relative}.top h1{padding-right:150px}#bsc{position:absolute;top:14px;right:110px;width:40px;height:34px;padding:0;font-size:16px}#sino{right:62px}
+.top:not(.bs) .q,.top:not(.bs) label{display:none}
+@media(max-width:600px){.top h1{flex:1 1 100%}}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;margin:14px 2px 8px}.sec-h b{font:700 15px var(--fh);letter-spacing:1px;text-transform:uppercase;color:var(--g)}.sec-l{background:none;border:0;color:var(--mut);font:600 13px Inter,sans-serif;cursor:pointer;padding:0}
+.fx .tile.big{min-height:170px;padding:14px}.tile.big b{font-size:28px;line-height:1.05}.tile.big .sm{font-size:13px}
+.nws{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -14px 14px;padding:0 14px 4px;-webkit-overflow-scrolling:touch;scrollbar-width:none}.nws::-webkit-scrollbar{display:none}
+.nws .tile{flex:none;width:72%;max-width:300px;min-height:150px;scroll-snap-align:start;padding:12px}.nws .tile b{font-size:18px}.nws .tile .sm{font-size:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+/* enquete mais compacta (mantendo o impacto) */
+.enqc{padding:10px 12px 8px;margin-bottom:12px}.ec-t{font-size:25px;min-width:120px}.ec-w{font-size:12px}.ec-m{gap:14px;margin:8px 0}.ec-m b{font-size:26px}.ec-btn{min-height:64px;padding:6px 4px;gap:4px;font-size:12px}.ec-btn b{font-size:17px}.ec-s{margin-top:6px;font-size:11px}
+/* craque compacto */
+.cr-box2{padding:6px 10px}.cr-row{display:flex;align-items:center;gap:10px;padding:6px 0}.cr-row+.cr-row{border-top:1px solid var(--line)}
+.cr-th{width:56px;height:56px;border-radius:12px;background-size:cover;background-position:center top;flex:none}.cr-th.cr-in{display:flex;align-items:center;justify-content:center;font:800 20px var(--fh);color:#fff}
+.cr-tx{flex:1;min-width:0}.cr-tx b{display:block;font:700 15px var(--fh);text-transform:uppercase;color:var(--ink)}.cr-tx span{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--mut)}
+.cr-row .cr-pl{width:38px;height:38px}
+/* mini chaveamento e top 3 */
+.mb{padding:10px}.br{display:flex;align-items:center;gap:6px}.br .s{flex:1;display:flex;flex-direction:column;gap:5px;min-width:0}.br .s small{font-size:10.5px;color:var(--mut);text-align:center}
+.br .p{background:var(--bg);border-radius:8px;padding:6px 8px;display:flex;align-items:center;gap:6px;font-size:12px;min-width:0}.br .p b{font:700 14px var(--fh);text-transform:uppercase}.br .p.mine{background:var(--hl)}.br .p.tbd{color:var(--mut)}.br .fin{background:var(--hl);color:var(--g);font:700 12px var(--fh);letter-spacing:.8px;justify-content:center;flex:none}.br .ln{width:12px;border-top:2px solid var(--line);flex:none}
+.top3{padding:2px 12px}.rk{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);cursor:pointer}.rk:last-child{border:0}.rk .n{width:16px;color:var(--mut);font-weight:700}.rk b{font:700 17px var(--fh);flex:1;text-transform:uppercase}.rk em{font-style:normal;font-weight:700;color:var(--g)}
+.chips2{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 18px}.chips2 button{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:8px 13px;font:600 13px Inter,sans-serif;color:var(--ink);cursor:pointer}
+
+.top h1>span{min-width:0;display:block;max-width:100%}.top #sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11.5px}
+@media(max-width:430px){.top h1{font-size:19px;padding-right:152px}}
+.fx .tile.big .sm{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 </style>
 </head>
 <body>
 <header>
  <div class="top">
-  <h1><span>Copa de Seleções · 2º semestre 2026 <small id="sub"></small></span></h1>
+  <h1><span>Copa de Seleções <small id="sub"></small></span></h1>
   <input id="q" class="q" placeholder="Buscar time" autocomplete="off">
   <label class="mut" style="color:#fff">Meu time:
    <select id="meu"></select></label>
+  <button id="bsc" class="tbtn" aria-label="Buscar time e escolher meu time" title="Buscar / Meu time">🔍</button>
   <button id="sino" class="tbtn" data-sino="1" aria-label="Novidades" title="Novidades">🔔</button>
   <button id="tema" class="tbtn" aria-label="Alternar tema: automático, claro ou escuro" title="Tema"></button>
  </div>
@@ -460,8 +486,18 @@ function stripRender(){$("#strip").innerHTML=`<button class="tm ${aba==="inicio"
 function tile(n,c=""){if(!n)return"";const t=(n.times||[])[0],cor=COR[t]||"#0b3cae";
  const bg=n.img?`linear-gradient(transparent 30%,rgba(0,0,0,.78)),url(${n.img})`:`linear-gradient(160deg,${cor},#01123a)`;
  return `<div class="tile ${c}" ${t?`data-t="${t}"`:""} style="background-image:${bg}"><span class="tag">${n.tag}</span><b>${n.t}</b><span class="sm">${n.x}</span></div>`}
-function homeHTML(){const L=todas();
- return campHTML()+`<div class="fx">${tile(L[0],"big")}${tile(L[1])}${tile(L[2])}</div>`+meuHero()+enqSection()+craqueSection()+proxHTML()+`<div class="grid"><div><div class="card"><h2>Mais notícias</h2>${L.slice(3).map(nw).join("")||`<div class="vazio">Sem mais notícias.</div>`}</div><div class="card"><h2>Próximos jogos</h2>${jogosHTML(DATA.jogos.filter(j=>!j.placar).sort(ord).slice(0,5))}</div></div><div><div class="card"><h2>Classificação</h2>${tabHTML()}</div></div></div>`}
+const secH=(t,l,ab)=>`<div class="sec-h"><b>${t}</b>${l?`<button class="sec-l" data-a="${ab}">${l} ›</button>`:''}</div>`;
+function noticiasHome(){const L=todas();if(!L.length)return'';
+ return secH('Notícias')+`<div class="fx">${tile(L[0],"big")}</div>`+(L.length>1?secH('Mais notícias')+`<div class="nws">${L.slice(1,9).map(n=>tile(n)).join('')}</div>`:'')}
+function miniFase(){if(!DATA.jogos.some(j=>j.fase))return'';const r=tabela();if(r.length<8)return'';winAuto();let B;try{B=bracket(r).B}catch(e){return''}if(!B||!B.S1)return'';
+ const p=t=>t?`<div class="p${t.n===meu?' mine':''}">${bdg(t.n,'sm')}<b>${(SIG||{})[t.n]||t.n}</b></div>`:`<div class="p tbd">A definir</div>`;
+ const sf=(c,id)=>{const g=DATA.jogos.find(x=>x.n===QJ[id]);return `<div class="s">${p(c[0])}${p(c[1])}${g?`<small>${dow(g.data)} ${fmt(g.data)} · ${g.hora.replace(':','h')}</small>`:''}</div>`};
+ return secH('Caminho até a final','Ver completo','fase')+`<div class="card mb"><div class="br">${sf(B.S1,'S1')}<i class="ln"></i><div class="p fin">FINAL</div><i class="ln"></i>${sf(B.S2,'S2')}</div></div>`}
+function top3Home(){const r=tabela().slice(0,3);if(!r.length)return'';
+ return secH('Classificação','Tabela','tabela')+`<div class="card top3">${r.map((x,i)=>`<div class="rk" data-t="${x.n}"><span class="n">${i+1}</span>${bdg(x.n,'sm')}<b>${nome(x.n)}</b><em>${x.p} pts</em></div>`).join('')}</div>`}
+function chipsHome(){return `<div class="chips2">${meu?'':`<button data-bsc="1">⭐ Escolher meu time</button>`}${isApp()?'':`<button data-fab="install">📲 Instalar app</button>`}</div>`}
+function homeHTML(){
+ return campHTML()+enqSection()+noticiasHome()+(meu?meuHero():'')+craqueSection()+miniFase()+top3Home()+chipsHome()}
 function timeHTML(n){const r=tabela(),i=r.findIndex(x=>x.n===n),x=r[i]||{p:0,j:0},ns=todas().filter(m=>(m.times||[]).includes(n)),js=DATA.jogos.filter(j=>j.casa===n||j.fora===n).sort(ord);
  return `<div class="th" style="background:linear-gradient(135deg,${COR[n]||"#0b3cae"},#01123a)">${bdg(n,"lg")}<div><h2>${n}</h2><p>${i+1}º no Grupo B · ${x.p} pts · ${x.j} jogo(s)</p></div></div><div class="grid"><div>${chartHTML(n)}<div class="card"><h2>Notícias do time</h2>${ns.length?ns.map(nw).join(""):`<div class="vazio">Sem notícias deste time ainda.</div>`}</div><div class="card"><h2>Jogos</h2>${jogosHTML(js)}</div></div><div><div class="card"><h2>Classificação</h2>${tabHTML(n)}</div>${elencoHTML(n)}</div></div>`}
 const tc=s=>s.toLowerCase().replace(/(^|\s)(\S)/g,(m,a,b)=>a+b.toUpperCase()).replace(/ (De|Da|Do|Dos|Das|E) /g,x=>x.toLowerCase());
@@ -638,9 +674,10 @@ function bracket(r){
  B.F=[w('S1'),w('S2')];ok('F',B.F[0],B.F[1]);
  return{B,pairs,N,by}}
 const QJ={Q1:71,Q2:67,Q3:66,S1:72,S2:73};
+function winAuto(){for(const id in QJ){const g=DATA.jogos.find(x=>x.n===QJ[id]&&x.fase&&x.placar&&!x.vivo);if(g&&!(id[0]==='S'&&g.placar[0]===g.placar[1]))WIN[id]=g.placar[0]<g.placar[1]?g.fora:g.casa}}
 function faseHTML(){
  const r=FF.sim?simTabela():tabela();FFN=r.map(x=>x.n);
- for(const id in QJ){const g=DATA.jogos.find(x=>x.n===QJ[id]&&x.fase&&x.placar&&!x.vivo);if(g&&!(id[0]==='S'&&g.placar[0]===g.placar[1]))WIN[id]=g.placar[0]<g.placar[1]?g.fora:g.casa}
+ winAuto();
  const o=bracket(r),B=o.B,N=o.N;
  if(o.pairs.length!==3)return `<div class='card'><p>Fase final não configurada para ${N} times.</p></div>`;
  const sp=o.pairs.map(p=>(p[0]+1)+'º × '+(p[1]+1)+'º');
@@ -988,12 +1025,15 @@ function crFoto(c,big){const cor=(DATA.cor||{})[c.time]||'#0a3ea8';return c.foto
 function crCard(c,big,j){const pl=CR.cur===c.linha&&!CR.au.paused;
  return `<div class="cr-c ${big?'big':''}">${crFoto(c,big)}<div class="cr-i">${big?`<span class="cr-tag">CRAQUE DO JOGO</span>`:''}<b>${esc(c.nome)}</b><span>${bdg(c.time,'sm')} ${big&&j?nome(j.casa)+' '+j.placar[0]+' × '+j.placar[1]+' '+nome(j.fora):nome(c.time)+' · melhor do time'}</span>
  ${c.audio?`<div class="cr-pb"><button class="cr-pl" data-cr="${c.linha}" aria-label="Ouvir entrevista">${pl?'❚❚':'▶'}</button><div class="cr-w" data-crw="${c.linha}">${crWave(c.linha,CR.cur===c.linha&&CR.au.duration?Math.floor(CR.au.currentTime/CR.au.duration*26):0)}</div></div><small>Entrevista${c.dur?' · '+mmss(c.dur):''}</small>`:''}</div></div>`}
+function crRow(c,j){const pl=CR.cur===c.linha&&!CR.au.paused,cor=(DATA.cor||COR||{})[c.time]||'#0a3ea8';
+ const ph=c.foto?`<div class="cr-th" style="background-image:url('${muThumb(c.foto,200)}')"></div>`:`<div class="cr-th cr-in" style="background:linear-gradient(135deg,${cor},#01123a)">${esc(crIni(c.nome))}</div>`;
+ return `<div class="cr-row">${ph}<div class="cr-tx"><b>${esc(c.nome)}</b><span>${bdg(c.time,'sm')} ${j?nome(j.casa)+' '+j.placar[0]+' × '+j.placar[1]+' '+nome(j.fora):nome(c.time)}</span></div>${c.audio?`<button class="cr-pl" data-cr="${c.linha}" aria-label="Ouvir entrevista">${pl?'❚❚':'▶'}</button>`:''}</div>`}
 function craqueSection(){const L=CR.lista;if(!L||!L.length)return'';
  const by={};L.forEach(c=>{(by[c.jogo]=by[c.jogo]||[]).push(c)});
  const js=Object.keys(by).map(n=>DATA.jogos.find(j=>j.n===+n)).filter(j=>j&&j.placar).sort((a,b)=>ord(b,a));
- const ult=js[0]&&js[0].data;js.splice(0,js.length,...js.filter(j=>j.data===ult));
- return js.map(j=>{const cs=by[j.n],t=new Set(cs.map(c=>c.time)),duo=t.size>1;const pick=duo?[j.casa,j.fora].map(x=>cs.filter(c=>c.time===x).pop()).filter(Boolean):[cs[cs.length-1]];
-  return duo&&pick.length>1?`<div class="cr-box"><div class="cr-h"><span class="cr-tag">CRAQUE DO JOGO</span><b>${nome(j.casa)} ${j.placar[0]} × ${j.placar[1]} ${nome(j.fora)}</b></div><div class="cr-r">${pick.map(c=>crCard(c,false,j)).join('')}</div></div>`:crCard(pick[0],true,j)}).join('')}
+ const ult=js[0]&&js[0].data;js.splice(0,js.length,...js.filter(j=>j.data===ult));if(!js.length)return'';
+ return secH('Craque do jogo')+js.map(j=>{const cs=by[j.n],t=new Set(cs.map(c=>c.time)),pick=t.size>1?[j.casa,j.fora].map(x=>cs.filter(c=>c.time===x).pop()).filter(Boolean):[cs[cs.length-1]];
+  return `<div class="card cr-box2">${pick.map(c=>crRow(c,j)).join('')}</div>`}).join('')}
 CR.au.addEventListener('timeupdate',()=>{const d=CR.au.duration||0,on=d?Math.floor(CR.au.currentTime/d*26):0;document.querySelectorAll('[data-crw="'+CR.cur+'"] i').forEach((e,i)=>e.classList.toggle('d',i>=on))});
 CR.au.addEventListener('ended',()=>{CR.cur=CR.cur;crBtns()});CR.au.addEventListener('pause',crBtns);CR.au.addEventListener('play',crBtns);
 function crBtns(){document.querySelectorAll('[data-cr]').forEach(b=>{b.textContent=(+b.dataset.cr===CR.cur&&!CR.au.paused&&!CR.au.ended)?'❚❚':'▶'})}
@@ -1116,6 +1156,9 @@ document.addEventListener('click',async e=>{const a=e.target.closest('[data-ad]'
   const r=await adm('aviso',{t:AVF.t.trim(),x:AVF.x.trim(),dest:AVF.dest,faixa:AVF.faixa});AVF.busy=false;if(!r.ok){toast(errTxt(r));render();return}
   AVF.t='';AVF.x='';toast('Aviso enviado ✓');render();avLoad()}
  else if(k==='avdel'){const r=await adm('avisoapaga',{linha:+p[1]});if(!r.ok){toast(errTxt(r));return}toast('Aviso apagado.');avLoad()}});
+
+/* ===== Busca/Meu time no cabeçalho (ícone 🔍) ===== */
+document.addEventListener('click',e=>{if(e.target.closest('#bsc')||e.target.closest('[data-bsc]')){const t=document.querySelector('.top');t.classList.toggle('bs',e.target.closest('#bsc')?!t.classList.contains('bs'):true);window.scrollTo(0,0);if(t.classList.contains('bs')){const q=document.getElementById('q');q&&q.focus()}}});
 setTimeout(()=>{if(ORG_REQ){if(orgGet())orgOpen('placar');else orgModal()}orgPend()},400);setInterval(orgPend,90000);
 async function enqLoad(){if(!vtem())return;
  try{const r=await fetch(DATA.votacao.url+'?acao=enquete'),j=await r.json();ENQ.res=j.jogos||{};if(aba==='inicio'||aba==='jogos')render()}catch(e){}}
@@ -1198,8 +1241,8 @@ function render(){syncHash();if(aba!=='avisos')AV.aberto=false;
  else if(aba==="calc")h=calcHTML();else if(aba==="fase")h=faseHTML();else if(aba==="votar")h=votacaoHTML();else if(aba==="mural")h=muralHTML();else if(aba==="org")h=orgHTML();else if(aba==="avisos")h=avHTML();else if(aba==="cartoes")h=cartoesHTML();else if(aba==="backup")h=backupHTML();else h=brechasHTML();
  $("#app").innerHTML=h;if(aba==="cartoes")cartoesInit();if(aba==="mural"&&!MU.carregou)muralLoad();if(aba==="org")orgLoad();
 }
-$("#sub").textContent=DATA.grupo;
-$("#foot").textContent="Painel não oficial, feito por um participante · dados do Grupo B atualizados em "+DATA.atualizado+". Versão 03/11 · 🔔 avisos.";
+$("#sub").textContent="2º semestre 2026 · "+String(DATA.grupo).split(" · ")[0];
+$("#foot").textContent="Painel não oficial, feito por um participante · dados do Grupo B atualizados em "+DATA.atualizado+". Versão 09/11 · layout novo.";
 $("#meu").innerHTML=`<option value="">— escolher —</option>`+DATA.times.map(n=>`<option ${n===meu?"selected":""}>${n}</option>`).join("");
 $("#q").oninput=e=>{const v=e.target.value.trim().toUpperCase();if(!v)return;const t=DATA.times.find(n=>n.startsWith(v))||DATA.times.find(n=>n.includes(v));if(t){aba="t:"+t;render()}};
 $("#meu").onchange=e=>{meu=e.target.value;st.set("meuTime",meu);render()};
