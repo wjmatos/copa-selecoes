@@ -370,7 +370,8 @@ nav button{font-family:var(--fh);font-size:16px;letter-spacing:.6px;text-transfo
 .fx .tile.big .sm{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .cr-z{cursor:zoom-in}#zoomo{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.92);display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:16px}#zoomo img{max-width:100%;max-height:78vh;border-radius:12px;object-fit:contain}#zoomo b{color:#fff;font-size:18px}#zoomo span{color:#ffffffaa;font-size:12px}
 .cr-lk{border:0;background:#0a3ea814;color:var(--mut,#445);border-radius:999px;padding:6px 10px;font:700 13px system-ui;display:flex;align-items:center;gap:4px;margin-right:6px;min-height:36px}.cr-lk span{font-size:17px;line-height:1}.cr-lk.on{background:#e8334a1f;color:#d11a35}#zoomo .cr-lk{background:#ffffff22;color:#fff;font-size:16px;padding:8px 16px}#zoomo .cr-lk.on{background:#e8334a;color:#fff}
-.fcard{text-align:center;padding:14px 10px}.fm{display:flex;align-items:center;justify-content:center;gap:14px}.fn{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;min-width:0}.fn b{font:800 20px var(--fh);text-transform:uppercase}.fn.mine b{color:var(--acc,#0a3ea8)}.fx2{font:800 22px var(--fh);color:var(--mut)}.fw{display:block;margin-top:10px;font-size:12.5px;color:var(--mut)}
+.fcard{text-align:center;padding:18px 10px 16px;color:#fff;border:0}.ftag{display:inline-block;font:800 11px var(--fh);letter-spacing:.14em;background:#ffd800;color:#01123a;border-radius:999px;padding:4px 12px;margin-bottom:14px}.fcard .bdg.fl.lg{width:116px;height:78px}.fcard .fn b,.fcard .fx2{color:#fff}.fcard .fw{color:#ffffffcc}.fbt{margin-top:14px;background:#ffffff26;color:#fff;border:1px solid #ffffff66;font-size:14px;padding:10px 14px}.fm{display:flex;align-items:center;justify-content:center;gap:14px}.fn{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;min-width:0}.fn b{font:800 21px var(--fh);text-transform:uppercase}.fn.mine b{color:var(--acc,#0a3ea8)}.fx2{font:800 22px var(--fh);color:var(--mut)}.fw{display:block;margin-top:10px;font-size:12.5px;color:var(--mut)}
+.tj{padding:0;overflow:hidden}.tj-h{display:flex;align-items:center;gap:14px;padding:14px;color:#fff}.tj-h .bdg.fl.lg{width:84px;height:56px}.tj-h b{font:800 22px var(--fh);text-transform:uppercase;display:block}.tj-h small{opacity:.85;font-size:12.5px}.tj-s{display:grid;grid-template-columns:repeat(6,1fr);text-align:center;padding:12px 6px;border-bottom:1px solid var(--line)}.tj-s b{display:block;font:800 19px var(--fh)}.tj-s small{font-size:10.5px;color:var(--mut)}.tj-g{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line)}.tj-g:last-child{border-bottom:0}.tj-c{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:800 13px system-ui;color:#fff;flex:none}.tj-c.v{background:#1faa59}.tj-c.e{background:#8a93a6}.tj-c.d{background:#e5484d}.tj-t b{font-size:14px;display:block}.tj-t small{color:var(--mut);font-size:12px}
 </style>
 </head>
 <body>
@@ -395,7 +396,7 @@ nav button{font-family:var(--fh);font-size:16px;letter-spacing:.6px;text-transfo
 
 <script src="dados.js"></script>
 <script>
-const TABS=[["inicio","Início"],["tabela","Tabela"],["jogos","Jogos"],["cartoes","Cartões"],["calc","Calculadora"],["fase","Fase final"],["votar","Votação"],["mural","Mural"],["notas","Notas"]];
+const TABS=[["inicio","Início"],["tabela","Tabela"],["jogos","Jogos"],["cartoes","Cartões"],["calc","Calculadora"],["fase","Fase final"],["final","Trajetória"],["votar","Votação"],["mural","Mural"],["notas","Notas"]];
 if(DATA.votacao&&DATA.votacao.oculta){const i=TABS.findIndex(t=>t[0]==='votar');if(i>=0)TABS.splice(i,1)}
 if(!(DATA.votacao&&DATA.votacao.url)||DATA.votacao.oculta){const i=TABS.findIndex(t=>t[0]==='mural');if(i>=0)TABS.splice(i,1)}
 const $=s=>document.querySelector(s);
@@ -495,9 +496,27 @@ function noticiasHome(){const L=todas();if(!L.length)return'';
 function miniFase(){if(!DATA.jogos.some(j=>j.fase))return'';const r=tabela();if(r.length<8)return'';winAuto();let B;try{B=bracket(r).B}catch(e){return''}if(!B||!B.S1)return'';
  const p=t=>t?`<div class="p${t.n===meu?' mine':''}">${bdg(t.n,'sm')}<b>${(SIG||{})[t.n]||t.n}</b></div>`:`<div class="p tbd">A definir</div>`;
  const sf=(c,id)=>{const g=DATA.jogos.find(x=>x.n===QJ[id]);return `<div class="s">${p(c[0])}${p(c[1])}${g?`<small>${dow(g.data)} ${fmt(g.data)} · ${g.hora.replace(':','h')}</small>`:''}</div>`};
- if(WIN.S1&&WIN.S2){const d='2026-11-28',tm=n=>`<div class="fn${n===meu?' mine':''}">${bdg(n,'lg')}<b>${nome(n)}</b></div>`;
-  return secH('A grande final','Ver completo','fase')+`<div class="card mb fcard"><div class="fm">${tm(WIN.S1)}<span class="fx2">×</span>${tm(WIN.S2)}</div><small class="fw">${dow(d)} ${fmt(d)} · horário a confirmar</small></div>`}
+ if(WIN.S1&&WIN.S2){const d='2026-11-28',A=WIN.S1,Z=WIN.S2,ca=(COR||{})[A]||'#0a3ea8',cz=(COR||{})[Z]||'#b3122b',tm=n=>`<div class="fn${n===meu?' mine':''}">${bdg(n,'lg')}<b>${nome(n)}</b></div>`;
+  return secH('A grande final','Trajetória','final')+`<div class="card mb fcard" style="background:linear-gradient(100deg,${ca}e6 0%,#01123a 50%,${cz}e6 100%)"><span class="ftag">GRANDE FINAL</span><div class="fm">${tm(A)}<span class="fx2">×</span>${tm(Z)}</div><small class="fw">${dow(d)} ${fmt(d)} · horário a confirmar</small><button class="btn fbt" data-a="final">Ver o caminho das duas seleções</button></div>`}
  return secH('Caminho até a final','Ver completo','fase')+`<div class="card mb"><div class="br">${sf(B.S1,'S1')}<i class="ln"></i><div class="p fin">FINAL</div><i class="ln"></i>${sf(B.S2,'S2')}</div></div>`}
+function trajHTML(){winAuto();
+ if(!(WIN.S1&&WIN.S2))return `<div class="card"><h2>Trajetória da final</h2><p class="mut">Aparece assim que as duas semifinais terminarem.</p></div>`;
+ const T=[WIN.S1,WIN.S2],tb=tabela();
+ const ph=j=>j.fase?(j.n>=72?'Semifinal':'Quartas de final'):'Fase de grupos';
+ const info=t=>{const G=DATA.jogos.filter(j=>j.placar&&!j.vivo&&(j.casa===t||j.fora===t)).sort(ord);let v=0,e=0,d=0,gp=0,gc=0;
+  const L=G.map(j=>{const c=j.casa===t,[a,b]=j.placar,m=c?a:b,s=c?b:a,adv=c?j.fora:j.casa;gp+=m;gc+=s;
+   const r=m>s?'v':m<s?'d':'e';if(r==='v')v++;else if(r==='d')d++;else e++;
+   let nt='';if(r==='e'&&j.fase){if(j.n>=72){const p=String(j.pen||'').toUpperCase();nt=p===t.toUpperCase()?'Venceu nos pênaltis':p?'Perdeu nos pênaltis':'Decisão nos pênaltis'}else nt=c?'Avançou por ser melhor colocado':'Eliminado pelo critério da tabela'}
+   return `<div class="tj-g"><span class="tj-c ${r}">${r==='v'?'V':r==='d'?'D':'E'}</span><div class="tj-t"><b>${nome(t)} ${m} × ${s} ${nome(adv)}</b><small>${ph(j)} · ${dow(j.data)} ${fmt(j.data)}${nt?' · '+nt:''}</small></div></div>`}).join('');
+  const pos=tb.findIndex(x=>x.n===t)+1,pt=(tb.find(x=>x.n===t)||{p:0}).p;
+  return {v,e,d,gp,gc,n:G.length,L,pos,pt}};
+ const card=t=>{const x=info(t),cor=(COR||{})[t]||'#0a3ea8';
+  return `<div class="card tj"><div class="tj-h" style="background:linear-gradient(100deg,${cor},#01123a)">${bdg(t,'lg')}<div><b>${nome(t)}</b><small>${x.pos}º na fase de grupos · ${x.pt} pts</small></div></div>
+  <div class="tj-s"><div><b>${x.n}</b><small>jogos</small></div><div><b>${x.v}</b><small>vit.</small></div><div><b>${x.e}</b><small>emp.</small></div><div><b>${x.d}</b><small>der.</small></div><div><b>${x.gp}</b><small>gols pró</small></div><div><b>${x.gc}</b><small>gols contra</small></div></div>
+  ${x.L}</div>`};
+ const dir=DATA.jogos.filter(j=>j.placar&&!j.vivo&&T.includes(j.casa)&&T.includes(j.fora));
+ return `<div class="card"><h2>Trajetória da final</h2><p class="mut" style="margin:0">Todos os jogos de ${nome(T[0])} e ${nome(T[1])} no campeonato, do começo até a final.</p></div>`+
+ (dir.length?`<div class="card"><h2>Já se enfrentaram</h2>${dir.map(j=>`<div class="tj-g"><span class="tj-c e">×</span><div class="tj-t"><b>${nome(j.casa)} ${j.placar[0]} × ${j.placar[1]} ${nome(j.fora)}</b><small>${ph(j)} · ${dow(j.data)} ${fmt(j.data)}</small></div></div>`).join('')}</div>`:'')+T.map(card).join('')}
 function top3Home(){const r=tabela().slice(0,3);if(!r.length)return'';
  return secH('Classificação','Tabela','tabela')+`<div class="card top3">${r.map((x,i)=>`<div class="rk" data-t="${x.n}"><span class="n">${i+1}</span>${bdg(x.n,'sm')}<b>${nome(x.n)}</b><em>${x.p} pts</em></div>`).join('')}</div>`}
 function chipsHome(){return `<div class="chips2">${meu?'':`<button data-bsc="1">⭐ Escolher meu time</button>`}${isApp()?'':`<button data-fab="install">📲 Instalar app</button>`}</div>`}
@@ -831,7 +850,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-muf]');if(
 /* ===== Menu novo: barra inferior ===== */
 const BI={inicio:'<path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/>',jogos:'<rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',tabela:'<path d="M5 20V10M12 20V4M19 20v-7"/>',mural:'<path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.2l1.3-2h6l1.3 2h1.2A2.5 2.5 0 0 1 20 8.5v8A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5z"/><circle cx="12" cy="12.5" r="3.4"/>',mais:'<rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/>'};
 const BN=[['inicio','Início'],['jogos','Jogos'],['tabela','Tabela'],['mural','Mural'],['mais','Mais']];
-const SHEET=[['Acompanhar',[['fase','🏆','Fase final','chaveamento'],['calc','🧮','Calculadora','simule os jogos'],['notas','📝','Notas','bastidores']]],
+const SHEET=[['Acompanhar',[['final','⚔️','Trajetória da final','caminho das duas seleções'],['fase','🏆','Fase final','chaveamento'],['calc','🧮','Calculadora','simule os jogos'],['notas','📝','Notas','bastidores']]],
  ['Participar',[['votar','🗳️','Votação','seleção da fase'],['mural','📸','Mural','fotos da galera']]],
  ['Compartilhar',[['cartoes','📤','Cartões','para o WhatsApp']]]];
 const MU_=()=>{try{return localStorage.getItem('mu_vis')==='1'}catch(e){return true}};
@@ -1238,7 +1257,7 @@ document.addEventListener('click',async e=>{const t=e.target.closest('[data-vv],
  else if(t.id==='vimg')vCard('meu')
  else if(t.id==='vimgr')vCard('selres')});
 document.addEventListener('input',e=>{if(e.target.id==='vq'){const l=document.getElementById('vl');if(l)l.innerHTML=vList()}});
-const SLUG={inicio:'inicio',tabela:'tabela',jogos:'jogos',cartoes:'cartoes',calc:'calculadora',fase:'fase-final',votar:'votacao',mural:'mural',stats:'jogadores',notas:'notas',brechas:'brechas',backup:'backup'};
+const SLUG={inicio:'inicio',tabela:'tabela',jogos:'jogos',cartoes:'cartoes',calc:'calculadora',fase:'fase-final',final:'trajetoria',votar:'votacao',mural:'mural',stats:'jogadores',notas:'notas',brechas:'brechas',backup:'backup'};
 const slugT=n=>n.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-');
 function abaToHash(a){return a.slice(0,2)==='t:'?'time-'+slugT(a.slice(2)):(SLUG[a]||'inicio')}
 function hashToAba(h){h=(h||'').replace('#','').toLowerCase();if(!h)return null;if(h==='proximo'||h==='proximo-jogo')return'inicio';
@@ -1259,7 +1278,7 @@ function render(){syncHash();if(aba!=='avisos')AV.aberto=false;
  else if(aba==="jogos")h=`<div class="card"><h2>Jogos do Grupo B</h2>${jogosHTML(DATA.jogos.concat(provJogos()).sort(ord))}</div>`;
  else if(aba==="stats")h=statsHTML();
  else if(aba==="notas")h=`<div class="card"><h2>Notas</h2>${notasHTML()}</div>`;
- else if(aba==="calc")h=calcHTML();else if(aba==="fase")h=faseHTML();else if(aba==="votar")h=votacaoHTML();else if(aba==="mural")h=muralHTML();else if(aba==="org")h=orgHTML();else if(aba==="avisos")h=avHTML();else if(aba==="cartoes")h=cartoesHTML();else if(aba==="backup")h=backupHTML();else h=brechasHTML();
+ else if(aba==="calc")h=calcHTML();else if(aba==="fase")h=faseHTML();else if(aba==="final")h=trajHTML();else if(aba==="votar")h=votacaoHTML();else if(aba==="mural")h=muralHTML();else if(aba==="org")h=orgHTML();else if(aba==="avisos")h=avHTML();else if(aba==="cartoes")h=cartoesHTML();else if(aba==="backup")h=backupHTML();else h=brechasHTML();
  $("#app").innerHTML=h;if(aba==="cartoes")cartoesInit();if(aba==="mural"&&!MU.carregou)muralLoad();if(aba==="org")orgLoad();
 }
 $("#sub").textContent="2º semestre 2026 · "+String(DATA.grupo).split(" · ")[0];
