@@ -369,6 +369,7 @@ nav button{font-family:var(--fh);font-size:16px;letter-spacing:.6px;text-transfo
 @media(max-width:430px){.top h1{font-size:19px;padding-right:152px}}
 .fx .tile.big .sm{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .cr-z{cursor:zoom-in}#zoomo{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.92);display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:16px}#zoomo img{max-width:100%;max-height:78vh;border-radius:12px;object-fit:contain}#zoomo b{color:#fff;font-size:18px}#zoomo span{color:#ffffffaa;font-size:12px}
+.cr-lk{border:0;background:#0a3ea814;color:var(--mut,#445);border-radius:999px;padding:6px 10px;font:700 13px system-ui;display:flex;align-items:center;gap:4px;margin-right:6px;min-height:36px}.cr-lk span{font-size:17px;line-height:1}.cr-lk.on{background:#e8334a1f;color:#d11a35}#zoomo .cr-lk{background:#ffffff22;color:#fff;font-size:16px;padding:8px 16px}#zoomo .cr-lk.on{background:#e8334a;color:#fff}
 </style>
 </head>
 <body>
@@ -528,8 +529,9 @@ function ctxTime(n,alt){const r=tabela(),i=r.findIndex(x=>x.n===n);if(i<0)return
  if(d<=3)return[nm+' quer se afastar do fim da tabela: '+pl(d,'ponto','pontos')+' acima do último.','Com '+me.p+' pontos, '+nm+' tem só '+pl(d,'ponto','pontos')+' de folga sobre o último e precisa somar.'][a];
  return[nm+' briga por vaga na semifinal: '+me.p+' pontos, '+(i+1)+'º lugar.','Com '+me.p+' pontos, '+nm+' é o '+(i+1)+'º e busca uma boa posição no playoff.'][a]}
 function resTxt(j){const[a,b]=j.placar,r=tabela(),pt=n=>(r.find(x=>x.n===n)||{p:0}).p;
+ if(a===b&&j.fase&&j.n>=72){const p=String(j.pen||'').toUpperCase(),w=p===String(j.casa).toUpperCase()?j.casa:p===String(j.fora).toUpperCase()?j.fora:null;return w?nome(j.casa)+' e '+nome(j.fora)+' empatam por '+a+' a '+b+' e '+nome(w)+' vence nos pênaltis e vai à final.':nome(j.casa)+' e '+nome(j.fora)+' empatam por '+a+' a '+b+' e a vaga na final sai nos pênaltis.'}
  if(a===b)return j.fase?nome(j.casa)+' e '+nome(j.fora)+' empatam por '+a+' a '+b+' e '+nome(j.casa)+' avança por ser o melhor colocado na tabela.':nome(j.casa)+' e '+nome(j.fora)+' empatam por '+a+' a '+b+'.';
- if(j.fase)return nome(a>b?j.casa:j.fora)+' vence '+nome(a>b?j.fora:j.casa)+' por '+Math.max(a,b)+' a '+Math.min(a,b)+' e avança à semifinal.';
+ if(j.fase)return nome(a>b?j.casa:j.fora)+' vence '+nome(a>b?j.fora:j.casa)+' por '+Math.max(a,b)+' a '+Math.min(a,b)+' e avança à '+(j.n>=72?'final':'semifinal')+'.';
  const w=a>b?j.casa:j.fora,l=a>b?j.fora:j.casa,g=Math.max(a,b),m=Math.min(a,b);
  return nome(w)+' vence '+nome(l)+' por '+g+' a '+m+' e '+(r[0].n===w?'chega a '+pt(w)+' pontos na liderança.':'vai a '+pt(w)+' pontos.')}
 const path=(x,a,b,w,h,r)=>{x.beginPath();if(x.roundRect)x.roundRect(a,b,w,h,r);else x.rect(a,b,w,h)};
@@ -675,7 +677,7 @@ function bracket(r){
  B.F=[w('S1'),w('S2')];ok('F',B.F[0],B.F[1]);
  return{B,pairs,N,by}}
 const QJ={Q1:71,Q2:67,Q3:66,S1:72,S2:73};
-function winAuto(){for(const id in QJ){const g=DATA.jogos.find(x=>x.n===QJ[id]&&x.fase&&x.placar&&!x.vivo);if(g&&!(id[0]==='S'&&g.placar[0]===g.placar[1]))WIN[id]=g.placar[0]<g.placar[1]?g.fora:g.casa}}
+function winAuto(){for(const id in QJ){const g=DATA.jogos.find(x=>x.n===QJ[id]&&x.fase&&x.placar&&!x.vivo);if(!g)continue;const emp=g.placar[0]===g.placar[1];if(id[0]==='S'&&emp){const p=String(g.pen||'').toUpperCase();if(p&&p===String(g.casa).toUpperCase())WIN[id]=g.casa;else if(p&&p===String(g.fora).toUpperCase())WIN[id]=g.fora;continue}WIN[id]=g.placar[0]<g.placar[1]?g.fora:g.casa}}
 function faseHTML(){
  const r=FF.sim?simTabela():tabela();FFN=r.map(x=>x.n);
  winAuto();
@@ -779,7 +781,7 @@ async function jogosLoad(){if(!vtem())return;
   const ap=()=>j.jogos.forEach(x=>{const m=DATA.jogos.find(y=>y.n===x.n);if(!m)return;
    if(x.vivo){m.vivo=[x.gc,x.gf];return}
    if(m.vivo)delete m.vivo;
-   if(!m.placar||m.placar[0]!==x.gc||m.placar[1]!==x.gf)m.placar=[x.gc,x.gf]});
+   if(!m.placar||m.placar[0]!==x.gc||m.placar[1]!==x.gf)m.placar=[x.gc,x.gf];m.pen=x.pen||''});
   ap();materializarFase();ap();
   const sa=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim(),cn=DATA.times.find(t=>sa(t)===sa(j.campeao))||'',cm=cn!==(DATA.campeao||'');if(cm)DATA.campeao=cn;
   if(cm||JSON.stringify(DATA.jogos)!==s0)render()}catch(e){}}
@@ -936,10 +938,11 @@ function orgOpen(tab){ORG.tab=tab||ORG.tab;if(ORG.tab==='fotos')ORG.fo=null;aba=
 
 /* painel */
 const stp=(n,k,v)=>`<span class="adm-st"><button data-ad="dec|${n}|${k}" aria-label="menos">−</button><i data-ad="zero|${n}|${k}">${v==null?'–':v}</i><button data-ad="inc|${n}|${k}" aria-label="mais">+</button></span>`;
-function gstate(j){return ORG.g[j.n]||(ORG.g[j.n]={gc:j.placar?j.placar[0]:j.vivo?j.vivo[0]:null,gf:j.placar?j.placar[1]:j.vivo?j.vivo[1]:null,vivo:!!j.vivo})}
+function gstate(j){return ORG.g[j.n]||(ORG.g[j.n]={pen:(String(j.pen||'').toUpperCase()===String(j.casa).toUpperCase()?'casa':String(j.pen||'').toUpperCase()===String(j.fora).toUpperCase()?'fora':''),gc:j.placar?j.placar[0]:j.vivo?j.vivo[0]:null,gf:j.placar?j.placar[1]:j.vivo?j.vivo[1]:null,vivo:!!j.vivo})}
 function gcard(j){const s=gstate(j);
  return `<div class="adm-card"><div class="mut">${dow(j.data)} ${fmt(j.data)} · ${j.hora.replace(':','h')}${j.fase?' · playoff':''} · jogo ${j.n}</div>
  <div class="adm-g"><div class="adm-tm">${bdg(j.casa,'sm')} ${SIG[j.casa]||j.casa}</div>${stp(j.n,'gc',s.gc)}<span class="mut">×</span>${stp(j.n,'gf',s.gf)}<div class="adm-tm r">${SIG[j.fora]||j.fora} ${bdg(j.fora,'sm')}</div></div>
+ ${j.fase&&j.n>=72&&s.gc!=null&&s.gc===s.gf?`<div class="adm-swr"><span class="mut">Pênaltis, quem venceu:</span> <span class="adm-ch ${s.pen==='casa'?'on':''}" data-ad="pen|${j.n}|casa">${SIG[j.casa]||j.casa}</span><span class="adm-ch ${s.pen==='fora'?'on':''}" data-ad="pen|${j.n}|fora">${SIG[j.fora]||j.fora}</span></div>`:''}
  <div class="adm-swr"><span class="adm-sw ${s.vivo?'on':''}" data-ad="vivo|${j.n}"><u></u>Ao vivo (não conta na tabela)</span></div>
  <div class="adm-r"><button class="adm-b" data-ad="save|${j.n}">${j.placar?'Corrigir placar':'Salvar placar'}</button>${s.vivo?`<button class="adm-b s" data-ad="end|${j.n}">Encerrar jogo</button>`:''}</div></div>`}
 function placarHTML(){const L=DATA.jogos.slice().sort(ord),ab=L.filter(j=>!j.placar),fe=L.filter(j=>j.placar).slice(-4).reverse();
@@ -971,9 +974,9 @@ async function orgLoad(){if(aba!=='org'||!orgGet())return;
  if(ORG.tab==='fotos'&&ORG.fo===null)once('fo',async()=>{const r=await adm('fotos');if(!r.ok)toast(errTxt(r));ORG.fo=r.ok?r.fotos:[];MU.pend=ORG.fo.length;fabRender();if(aba==='org')render()})}
 async function orgSavePlacar(n,fim){const j=DATA.jogos.find(x=>x.n===n);if(!j)return;const s=gstate(j);if(fim)s.vivo=false;
  if(s.gc==null&&s.gf==null){toast('Informe o placar primeiro.');return}
- const gc=s.gc==null?0:s.gc,gf=s.gf==null?0:s.gf;toast('Salvando…');const r=await adm('placar',{n,gc,gf,vivo:s.vivo});
+ const gc=s.gc==null?0:s.gc,gf=s.gf==null?0:s.gf;toast('Salvando…');if(j.fase&&j.n>=72&&gc===gf&&!s.vivo&&!s.pen){toast('Empate na semifinal: escolha quem venceu nos pênaltis.');return}const r=await adm('placar',{n,gc,gf,vivo:s.vivo,pen:gc===gf?s.pen:''});
  if(!r.ok){toast(errTxt(r));return}
- if(s.vivo){j.vivo=[gc,gf];delete j.placar}else{j.placar=[gc,gf];delete j.vivo}materializarFase();delete ORG.g[n];toast('Placar salvo na planilha ✓');render();jogosLoad()}
+ j.pen=gc===gf&&s.pen?(s.pen==='casa'?j.casa:j.fora):'';if(s.vivo){j.vivo=[gc,gf];delete j.placar}else{j.placar=[gc,gf];delete j.vivo}materializarFase();delete ORG.g[n];toast('Placar salvo na planilha ✓');render();jogosLoad()}
 document.addEventListener('input',e=>{const k=e.target.dataset&&e.target.dataset.adf;if(k)ORG.f[k]=e.target.value});
 document.addEventListener('change',e=>{if(e.target.dataset&&e.target.dataset.adi==='modelo'){const m=(ORG.mod||[])[e.target.value];if(m){ORG.f.t=m.t;ORG.f.x=m.x;render()}}});
 document.addEventListener('click',async e=>{
@@ -989,6 +992,7 @@ document.addEventListener('click',async e=>{
  if(a){const p=a.dataset.ad.split('|'),k=p[0],j=n=>DATA.jogos.find(x=>x.n===+n);
   if(k==='tab'){ORG.tab=p[1];if(p[1]==='fotos')ORG.fo=null;render();return}
   if(k==='inc'||k==='dec'||k==='zero'){const s=gstate(j(p[1]));const v=s[p[2]];s[p[2]]=k==='inc'?(v==null?1:Math.min(99,v+1)):k==='dec'?Math.max(0,v==null?0:v-1):0;render();return}
+  if(k==='pen'){gstate(j(p[1])).pen=p[2];render();return}
   if(k==='vivo'){const s=gstate(j(p[1]));s.vivo=!s.vivo;render();return}
   if(k==='save'){orgSavePlacar(+p[1],false);return}
   if(k==='end'){orgSavePlacar(+p[1],true);return}
@@ -1018,6 +1022,15 @@ document.addEventListener('click',async e=>{
 
 /* ===== Craque do jogo (foto + entrevista em áudio) ===== */
 const CR={lista:null,aud:{},cur:null,au:new Audio()};
+const LK=(()=>{try{return JSON.parse(localStorage.getItem('cr_lk')||'[]')}catch(e){return[]}})();
+const lkBtn=c=>{const on=LK.includes(c.linha);return `<button class="cr-lk${on?' on':''}" data-lk="${c.linha}" aria-label="Curtir"><span>${on?'♥':'♡'}</span>${c.cur||0}</button>`};
+function lkToggle(ln){const c=(CR.lista||[]).find(x=>x.linha===ln);if(!c)return;const on=!LK.includes(ln);
+ if(on)LK.push(ln);else LK.splice(LK.indexOf(ln),1);c.cur=Math.max(0,(c.cur||0)+(on?1:-1));
+ try{localStorage.setItem('cr_lk',JSON.stringify(LK))}catch(e){}
+ if(vtem())fetch(DATA.votacao.url,{method:'POST',mode:'no-cors',body:JSON.stringify({tipo:'curtir',linha:ln,on})}).catch(()=>{});
+ const o=document.getElementById('zoomo');if(o&&o.style.display==='flex'){const b=o.querySelector('[data-lk]');if(b)b.outerHTML=lkBtn(c)}
+ render()}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-lk]');if(b){e.stopPropagation();lkToggle(+b.dataset.lk)}},true);
 async function craqueLoad(){if(!vtem())return;try{const r=await fetch(DATA.votacao.url+'?acao=craques'),j=await r.json();CR.lista=j.craques||[];if(aba==='inicio'&&!CR.au.src||(aba==='inicio'&&CR.au.paused))render()}catch(e){}}
 const mmss=s=>{s=Math.max(0,Math.round(s||0));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
 const crIni=n=>String(n||'').trim().split(/\s+/).map(x=>x[0]).slice(0,2).join('').toUpperCase();
@@ -1027,8 +1040,8 @@ function crCard(c,big,j){const pl=CR.cur===c.linha&&!CR.au.paused;
  return `<div class="cr-c ${big?'big':''}">${crFoto(c,big)}<div class="cr-i">${big?`<span class="cr-tag">CRAQUE DO JOGO</span>`:''}<b>${esc(c.nome)}</b><span>${bdg(c.time,'sm')} ${big&&j?nome(j.casa)+' '+j.placar[0]+' × '+j.placar[1]+' '+nome(j.fora):nome(c.time)+' · melhor do time'}</span>
  ${c.audio?`<div class="cr-pb"><button class="cr-pl" data-cr="${c.linha}" aria-label="Ouvir entrevista">${pl?'❚❚':'▶'}</button><div class="cr-w" data-crw="${c.linha}">${crWave(c.linha,CR.cur===c.linha&&CR.au.duration?Math.floor(CR.au.currentTime/CR.au.duration*26):0)}</div></div><small>Entrevista${c.dur?' · '+mmss(c.dur):''}</small>`:''}</div></div>`}
 function crRow(c,j){const pl=CR.cur===c.linha&&!CR.au.paused,cor=(DATA.cor||COR||{})[c.time]||'#0a3ea8';
- const ph=c.foto?`<div class="cr-th cr-z" data-zoom="${esc(c.foto)}" data-zn="${esc(c.nome)}" role="button" aria-label="Ver foto grande" style="background-image:url('${muThumb(c.foto,200)}')"></div>`:`<div class="cr-th cr-in" style="background:linear-gradient(135deg,${cor},#01123a)">${esc(crIni(c.nome))}</div>`;
- return `<div class="cr-row">${ph}<div class="cr-tx"><b>${esc(c.nome)}</b><span>${bdg(c.time,'sm')} ${j?nome(j.casa)+' '+j.placar[0]+' × '+j.placar[1]+' '+nome(j.fora):nome(c.time)}</span></div>${c.audio?`<button class="cr-pl" data-cr="${c.linha}" aria-label="Ouvir entrevista">${pl?'❚❚':'▶'}</button>`:''}</div>`}
+ const ph=c.foto?`<div class="cr-th cr-z" data-zoom="${esc(c.foto)}" data-zn="${esc(c.nome)}" data-zl="${c.linha}" role="button" aria-label="Ver foto grande" style="background-image:url('${muThumb(c.foto,200)}')"></div>`:`<div class="cr-th cr-in" style="background:linear-gradient(135deg,${cor},#01123a)">${esc(crIni(c.nome))}</div>`;
+ return `<div class="cr-row">${ph}<div class="cr-tx"><b>${esc(c.nome)}</b><span>${bdg(c.time,'sm')} ${j?nome(j.casa)+' '+j.placar[0]+' × '+j.placar[1]+' '+nome(j.fora):nome(c.time)}</span></div>${lkBtn(c)}${c.audio?`<button class="cr-pl" data-cr="${c.linha}" aria-label="Ouvir entrevista">${pl?'❚❚':'▶'}</button>`:''}</div>`}
 function craqueSection(){const L=CR.lista;if(!L||!L.length)return'';
  const by={};L.forEach(c=>{(by[c.jogo]=by[c.jogo]||[]).push(c)});
  const js=Object.keys(by).map(n=>DATA.jogos.find(j=>j.n===+n)).filter(j=>j&&j.placar).sort((a,b)=>ord(b,a));
@@ -1042,9 +1055,9 @@ async function crPlay(ln,b){if(CR.cur===ln&&CR.au.src){if(CR.au.paused){if(CR.au
  b.textContent='…';let d=CR.aud[ln];if(!d){try{const r=await fetch(DATA.votacao.url+'?acao=audio&id='+ln),j=await r.json();if(!j.ok)throw 0;d=CR.aud[ln]=j.data}catch(e){b.textContent='▶';toast('Não consegui carregar o áudio.');return}}
  CR.au.pause();CR.cur=ln;CR.au.src=d;CR.au.currentTime=0;document.querySelectorAll('[data-crw] i').forEach(e=>e.classList.add('d'));CR.au.play().catch(()=>{toast('Toque de novo para ouvir.');crBtns()})}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-cr]');if(b)crPlay(+b.dataset.cr,b)});
-function zoomFoto(id,n){let o=document.getElementById('zoomo');if(!o){o=document.createElement('div');o.id='zoomo';o.onclick=()=>{o.style.display='none';o.innerHTML=''};document.body.appendChild(o)}
- o.innerHTML='<img src="'+muThumb(id,1600)+'" alt="Foto de '+n+'"><b>'+n+'</b><span>Toque para fechar</span>';o.style.display='flex'}
-document.addEventListener('click',e=>{const z=e.target.closest('[data-zoom]');if(z)zoomFoto(z.dataset.zoom,z.dataset.zn)});
+function zoomFoto(id,n,ln){let o=document.getElementById('zoomo');if(!o){o=document.createElement('div');o.id='zoomo';o.onclick=()=>{o.style.display='none';o.innerHTML=''};document.body.appendChild(o)}
+ o.innerHTML='<img src="'+muThumb(id,1600)+'" alt="Foto de '+n+'"><b>'+n+'</b>'+((CR.lista||[]).find(x=>x.linha===ln)?lkBtn((CR.lista||[]).find(x=>x.linha===ln)):'')+'<span>Toque para fechar</span>';o.style.display='flex'}
+document.addEventListener('click',e=>{const z=e.target.closest('[data-zoom]');if(z)zoomFoto(z.dataset.zoom,z.dataset.zn,+z.dataset.zl)});
 
 
 /* painel: aba Craque */
@@ -1247,7 +1260,7 @@ function render(){syncHash();if(aba!=='avisos')AV.aberto=false;
  $("#app").innerHTML=h;if(aba==="cartoes")cartoesInit();if(aba==="mural"&&!MU.carregou)muralLoad();if(aba==="org")orgLoad();
 }
 $("#sub").textContent="2º semestre 2026 · "+String(DATA.grupo).split(" · ")[0];
-$("#foot").textContent="Painel não oficial, feito por um participante · dados do Grupo B atualizados em "+DATA.atualizado+". Versão 09/11 · layout novo.";
+$("#foot").textContent="Painel não oficial, feito por um participante · dados do Grupo B atualizados em "+DATA.atualizado+". Versão 16/11 · curtidas e final.";
 $("#meu").innerHTML=`<option value="">— escolher —</option>`+DATA.times.map(n=>`<option ${n===meu?"selected":""}>${n}</option>`).join("");
 $("#q").oninput=e=>{const v=e.target.value.trim().toUpperCase();if(!v)return;const t=DATA.times.find(n=>n.startsWith(v))||DATA.times.find(n=>n.includes(v));if(t){aba="t:"+t;render()}};
 $("#meu").onchange=e=>{meu=e.target.value;st.set("meuTime",meu);render()};
