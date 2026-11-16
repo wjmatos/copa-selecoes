@@ -370,6 +370,7 @@ nav button{font-family:var(--fh);font-size:16px;letter-spacing:.6px;text-transfo
 .fx .tile.big .sm{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .cr-z{cursor:zoom-in}#zoomo{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.92);display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:16px}#zoomo img{max-width:100%;max-height:78vh;border-radius:12px;object-fit:contain}#zoomo b{color:#fff;font-size:18px}#zoomo span{color:#ffffffaa;font-size:12px}
 .cr-lk{border:0;background:#0a3ea814;color:var(--mut,#445);border-radius:999px;padding:6px 10px;font:700 13px system-ui;display:flex;align-items:center;gap:4px;margin-right:6px;min-height:36px}.cr-lk span{font-size:17px;line-height:1}.cr-lk.on{background:#e8334a1f;color:#d11a35}#zoomo .cr-lk{background:#ffffff22;color:#fff;font-size:16px;padding:8px 16px}#zoomo .cr-lk.on{background:#e8334a;color:#fff}
+.fcard{text-align:center;padding:14px 10px}.fm{display:flex;align-items:center;justify-content:center;gap:14px}.fn{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;min-width:0}.fn b{font:800 20px var(--fh);text-transform:uppercase}.fn.mine b{color:var(--acc,#0a3ea8)}.fx2{font:800 22px var(--fh);color:var(--mut)}.fw{display:block;margin-top:10px;font-size:12.5px;color:var(--mut)}
 </style>
 </head>
 <body>
@@ -494,6 +495,8 @@ function noticiasHome(){const L=todas();if(!L.length)return'';
 function miniFase(){if(!DATA.jogos.some(j=>j.fase))return'';const r=tabela();if(r.length<8)return'';winAuto();let B;try{B=bracket(r).B}catch(e){return''}if(!B||!B.S1)return'';
  const p=t=>t?`<div class="p${t.n===meu?' mine':''}">${bdg(t.n,'sm')}<b>${(SIG||{})[t.n]||t.n}</b></div>`:`<div class="p tbd">A definir</div>`;
  const sf=(c,id)=>{const g=DATA.jogos.find(x=>x.n===QJ[id]);return `<div class="s">${p(c[0])}${p(c[1])}${g?`<small>${dow(g.data)} ${fmt(g.data)} · ${g.hora.replace(':','h')}</small>`:''}</div>`};
+ if(WIN.S1&&WIN.S2){const d='2026-11-28',tm=n=>`<div class="fn${n===meu?' mine':''}">${bdg(n,'lg')}<b>${nome(n)}</b></div>`;
+  return secH('A grande final','Ver completo','fase')+`<div class="card mb fcard"><div class="fm">${tm(WIN.S1)}<span class="fx2">×</span>${tm(WIN.S2)}</div><small class="fw">${dow(d)} ${fmt(d)} · horário a confirmar</small></div>`}
  return secH('Caminho até a final','Ver completo','fase')+`<div class="card mb"><div class="br">${sf(B.S1,'S1')}<i class="ln"></i><div class="p fin">FINAL</div><i class="ln"></i>${sf(B.S2,'S2')}</div></div>`}
 function top3Home(){const r=tabela().slice(0,3);if(!r.length)return'';
  return secH('Classificação','Tabela','tabela')+`<div class="card top3">${r.map((x,i)=>`<div class="rk" data-t="${x.n}"><span class="n">${i+1}</span>${bdg(x.n,'sm')}<b>${nome(x.n)}</b><em>${x.p} pts</em></div>`).join('')}</div>`}
