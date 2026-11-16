@@ -50,7 +50,7 @@ const DATA={
  artilharia:[],
  cartoes:[],
  noticias:[
-  {tag:"Final",t:"Brasil e Paraguai fazem a final da Copa",x:"O Brasil passou pelo México nos pênaltis e o Paraguai eliminou os EUA, também nos pênaltis. Data e horário da final em breve.",times:["BRASIL","PARAGUAI"]},
+  {tag:"Sábado, 28/11",t:"Brasil e Paraguai fazem a final da Copa no dia 28",x:"O Brasil passou pelo México nos pênaltis e o Paraguai eliminou os EUA, também nos pênaltis. A final é no sábado, 28/11. Horário a confirmar.",times:["BRASIL","PARAGUAI"]},
   {tag:"Domingo, 15/11",t:"Brasil empata com o México por 2 a 2 e vence nos pênaltis",x:"O Brasil conseguiu a vaga na final depois de um 2 × 2 no tempo normal e a vitória na disputa de pênaltis. O México, líder da fase de grupos, está eliminado.",times:["BRASIL","MÉXICO"]},
   {tag:"Domingo, 15/11",t:"Paraguai passa pelos EUA nos pênaltis após 0 a 0",x:"Sem gols no tempo normal, o Paraguai levou a melhor na disputa de pênaltis e chega à final contra o Brasil. Os EUA estão eliminados.",times:["PARAGUAI","EUA"]},
   {tag:"Domingo, 08/11",t:"EUA e Chile empatam sem gols e os EUA vão à semifinal",x:"0 × 0 no jogo desta manhã. Pelo critério das quartas, avança o time melhor colocado: os EUA (2º) enfrentam o Paraguai na semifinal. O Chile (7º) está eliminado.",times:["EUA","CHILE"]},
