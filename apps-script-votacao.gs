@@ -23,6 +23,7 @@ function doPost(e) {
     if (d.tipo === 'enquete') return enquetePost_(d);
     if (d.tipo === 'foto') return fotoPost_(d);
     if (d.tipo === 'craque') return craquePost_(d);
+    if (d.tipo === 'curtir') return craqueCurtir_(d);
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var esperado = ESQUEMAS[d.esquema];
     if (!esperado || !d.id || String(d.id).length > 80 || !d.voto || d.voto.length !== 11) return json_({ ok: false, erro: 'voto invalido' });
@@ -143,12 +144,12 @@ function enqueteResultado_() {
 function jogosLista_() {
   var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Jogos');
   if (!sh || sh.getLastRow() < 2) return [];
-  var v = sh.getRange(2, 1, sh.getLastRow() - 1, 8).getValues(), out = [];
+  var v = sh.getRange(2, 1, sh.getLastRow() - 1, 9).getValues(), out = [];
   v.forEach(function (r) {
     var n = Number(r[0]); if (!n) return;
     var gc = r[5], gf = r[6];
     if (gc === '' || gf === '' || isNaN(Number(gc)) || isNaN(Number(gf))) return;
-    out.push({ n: n, gc: Number(gc), gf: Number(gf), vivo: String(r[7]).trim() !== '' });
+    out.push({ n: n, gc: Number(gc), gf: Number(gf), vivo: String(r[7]).trim() !== '', pen: String(r[8] || '').trim() });
   });
   return out;
 }
@@ -303,6 +304,8 @@ function adminGet_(e) {
           var ant = sh.getRange(i + 2, 4, 1, 5).getValues()[0];
           var jaFinal = String(ant[4]).trim() === '' && ant[2] !== '' && ant[3] !== '' && Number(ant[2]) === gc && Number(ant[3]) === gf;
           sh.getRange(i + 2, 6, 1, 3).setValues([[gc, gf, d.vivo ? 'x' : '']]);
+          if (sh.getRange(1, 9).getValue() === '') sh.getRange(1, 9).setValue('Pênaltis (vencedor)');
+          sh.getRange(i + 2, 9).setValue(d.pen === 'casa' ? ant[0] : d.pen === 'fora' ? ant[1] : '');
           if (!d.vivo && !jaFinal) avisoAdd_('placar', 'Final: ' + ant[0] + ' ' + gc + ' × ' + gf + ' ' + ant[1], 'Veja a tabela e os próximos jogos.', 'tabela', true);
           return json_({ ok: true });
         }
@@ -470,12 +473,22 @@ function craquePost_(d) {
 function craquesLista_() {
   var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Craques');
   if (!sh || sh.getLastRow() < 2) return [];
-  var v = sh.getRange(2, 1, sh.getLastRow() - 1, 7).getValues(), out = [];
+  var v = sh.getRange(2, 1, sh.getLastRow() - 1, 9).getValues(), out = [];
   v.forEach(function (r, i) {
     if (!String(r[3]).trim()) return;
-    out.push({ linha: i + 2, jogo: Number(r[1]), time: String(r[2]), nome: String(r[3]), foto: String(r[4]), audio: String(r[5]) !== '', dur: Number(r[6]) || 0 });
+    out.push({ linha: i + 2, jogo: Number(r[1]), time: String(r[2]), nome: String(r[3]), foto: String(r[4]), audio: String(r[5]) !== '', dur: Number(r[6]) || 0, cur: Math.max(0, Number(r[8]) || 0) });
   });
   return out.slice(-40);
+}
+
+// Curtida: soma ou tira 1 na coluna I da linha do craque (o app limita a 1 por celular).
+function craqueCurtir_(d) {
+  var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Craques'), ln = parseInt(d.linha, 10);
+  if (!sh || !(ln >= 2) || ln > sh.getLastRow() || !String(sh.getRange(ln, 4).getValue()).trim()) return json_({ ok: false });
+  if (sh.getRange(1, 9).getValue() !== 'Curtidas') sh.getRange(1, 9).setValue('Curtidas');
+  var c = sh.getRange(ln, 9), n = Math.max(0, Number(c.getValue()) || 0) + (d.on ? 1 : -1);
+  c.setValue(Math.max(0, n));
+  return json_({ ok: true, cur: Math.max(0, n) });
 }
 
 // Entrega o áudio (que fica privado no Drive) já pronto para tocar. Só serve arquivos listados na aba Craques.
