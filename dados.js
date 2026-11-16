@@ -1,6 +1,6 @@
 /* Dados do painel. Edite pelo admin.html ou direto aqui. */
 const DATA={
- atualizado:"08/11/2026",
+ atualizado:"16/11/2026",
 
  grupo:"Grupo B · 39 a 46 anos · Masculino",
  votacao:{url:"https://script.google.com/macros/s/AKfycby3vGDqatfrlgN2jDc6wuk1lTaHubjCL_nSNQRfS6bvC9Hhf2Eb0bUYZVr0XnEN72oBMg/exec",ativa:true,oculta:false},
@@ -50,7 +50,9 @@ const DATA={
  artilharia:[],
  cartoes:[],
  noticias:[
-  {tag:"Domingo, 15/11",t:"Semifinais no dia 15: México × Brasil às 11h30 e EUA × Paraguai às 14h10",x:"Nas quartas, o empate classificou o time melhor colocado: Brasil (2 × 2 Argentina), Paraguai (1 × 1 Peru) e EUA (0 × 0 Chile) avançam. Argentina, Peru e Chile estão eliminados. Na semifinal, o empate vai para os pênaltis.",times:["BRASIL","MÉXICO"]},
+  {tag:"Final",t:"Brasil e Paraguai fazem a final da Copa",x:"O Brasil passou pelo México nos pênaltis e o Paraguai eliminou os EUA, também nos pênaltis. Data e horário da final em breve.",times:["BRASIL","PARAGUAI"]},
+  {tag:"Domingo, 15/11",t:"Brasil empata com o México por 2 a 2 e vence nos pênaltis",x:"O Brasil conseguiu a vaga na final depois de um 2 × 2 no tempo normal e a vitória na disputa de pênaltis. O México, líder da fase de grupos, está eliminado.",times:["BRASIL","MÉXICO"]},
+  {tag:"Domingo, 15/11",t:"Paraguai passa pelos EUA nos pênaltis após 0 a 0",x:"Sem gols no tempo normal, o Paraguai levou a melhor na disputa de pênaltis e chega à final contra o Brasil. Os EUA estão eliminados.",times:["PARAGUAI","EUA"]},
   {tag:"Domingo, 08/11",t:"EUA e Chile empatam sem gols e os EUA vão à semifinal",x:"0 × 0 no jogo desta manhã. Pelo critério das quartas, avança o time melhor colocado: os EUA (2º) enfrentam o Paraguai na semifinal. O Chile (7º) está eliminado.",times:["EUA","CHILE"]},
   {tag:"Sábado, 31/10",t:"México vence o Paraguai por 2 a 0 e termina em 1º lugar",x:"O México chega a 13 pontos, assume a liderança e vai direto à semifinal. O Paraguai fica com 11 pontos e termina em 3º.",times:["MÉXICO","PARAGUAI"]},
   {tag:"Sábado, 07/11",t:"Argentina e Peru estão eliminados",x:"Argentina (5ª) e Peru (6º) deixam a Copa nas quartas de final. Os dois terminaram a fase de grupos com 9 pontos e perderam no critério de desempate.",times:["ARGENTINA","PERU"]},
